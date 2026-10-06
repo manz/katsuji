@@ -13,8 +13,8 @@ format:
 	uv run ruff format .
 	uv run ruff check --fix .
 
-# Same credentials as a816's `make publish`: HATCH_INDEX_USER / HATCH_INDEX_AUTH.
+# uv prompts for credentials: username `__token__`, password the PyPI token.
 publish: check
 	rm -rf dist
 	uv build
-	uv publish --username "$(HATCH_INDEX_USER)" --password "$(HATCH_INDEX_AUTH)"
+	uv publish --username __token__
