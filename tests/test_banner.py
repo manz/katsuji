@@ -61,3 +61,10 @@ def test_cli_saves_a_png(tmp_path: Path) -> None:
     out = tmp_path / "banner.png"
     main(["banner", "Ta", "--table", str(FF4 / "ff4fr.tbl"), "--font", str(FF4 / "font.dat"), "--png", str(out)])
     assert Image.open(out).size[1] == 16
+
+
+def test_cli_switches_fonts_on_the_switch_code(capsys: pytest.CaptureFixture[str]) -> None:
+    fonts = [str(FF4 / name) for name in ("font.dat", "wicked_font.dat")]
+    args = ["banner", "a[wicked]a", "--table", str(FF4 / "ff4fr.tbl"), "--font-switch", "0xFE"]
+    main([*args, "--font", fonts[0], "--font", fonts[1]])
+    assert "██" in capsys.readouterr().out
