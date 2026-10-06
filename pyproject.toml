@@ -11,6 +11,9 @@ dependencies = [
     "a816>=1.1.0a44",
 ]
 
+[project.scripts]
+katsuji = "katsuji.cli:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8",
