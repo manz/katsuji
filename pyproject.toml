@@ -1,6 +1,6 @@
 [project]
 name = "katsuji"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Variable-width font tooling for a816 SNES projects: fonts, kerning, tiles, static text"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -25,6 +25,11 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "code"
+path = "hatch_version.py"
+expression = "get_version()"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/katsuji"]

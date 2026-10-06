@@ -1,0 +1,19 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+      - run: uv sync --locked
+      - name: Publish
+        run: make publish
+        env:
+          HATCH_INDEX_AUTH: ${{ secrets.HATCH_INDEX_AUTH }}
+          HATCH_INDEX_USER: ${{ secrets.HATCH_INDEX_USER }}
+          VERSION: ${{ github.ref_name }}
