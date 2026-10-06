@@ -13,8 +13,7 @@ format:
 	uv run ruff format .
 	uv run ruff check --fix .
 
-# uv prompts for credentials: username `__token__`, password the PyPI token.
 publish: check
 	rm -rf dist
 	uv build
-	uv publish --username __token__
+	HATCH_INDEX_USER=$(HATCH_INDEX_USER) HATCH_INDEX_AUTH=$(HATCH_INDEX_AUTH) uvx hatch publish
