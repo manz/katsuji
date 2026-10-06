@@ -1,0 +1,4802 @@
+[
+{
+"text": "[0xfa]L'inventaire est plein.[end]",
+"width": 208,
+"wrapped": "[0xfa]L'inventaire est plein.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]L'inventaire est plein.[end]",
+"width": 120,
+"wrapped": "[0xfa]L'inventaire est plein.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]Tu reçois [item]![end]",
+"width": 208,
+"wrapped": "[0xfa]Tu reçois [item]![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Tu reçois [item]![end]",
+"width": 120,
+"wrapped": "[0xfa]Tu reçois [item]![end]",
+"font": 0
+},
+{
+"text": "Des monstres![end]",
+"width": 208,
+"wrapped": "Des monstres![end]",
+"font": 0
+},
+{
+"text": "Des monstres![end]",
+"width": 120,
+"wrapped": "Des monstres![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Le coffre est vide.[end]",
+"width": 208,
+"wrapped": "[0xfa]Le coffre est vide.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]Le coffre est vide.[end]",
+"width": 120,
+"wrapped": "[0xfa]Le coffre est vide.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]La porte est verrouillée.[end]",
+"width": 208,
+"wrapped": "[0xfa]La porte est verrouillée.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]La porte est verrouillée.[end]",
+"width": 120,
+"wrapped": "[0xfa]La porte est\nverrouillée.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]La porte est ouverte.[end]",
+"width": 208,
+"wrapped": "[0xfa]La porte est ouverte.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]La porte est ouverte.[end]",
+"width": 120,
+"wrapped": "[0xfa]La porte est ouverte.[end]",
+"font": 0
+},
+{
+"text": "«Bonne nuit...»[delay][0x5][close_window][end]",
+"width": 208,
+"wrapped": "«Bonne nuit...»[delay][0x5][close_window][end]",
+"font": 0
+},
+{
+"text": "«Bonne nuit...»[delay][0x5][close_window][end]",
+"width": 120,
+"wrapped": "«Bonne nuit...»[delay][0x5][close_window][end]",
+"font": 0
+},
+{
+"text": "Bon, en route![end]",
+"width": 208,
+"wrapped": "Bon, en route![end]",
+"font": 0
+},
+{
+"text": "Bon, en route![end]",
+"width": 120,
+"wrapped": "Bon, en route![end]",
+"font": 0
+},
+{
+"text": "[0xfa]PV et état restaurés![end]",
+"width": 208,
+"wrapped": "[0xfa]PV et état restaurés![end]",
+"font": 0
+},
+{
+"text": "[0xfa]PV et état restaurés![end]",
+"width": 120,
+"wrapped": "[0xfa]PV et état restaurés![end]",
+"font": 0
+},
+{
+"text": "[0xfa]PV et PM restaurés![end]",
+"width": 208,
+"wrapped": "[0xfa]PV et PM restaurés![end]",
+"font": 0
+},
+{
+"text": "[0xfa]PV et PM restaurés![end]",
+"width": 120,
+"wrapped": "[0xfa]PV et PM restaurés![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Trouvé un chocobo![end]",
+"width": 208,
+"wrapped": "[0xfa]Trouvé un chocobo![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Trouvé un chocobo![end]",
+"width": 120,
+"wrapped": "[0xfa]Trouvé un chocobo![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Golbez!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Golbez!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Golbez!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Golbez!",
+"font": 0
+},
+{
+"text": "FuSoYa![end]",
+"width": 208,
+"wrapped": "FuSoYa![end]",
+"font": 0
+},
+{
+"text": "FuSoYa![end]",
+"width": 120,
+"wrapped": "FuSoYa![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Trouvé un chocobo noir![end]",
+"width": 208,
+"wrapped": "[0xfa]Trouvé un chocobo noir![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Trouvé un chocobo noir![end]",
+"width": 120,
+"wrapped": "[0xfa]Trouvé un chocobo\nnoir![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: ?[new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: ?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: ?[new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: ?new",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Les poupées![end]",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Les poupées![end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Les poupées![end]",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Les poupées![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Il y a comme une odeur de chocobo...[end]",
+"width": 208,
+"wrapped": "[0xfa]Il y a comme une odeur de chocobo...[end]",
+"font": 0
+},
+{
+"text": "[0xfa]Il y a comme une odeur de chocobo...[end]",
+"width": 120,
+"wrapped": "[0xfa]Il y a comme une odeur\nde chocobo...[end]",
+"font": 0
+},
+{
+"text": "[0xfa]Trouvé un chocobo blanc![end]",
+"width": 208,
+"wrapped": "[0xfa]Trouvé un chocobo blanc![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Trouvé un chocobo blanc![end]",
+"width": 120,
+"wrapped": "[0xfa]Trouvé un chocobo\nblanc![end]",
+"font": 0
+},
+{
+"text": "Place au Gros Chocobo![end]",
+"width": 208,
+"wrapped": "Place au Gros Chocobo![end]",
+"font": 0
+},
+{
+"text": "Place au Gros Chocobo![end]",
+"width": 120,
+"wrapped": "Place au Gros Chocobo![end]",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Anna... tu es encore en",
+"width": 208,
+"wrapped": "[bold]Tellah[normal]: Anna... tu es encore en",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Anna... tu es encore en",
+"width": 120,
+"wrapped": "[bold]Tellah[normal]: Anna...\ntu es encore en",
+"font": 0
+},
+{
+"text": "vie...[new]",
+"width": 208,
+"wrapped": "vie...new",
+"font": 0
+},
+{
+"text": "vie...[new]",
+"width": 120,
+"wrapped": "vie...new",
+"font": 0
+},
+{
+"text": "[bold]Anna[normal]: Père... il...",
+"width": 208,
+"wrapped": "[bold]Anna[normal]: Père... il...",
+"font": 0
+},
+{
+"text": "[bold]Anna[normal]: Père... il...",
+"width": 120,
+"wrapped": "[bold]Anna[normal]: Père... il...",
+"font": 0
+},
+{
+"text": "Edward est le prince de Damcyan...",
+"width": 208,
+"wrapped": "Edward est le prince de Damcyan...",
+"font": 0
+},
+{
+"text": "Edward est le prince de Damcyan...",
+"width": 120,
+"wrapped": "Edward est le prince\nde Damcyan...",
+"font": 0
+},
+{
+"text": "Il est venu à Kaïpo déguisé en barde",
+"width": 208,
+"wrapped": "Il est venu à Kaïpo déguisé en barde",
+"font": 0
+},
+{
+"text": "Il est venu à Kaïpo déguisé en barde",
+"width": 120,
+"wrapped": "Il est venu à Kaïpo\ndéguisé en barde",
+"font": 0
+},
+{
+"text": "pour cacher son identité...[new]",
+"width": 208,
+"wrapped": "pour cacher son identité...new",
+"font": 0
+},
+{
+"text": "pour cacher son identité...[new]",
+"width": 120,
+"wrapped": "pour cacher son\nidentité...new",
+"font": 0
+},
+{
+"text": "Pardonne-moi... de m'être enfuie, père...",
+"width": 208,
+"wrapped": "Pardonne-moi... de m'être enfuie, père...",
+"font": 0
+},
+{
+"text": "Pardonne-moi... de m'être enfuie, père...",
+"width": 120,
+"wrapped": "Pardonne-moi... de\nm'être enfuie, père...",
+"font": 0
+},
+{
+"text": "Je... j'aime...",
+"width": 208,
+"wrapped": "Je... j'aime...",
+"font": 0
+},
+{
+"text": "Je... j'aime...",
+"width": 120,
+"wrapped": "Je... j'aime...",
+"font": 0
+},
+{
+"text": "Edward![new]",
+"width": 208,
+"wrapped": "Edward!new",
+"font": 0
+},
+{
+"text": "Edward![new]",
+"width": 120,
+"wrapped": "Edward!new",
+"font": 0
+},
+{
+"text": "[bold]Edward[normal]: Golbez... commande les Ailes",
+"width": 208,
+"wrapped": "[bold]Edward[normal]: Golbez... commande les Ailes",
+"font": 0
+},
+{
+"text": "[bold]Edward[normal]: Golbez... commande les Ailes",
+"width": 120,
+"wrapped": "[bold]Edward[normal]: Golbez...\ncommande les Ailes",
+"font": 0
+},
+{
+"text": "Rouges de Baron...[new]",
+"width": 208,
+"wrapped": "Rouges de Baron...new",
+"font": 0
+},
+{
+"text": "Rouges de Baron...[new]",
+"width": 120,
+"wrapped": "Rouges de Baron...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Qui est Golbez?[new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Qui est Golbez?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Qui est Golbez?[new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Qui est\nGolbez?new",
+"font": 0
+},
+{
+"text": "[bold]Edward[normal]: Je ne sais pas...",
+"width": 208,
+"wrapped": "[bold]Edward[normal]: Je ne sais pas...",
+"font": 0
+},
+{
+"text": "[bold]Edward[normal]: Je ne sais pas...",
+"width": 120,
+"wrapped": "[bold]Edward[normal]: Je ne sais\npas...",
+"font": 0
+},
+{
+"text": "Il était entièrement vêtu de noir... d'une",
+"width": 208,
+"wrapped": "Il était entièrement vêtu de noir... d'une",
+"font": 0
+},
+{
+"text": "Il était entièrement vêtu de noir... d'une",
+"width": 120,
+"wrapped": "Il était entièrement vêtu\nde noir... d'une",
+"font": 0
+},
+{
+"text": "puissance... inimaginable...[new]",
+"width": 208,
+"wrapped": "puissance... inimaginable...new",
+"font": 0
+},
+{
+"text": "puissance... inimaginable...[new]",
+"width": 120,
+"wrapped": "puissance...\ninimaginable...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Pourquoi les Ailes Rouges",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Pourquoi les Ailes Rouges",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Pourquoi les Ailes Rouges",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Pourquoi les\nAiles Rouges",
+"font": 0
+},
+{
+"text": "ont-elles bombardé le château?[new]",
+"width": 208,
+"wrapped": "ont-elles bombardé le château?new",
+"font": 0
+},
+{
+"text": "ont-elles bombardé le château?[new]",
+"width": 120,
+"wrapped": "ont-elles bombardé le\nchâteau?new",
+"font": 0
+},
+{
+"text": "[bold]Edward[normal]: Ils ont pillé le château... pour",
+"width": 208,
+"wrapped": "[bold]Edward[normal]: Ils ont pillé le château... pour",
+"font": 0
+},
+{
+"text": "[bold]Edward[normal]: Ils ont pillé le château... pour",
+"width": 120,
+"wrapped": "[bold]Edward[normal]: Ils ont pillé le\nchâteau... pour",
+"font": 0
+},
+{
+"text": "voler le cristal...",
+"width": 208,
+"wrapped": "voler le cristal...",
+"font": 0
+},
+{
+"text": "voler le cristal...",
+"width": 120,
+"wrapped": "voler le cristal...",
+"font": 0
+},
+{
+"text": "Mon père...",
+"width": 208,
+"wrapped": "Mon père...",
+"font": 0
+},
+{
+"text": "Mon père...",
+"width": 120,
+"wrapped": "Mon père...",
+"font": 0
+},
+{
+"text": "Ma mère... morts...[new]",
+"width": 208,
+"wrapped": "Ma mère... morts...new",
+"font": 0
+},
+{
+"text": "Ma mère... morts...[new]",
+"width": 120,
+"wrapped": "Ma mère... morts...new",
+"font": 0
+},
+{
+"text": "Anna... elle m'a protégé... des",
+"width": 208,
+"wrapped": "Anna... elle m'a protégé... des",
+"font": 0
+},
+{
+"text": "Anna... elle m'a protégé... des",
+"width": 120,
+"wrapped": "Anna... elle m'a\nprotégé... des",
+"font": 0
+},
+{
+"text": "flèches...[end]",
+"width": 208,
+"wrapped": "flèches...[end]",
+"font": 0
+},
+{
+"text": "flèches...[end]",
+"width": 120,
+"wrapped": "flèches...[end]",
+"font": 0
+},
+{
+"text": "Hou là là![end]",
+"width": 208,
+"wrapped": "Hou là là![end]",
+"font": 0
+},
+{
+"text": "Hou là là![end]",
+"width": 120,
+"wrapped": "Hou là là![end]",
+"font": 0
+},
+{
+"text": "[0xfa]Il ne s'est rien passé.[end]",
+"width": 208,
+"wrapped": "[0xfa]Il ne s'est rien passé.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]Il ne s'est rien passé.[end]",
+"width": 120,
+"wrapped": "[0xfa]Il ne s'est rien passé.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]PM restaurés![end]",
+"width": 208,
+"wrapped": "[0xfa]PM restaurés![end]",
+"font": 0
+},
+{
+"text": "[0xfa]PM restaurés![end]",
+"width": 120,
+"wrapped": "[0xfa]PM restaurés![end]",
+"font": 0
+},
+{
+"text": "[0xfa]C'est scellé par un pouvoir mystérieux.[end]",
+"width": 208,
+"wrapped": "[0xfa]C'est scellé par un pouvoir mystérieux.[end]",
+"font": 0
+},
+{
+"text": "[0xfa]C'est scellé par un pouvoir mystérieux.[end]",
+"width": 120,
+"wrapped": "[0xfa]C'est scellé par un\npouvoir mystérieux.[end]",
+"font": 0
+},
+{
+"text": "Tu n'as pas assez de Gils![end]",
+"width": 208,
+"wrapped": "Tu n'as pas assez de Gils![end]",
+"font": 0
+},
+{
+"text": "Tu n'as pas assez de Gils![end]",
+"width": 120,
+"wrapped": "Tu n'as pas assez de\nGils![end]",
+"font": 0
+},
+{
+"text": "Bienvenue!",
+"width": 208,
+"wrapped": "Bienvenue!",
+"font": 0
+},
+{
+"text": "Bienvenue!",
+"width": 120,
+"wrapped": "Bienvenue!",
+"font": 0
+},
+{
+"text": "Allez-vous rester?[close_window][end]",
+"width": 208,
+"wrapped": "Allez-vous rester?[close_window][end]",
+"font": 0
+},
+{
+"text": "Allez-vous rester?[close_window][end]",
+"width": 120,
+"wrapped": "Allez-vous rester?[close_window][end]",
+"font": 0
+},
+{
+"text": "Au plaisir de vous revoir![end]",
+"width": 208,
+"wrapped": "Au plaisir de vous revoir![end]",
+"font": 0
+},
+{
+"text": "Au plaisir de vous revoir![end]",
+"width": 120,
+"wrapped": "Au plaisir de vous\nrevoir![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Ark![end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Ark![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Ark![end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Ark![end]",
+"font": 0
+},
+{
+"text": "Nous aurions aussi pu être hypnotisés...[end]",
+"width": 208,
+"wrapped": "Nous aurions aussi pu être hypnotisés...[end]",
+"font": 0
+},
+{
+"text": "Nous aurions aussi pu être hypnotisés...[end]",
+"width": 120,
+"wrapped": "Nous aurions aussi pu\nêtre hypnotisés...[end]",
+"font": 0
+},
+{
+"text": "...[end]",
+"width": 208,
+"wrapped": "...[end]",
+"font": 0
+},
+{
+"text": "...[end]",
+"width": 120,
+"wrapped": "...[end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Capitaine Cecil, nous",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Capitaine Cecil, nous",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Capitaine Cecil, nous",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Capitaine\nCecil, nous",
+"font": 0
+},
+{
+"text": "approchons de Baron![new]",
+"width": 208,
+"wrapped": "approchons de Baron!new",
+"font": 0
+},
+{
+"text": "approchons de Baron![new]",
+"width": 120,
+"wrapped": "approchons de\nBaron!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Soit[delay][0x3].[delay][0x3].[delay][0x3].[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Soit[delay][0x3].[delay][0x3].[delay][0x3].[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Soit[delay][0x3].[delay][0x3].[delay][0x3].[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Soit[delay][0x3].[delay][0x3].[delay][0x3].[end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Le capitaine semble également",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Le capitaine semble également",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Le capitaine semble également",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Le capitaine\nsemble également",
+"font": 0
+},
+{
+"text": "préoccupé...[new]",
+"width": 208,
+"wrapped": "préoccupé...new",
+"font": 0
+},
+{
+"text": "préoccupé...[new]",
+"width": 120,
+"wrapped": "préoccupé...new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Même sur ordre de Sa Majesté...[new]",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Même sur ordre de Sa\nMajesté...new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Même sur ordre de Sa Majesté...[new]",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Même sur ordre\nde Sa Majesté...new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Arracher le cristal à un peuple",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Arracher le cristal à un peuple",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Arracher le cristal à un peuple",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Arracher le\ncristal à un peuple",
+"font": 0
+},
+{
+"text": "innocent...",
+"width": 208,
+"wrapped": "innocent...",
+"font": 0
+},
+{
+"text": "innocent...",
+"width": 120,
+"wrapped": "innocent...",
+"font": 0
+},
+{
+"text": "C'est...[end]",
+"width": 208,
+"wrapped": "C'est...[end]",
+"font": 0
+},
+{
+"text": "C'est...[end]",
+"width": 120,
+"wrapped": "C'est...[end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Mais, Capitaine![new]",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Mais, Capitaine!new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Mais, Capitaine![new]",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Mais,\nCapitaine!new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Piller une cité de magiciens qui",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Piller une cité de magiciens qui",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Piller une cité de magiciens qui",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Piller une cité\nde magiciens qui",
+"font": 0
+},
+{
+"text": "n'opposent aucune résistance![new]",
+"width": 208,
+"wrapped": "n'opposent aucune résistance!new",
+"font": 0
+},
+{
+"text": "n'opposent aucune résistance![new]",
+"width": 120,
+"wrapped": "n'opposent aucune\nrésistance!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Écoutez bien, vous tous!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Écoutez bien, vous tous!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Écoutez bien, vous tous!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Écoutez\nbien, vous tous!",
+"font": 0
+},
+{
+"text": "Le cristal est absolument nécessaire à la",
+"width": 208,
+"wrapped": "Le cristal est absolument nécessaire à la",
+"font": 0
+},
+{
+"text": "Le cristal est absolument nécessaire à la",
+"width": 120,
+"wrapped": "Le cristal est\nabsolument nécessaire à\nla",
+"font": 0
+},
+{
+"text": "prospérité de notre royaume de Baron.[new]",
+"width": 208,
+"wrapped": "prospérité de notre royaume de\nBaron.new",
+"font": 0
+},
+{
+"text": "prospérité de notre royaume de Baron.[new]",
+"width": 120,
+"wrapped": "prospérité de notre\nroyaume de Baron.new",
+"font": 0
+},
+{
+"text": "Sa Majesté a jugé que les habitants de",
+"width": 208,
+"wrapped": "Sa Majesté a jugé que les habitants de",
+"font": 0
+},
+{
+"text": "Sa Majesté a jugé que les habitants de",
+"width": 120,
+"wrapped": "Sa Majesté a jugé que\nles habitants de",
+"font": 0
+},
+{
+"text": "Mythidia en savaient trop sur les secrets",
+"width": 208,
+"wrapped": "Mythidia en savaient trop sur les secrets",
+"font": 0
+},
+{
+"text": "Mythidia en savaient trop sur les secrets",
+"width": 120,
+"wrapped": "Mythidia en savaient\ntrop sur les secrets",
+"font": 0
+},
+{
+"text": "du cristal.[new]",
+"width": 208,
+"wrapped": "du cristal.new",
+"font": 0
+},
+{
+"text": "du cristal.[new]",
+"width": 120,
+"wrapped": "du cristal.new",
+"font": 0
+},
+{
+"text": "Nous sommes l'escadron des Ailes Rouges",
+"width": 208,
+"wrapped": "Nous sommes l'escadron des Ailes Rouges",
+"font": 0
+},
+{
+"text": "Nous sommes l'escadron des Ailes Rouges",
+"width": 120,
+"wrapped": "Nous sommes l'escadron\ndes Ailes Rouges",
+"font": 0
+},
+{
+"text": "de Baron, et les ordres de Sa Majesté",
+"width": 208,
+"wrapped": "de Baron, et les ordres de Sa Majesté",
+"font": 0
+},
+{
+"text": "de Baron, et les ordres de Sa Majesté",
+"width": 120,
+"wrapped": "de Baron, et les ordres\nde Sa Majesté",
+"font": 0
+},
+{
+"text": "sont absolus![new]",
+"width": 208,
+"wrapped": "sont absolus!new",
+"font": 0
+},
+{
+"text": "sont absolus![new]",
+"width": 120,
+"wrapped": "sont absolus!new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Capitaine...[end]",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Capitaine...[end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Capitaine...[end]",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Capitaine...[end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Capitaine!",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Capitaine!",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Capitaine!",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Capitaine!",
+"font": 0
+},
+{
+"text": "Une attaque de monstres![end]",
+"width": 208,
+"wrapped": "Une attaque de monstres![end]",
+"font": 0
+},
+{
+"text": "Une attaque de monstres![end]",
+"width": 120,
+"wrapped": "Une attaque de\nmonstres![end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Argh![new]",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Argh!new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Argh![new]",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Argh!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Vous allez bien?[new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Vous allez bien?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Vous allez bien?[new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Vous allez\nbien?new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: D'autres monstres![new]",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: D'autres monstres!new",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: D'autres monstres![new]",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: D'autres\nmonstres!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Merde![end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Merde![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Merde![end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Merde![end]",
+"font": 0
+},
+{
+"text": "Ici commence notre royaume, la Zone",
+"width": 208,
+"wrapped": "Ici commence notre royaume, la Zone",
+"font": 0
+},
+{
+"text": "Ici commence notre royaume, la Zone",
+"width": 120,
+"wrapped": "Ici commence notre\nroyaume, la Zone",
+"font": 0
+},
+{
+"text": "Zémus.",
+"width": 208,
+"wrapped": "Zémus.",
+"font": 0
+},
+{
+"text": "Zémus.",
+"width": 120,
+"wrapped": "Zémus.",
+"font": 0
+},
+{
+"text": "Nul ne peut échapper à mes serviteurs![new]",
+"width": 208,
+"wrapped": "Nul ne peut échapper à mes\nserviteurs!new",
+"font": 0
+},
+{
+"text": "Nul ne peut échapper à mes serviteurs![new]",
+"width": 120,
+"wrapped": "Nul ne peut échapper à\nmes serviteurs!new",
+"font": 0
+},
+{
+"text": "Vous ne survivrez pas assez longtemps",
+"width": 208,
+"wrapped": "Vous ne survivrez pas assez longtemps",
+"font": 0
+},
+{
+"text": "Vous ne survivrez pas assez longtemps",
+"width": 120,
+"wrapped": "Vous ne survivrez pas\nassez longtemps",
+"font": 0
+},
+{
+"text": "pour me rencontrer!",
+"width": 208,
+"wrapped": "pour me rencontrer!",
+"font": 0
+},
+{
+"text": "pour me rencontrer!",
+"width": 120,
+"wrapped": "pour me rencontrer!",
+"font": 0
+},
+{
+"text": "Alors sombrez dans les ténèbres pour",
+"width": 208,
+"wrapped": "Alors sombrez dans les ténèbres pour",
+"font": 0
+},
+{
+"text": "Alors sombrez dans les ténèbres pour",
+"width": 120,
+"wrapped": "Alors sombrez dans les\nténèbres pour",
+"font": 0
+},
+{
+"text": "l'éternité, minables![new]",
+"width": 208,
+"wrapped": "l'éternité, minables!new",
+"font": 0
+},
+{
+"text": "l'éternité, minables![new]",
+"width": 120,
+"wrapped": "l'éternité, minables!new",
+"font": 0
+},
+{
+"text": "Mwa ha ha ha ha![end]",
+"width": 208,
+"wrapped": "Mwa ha ha ha ha![end]",
+"font": 0
+},
+{
+"text": "Mwa ha ha ha ha![end]",
+"width": 120,
+"wrapped": "Mwa ha ha ha ha![end]",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Nous sommes au-dessus de",
+"width": 208,
+"wrapped": "[bold]Soldat[normal]: Nous sommes au-dessus de",
+"font": 0
+},
+{
+"text": "[bold]Soldat[normal]: Nous sommes au-dessus de",
+"width": 120,
+"wrapped": "[bold]Soldat[normal]: Nous sommes\nau-dessus de",
+"font": 0
+},
+{
+"text": "Baron![new]",
+"width": 208,
+"wrapped": "Baron!new",
+"font": 0
+},
+{
+"text": "Baron![new]",
+"width": 120,
+"wrapped": "Baron!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Préparez-vous à atterrir.[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Préparez-vous à atterrir.[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Préparez-vous à atterrir.[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]:\nPréparez-vous à\natterrir.[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Ah!",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Ah!",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Ah!",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Ah!",
+"font": 0
+},
+{
+"text": "Vous avez le Cristal![new]",
+"width": 208,
+"wrapped": "Vous avez le Cristal!new",
+"font": 0
+},
+{
+"text": "Vous avez le Cristal![new]",
+"width": 120,
+"wrapped": "Vous avez le\nCristal!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Mais les Mythidiens n'ont",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Mais les Mythidiens n'ont",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Mais les Mythidiens n'ont",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Mais les\nMythidiens n'ont",
+"font": 0
+},
+{
+"text": "opposé aucune résistance...[new]",
+"width": 208,
+"wrapped": "opposé aucune résistance...new",
+"font": 0
+},
+{
+"text": "opposé aucune résistance...[new]",
+"width": 120,
+"wrapped": "opposé aucune\nrésistance...new",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Que voulez-vous dire par là?",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Que voulez-vous dire par là?",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Que voulez-vous dire par là?",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Que\nvoulez-vous dire par là?",
+"font": 0
+},
+{
+"text": "Par ici, Cecil, sa Majesté attend.[end]",
+"width": 208,
+"wrapped": "Par ici, Cecil, sa Majesté attend.[end]",
+"font": 0
+},
+{
+"text": "Par ici, Cecil, sa Majesté attend.[end]",
+"width": 120,
+"wrapped": "Par ici, Cecil, sa\nMajesté attend.[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Messire Cecil, attendez ici.[end]",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Messire Cecil, attendez ici.[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Messire Cecil, attendez ici.[end]",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Messire\nCecil, attendez ici.[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Majesté!",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Majesté!",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Majesté!",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Majesté!",
+"font": 0
+},
+{
+"text": "Je redoute que Cecil n'ait développé",
+"width": 208,
+"wrapped": "Je redoute que Cecil n'ait développé",
+"font": 0
+},
+{
+"text": "Je redoute que Cecil n'ait développé",
+"width": 120,
+"wrapped": "Je redoute que\nCecil n'ait\ndéveloppé",
+"font": 0
+},
+{
+"text": "une défiance à l'égard du trône...[new]",
+"width": 208,
+"wrapped": "une défiance à l'égard du trône...new",
+"font": 0
+},
+{
+"text": "une défiance à l'égard du trône...[new]",
+"width": 120,
+"wrapped": "une défiance à l'égard\ndu trône...new",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Vraiment!?",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: Vraiment!?",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Vraiment!?",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: Vraiment!?",
+"font": 0
+},
+{
+"text": "Bravo, Beigan!",
+"width": 208,
+"wrapped": "Bravo, Beigan!",
+"font": 0
+},
+{
+"text": "Bravo, Beigan!",
+"width": 120,
+"wrapped": "Bravo, Beigan!",
+"font": 0
+},
+{
+"text": "Merci de m'en avoir informé!",
+"width": 208,
+"wrapped": "Merci de m'en avoir informé!",
+"font": 0
+},
+{
+"text": "Merci de m'en avoir informé!",
+"width": 120,
+"wrapped": "Merci de m'en avoir\ninformé!",
+"font": 0
+},
+{
+"text": "Mais le cristal avant tout...[new]",
+"width": 208,
+"wrapped": "Mais le cristal avant tout...new",
+"font": 0
+},
+{
+"text": "Mais le cristal avant tout...[new]",
+"width": 120,
+"wrapped": "Mais le cristal avant\ntout...new",
+"font": 0
+},
+{
+"text": "Convoque-le ici![new]",
+"width": 208,
+"wrapped": "Convoque-le ici!new",
+"font": 0
+},
+{
+"text": "Convoque-le ici![new]",
+"width": 120,
+"wrapped": "Convoque-le ici!new",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Bien, Majesté.[end]",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Bien, Majesté.[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Bien, Majesté.[end]",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Bien, Majesté.[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Capitaine Cecil, Sa Majesté",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Capitaine Cecil, Sa Majesté",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Capitaine Cecil, Sa Majesté",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Capitaine\nCecil, Sa Majesté",
+"font": 0
+},
+{
+"text": "attend.",
+"width": 208,
+"wrapped": "attend.",
+"font": 0
+},
+{
+"text": "attend.",
+"width": 120,
+"wrapped": "attend.",
+"font": 0
+},
+{
+"text": "Suivez-moi.[end]",
+"width": 208,
+"wrapped": "Suivez-moi.[end]",
+"font": 0
+},
+{
+"text": "Suivez-moi.[end]",
+"width": 120,
+"wrapped": "Suivez-moi.[end]",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Bien joué, Cecil.",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: Bien joué, Cecil.",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Bien joué, Cecil.",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: Bien joué,\nCecil.",
+"font": 0
+},
+{
+"text": "Alors, le cristal?[new]",
+"width": 208,
+"wrapped": "Alors, le cristal?new",
+"font": 0
+},
+{
+"text": "Alors, le cristal?[new]",
+"width": 120,
+"wrapped": "Alors, le cristal?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Le voici, Majesté.[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Le voici, Majesté.[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Le voici, Majesté.[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Le voici,\nMajesté.[end]",
+"font": 0
+},
+{
+"text": "          [force_book]Tu as donné le cristal.[force_normal][end]",
+"width": 208,
+"wrapped": "          [force_book]Tu as donné le cristal.[force_normal][end]",
+"font": 0
+},
+{
+"text": "          [force_book]Tu as donné le cristal.[force_normal][end]",
+"width": 120,
+"wrapped": "          [force_book]Tu as\ndonné le cristal.[force_normal][end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Hmm...",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Hmm...",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Hmm...",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Hmm...",
+"font": 0
+},
+{
+"text": "Il semble authentique...[new]",
+"width": 208,
+"wrapped": "Il semble authentique...new",
+"font": 0
+},
+{
+"text": "Il semble authentique...[new]",
+"width": 120,
+"wrapped": "Il semble\nauthentique...new",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Il l'est!",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: Il l'est!",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Il l'est!",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: Il l'est!",
+"font": 0
+},
+{
+"text": "Oh, comme il brille... comme il est",
+"width": 208,
+"wrapped": "Oh, comme il brille... comme il est",
+"font": 0
+},
+{
+"text": "Oh, comme il brille... comme il est",
+"width": 120,
+"wrapped": "Oh, comme il brille...\ncomme il est",
+"font": 0
+},
+{
+"text": "éblouissant!",
+"width": 208,
+"wrapped": "éblouissant!",
+"font": 0
+},
+{
+"text": "éblouissant!",
+"width": 120,
+"wrapped": "éblouissant!",
+"font": 0
+},
+{
+"text": "Tu peux disposer, Cecil![end]",
+"width": 208,
+"wrapped": "Tu peux disposer, Cecil![end]",
+"font": 0
+},
+{
+"text": "Tu peux disposer, Cecil![end]",
+"width": 120,
+"wrapped": "Tu peux disposer,\nCecil![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: ...[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: ...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: ...[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: ...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Majesté![end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Majesté![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Majesté![end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Majesté![end]",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: H... hein!?[new]",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: H... hein!?new",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: H... hein!?[new]",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: H...\nhein!?new",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Qu... quoi?[end]",
+"width": 208,
+"wrapped": "[bold]Beigan[normal]: Qu... quoi?[end]",
+"font": 0
+},
+{
+"text": "[bold]Beigan[normal]: Qu... quoi?[end]",
+"width": 120,
+"wrapped": "[bold]Beigan[normal]: Qu... quoi?[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Votre Majesté, nous ne",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Votre Majesté, nous ne",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Votre Majesté, nous ne",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Votre\nMajesté, nous ne",
+"font": 0
+},
+{
+"text": "comprenons pas vos intentions.",
+"width": 208,
+"wrapped": "comprenons pas vos intentions.",
+"font": 0
+},
+{
+"text": "comprenons pas vos intentions.",
+"width": 120,
+"wrapped": "comprenons pas vos\nintentions.",
+"font": 0
+},
+{
+"text": "Pourquoi avez-vous besoin de ces",
+"width": 208,
+"wrapped": "Pourquoi avez-vous besoin de ces",
+"font": 0
+},
+{
+"text": "Pourquoi avez-vous besoin de ces",
+"width": 120,
+"wrapped": "Pourquoi avez-vous\nbesoin de ces",
+"font": 0
+},
+{
+"text": "cristaux?[new]",
+"width": 208,
+"wrapped": "cristaux?new",
+"font": 0
+},
+{
+"text": "cristaux?[new]",
+"width": 120,
+"wrapped": "cristaux?new",
+"font": 0
+},
+{
+"text": "Était-ce parce que les Mythidiens",
+"width": 208,
+"wrapped": "Était-ce parce que les Mythidiens",
+"font": 0
+},
+{
+"text": "Était-ce parce que les Mythidiens",
+"width": 120,
+"wrapped": "Était-ce parce que les\nMythidiens",
+"font": 0
+},
+{
+"text": "représentaient une menace?",
+"width": 208,
+"wrapped": "représentaient une menace?",
+"font": 0
+},
+{
+"text": "représentaient une menace?",
+"width": 120,
+"wrapped": "représentaient une\nmenace?",
+"font": 0
+},
+{
+"text": "Alors pourquoi n'ont-ils pas résisté?[new]",
+"width": 208,
+"wrapped": "Alors pourquoi n'ont-ils pas résisté?new",
+"font": 0
+},
+{
+"text": "Alors pourquoi n'ont-ils pas résisté?[new]",
+"width": 120,
+"wrapped": "Alors pourquoi n'ont-ils\npas résisté?new",
+"font": 0
+},
+{
+"text": "Nous ne comprenons pas pourquoi des",
+"width": 208,
+"wrapped": "Nous ne comprenons pas pourquoi des",
+"font": 0
+},
+{
+"text": "Nous ne comprenons pas pourquoi des",
+"width": 120,
+"wrapped": "Nous ne comprenons\npas pourquoi des",
+"font": 0
+},
+{
+"text": "innocents ont dû périr.[new]",
+"width": 208,
+"wrapped": "innocents ont dû périr.new",
+"font": 0
+},
+{
+"text": "innocents ont dû périr.[new]",
+"width": 120,
+"wrapped": "innocents ont dû\npérir.new",
+"font": 0
+},
+{
+"text": "Certains se sont même interrogés sur le",
+"width": 208,
+"wrapped": "Certains se sont même interrogés sur le",
+"font": 0
+},
+{
+"text": "Certains se sont même interrogés sur le",
+"width": 120,
+"wrapped": "Certains se sont même\ninterrogés sur le",
+"font": 0
+},
+{
+"text": "caractère... véritablement... honorable de",
+"width": 208,
+"wrapped": "caractère... véritablement... honorable de",
+"font": 0
+},
+{
+"text": "caractère... véritablement... honorable de",
+"width": 120,
+"wrapped": "caractère...\nvéritablement...\nhonorable de",
+"font": 0
+},
+{
+"text": "vos actions...[new]",
+"width": 208,
+"wrapped": "vos actions...new",
+"font": 0
+},
+{
+"text": "vos actions...[new]",
+"width": 120,
+"wrapped": "vos actions...new",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Tu oserais donc douter de",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: Tu oserais donc douter de",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Tu oserais donc douter de",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: Tu oserais\ndonc douter de",
+"font": 0
+},
+{
+"text": "ton propre roi, Cecil?![new]",
+"width": 208,
+"wrapped": "ton propre roi, Cecil?!new",
+"font": 0
+},
+{
+"text": "ton propre roi, Cecil?![new]",
+"width": 120,
+"wrapped": "ton propre roi,\nCecil?!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: !!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: !!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: !!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: !!",
+"font": 0
+},
+{
+"text": "Non, Sire!",
+"width": 208,
+"wrapped": "Non, Sire!",
+"font": 0
+},
+{
+"text": "Non, Sire!",
+"width": 120,
+"wrapped": "Non, Sire!",
+"font": 0
+},
+{
+"text": "Ce n'était nullement mon intention!![new]",
+"width": 208,
+"wrapped": "Ce n'était nullement mon intention!!new",
+"font": 0
+},
+{
+"text": "Ce n'était nullement mon intention!![new]",
+"width": 120,
+"wrapped": "Ce n'était nullement\nmon intention!!new",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Croyais-tu que j'ignorais tes",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: Croyais-tu que j'ignorais tes",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Croyais-tu que j'ignorais tes",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: Croyais-tu\nque j'ignorais tes",
+"font": 0
+},
+{
+"text": "véritables sentiments?!",
+"width": 208,
+"wrapped": "véritables sentiments?!",
+"font": 0
+},
+{
+"text": "véritables sentiments?!",
+"width": 120,
+"wrapped": "véritables sentiments?!",
+"font": 0
+},
+{
+"text": "Dire que je t'ai recueilli et élevé comme",
+"width": 208,
+"wrapped": "Dire que je t'ai recueilli et élevé comme",
+"font": 0
+},
+{
+"text": "Dire que je t'ai recueilli et élevé comme",
+"width": 120,
+"wrapped": "Dire que je t'ai recueilli\net élevé comme",
+"font": 0
+},
+{
+"text": "mon propre fils![new]",
+"width": 208,
+"wrapped": "mon propre fils!new",
+"font": 0
+},
+{
+"text": "mon propre fils![new]",
+"width": 120,
+"wrapped": "mon propre fils!new",
+"font": 0
+},
+{
+"text": "Et maintenant, toi aussi, tu ne peux me",
+"width": 208,
+"wrapped": "Et maintenant, toi aussi, tu ne peux me",
+"font": 0
+},
+{
+"text": "Et maintenant, toi aussi, tu ne peux me",
+"width": 120,
+"wrapped": "Et maintenant, toi\naussi, tu ne peux me",
+"font": 0
+},
+{
+"text": "faire confiance...",
+"width": 208,
+"wrapped": "faire confiance...",
+"font": 0
+},
+{
+"text": "faire confiance...",
+"width": 120,
+"wrapped": "faire confiance...",
+"font": 0
+},
+{
+"text": "Je ne peux plus te confier le",
+"width": 208,
+"wrapped": "Je ne peux plus te confier le",
+"font": 0
+},
+{
+"text": "Je ne peux plus te confier le",
+"width": 120,
+"wrapped": "Je ne peux plus te\nconfier le",
+"font": 0
+},
+{
+"text": "commandement des Ailes Rouges.[new]",
+"width": 208,
+"wrapped": "commandement des Ailes Rouges.new",
+"font": 0
+},
+{
+"text": "commandement des Ailes Rouges.[new]",
+"width": 120,
+"wrapped": "commandement des\nAiles Rouges.new",
+"font": 0
+},
+{
+"text": "Dès à présent, tu es relevé de tes",
+"width": 208,
+"wrapped": "Dès à présent, tu es relevé de tes",
+"font": 0
+},
+{
+"text": "Dès à présent, tu es relevé de tes",
+"width": 120,
+"wrapped": "Dès à présent, tu es\nrelevé de tes",
+"font": 0
+},
+{
+"text": "fonctions![end]",
+"width": 208,
+"wrapped": "fonctions![end]",
+"font": 0
+},
+{
+"text": "fonctions![end]",
+"width": 120,
+"wrapped": "fonctions![end]",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Ta nouvelle mission sera",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: Ta nouvelle mission sera",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: Ta nouvelle mission sera",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: Ta nouvelle\nmission sera",
+"font": 0
+},
+{
+"text": "d'éliminer les Chimères qui hantent la",
+"width": 208,
+"wrapped": "d'éliminer les Chimères qui hantent la",
+"font": 0
+},
+{
+"text": "d'éliminer les Chimères qui hantent la",
+"width": 120,
+"wrapped": "d'éliminer les Chimères\nqui hantent la",
+"font": 0
+},
+{
+"text": "vallée au nord![end]",
+"width": 208,
+"wrapped": "vallée au nord![end]",
+"font": 0
+},
+{
+"text": "vallée au nord![end]",
+"width": 120,
+"wrapped": "vallée au nord![end]",
+"font": 0
+},
+{
+"text": "tant pour Cecil, pars donc avec lui![new]",
+"width": 208,
+"wrapped": "tant pour Cecil, pars donc avec\nlui!new",
+"font": 0
+},
+{
+"text": "tant pour Cecil, pars donc avec lui![new]",
+"width": 120,
+"wrapped": "tant pour Cecil,\npars donc avec lui!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Mais majesté![new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Mais majesté!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Mais majesté![new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Mais\nmajesté!new",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: J'ai dit!",
+"width": 208,
+"wrapped": "[bold]Roi Baron[normal]: J'ai dit!",
+"font": 0
+},
+{
+"text": "[bold]Roi Baron[normal]: J'ai dit!",
+"width": 120,
+"wrapped": "[bold]Roi Baron[normal]: J'ai dit!",
+"font": 0
+},
+{
+"text": "Tenez!",
+"width": 208,
+"wrapped": "Tenez!",
+"font": 0
+},
+{
+"text": "Tenez!",
+"width": 120,
+"wrapped": "Tenez!",
+"font": 0
+},
+{
+"text": "Prenez cet anneau et allez-vous-en![end]",
+"width": 208,
+"wrapped": "Prenez cet anneau et allez-vous-en![end]",
+"font": 0
+},
+{
+"text": "Prenez cet anneau et allez-vous-en![end]",
+"width": 120,
+"wrapped": "Prenez cet anneau et\nallez-vous-en![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Désolé de t'avoir embarqué",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Désolé de t'avoir embarqué",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Désolé de t'avoir embarqué",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Désolé de\nt'avoir embarqué",
+"font": 0
+},
+{
+"text": "Une fois que tu auras éliminé ces",
+"width": 208,
+"wrapped": "Une fois que tu auras éliminé ces",
+"font": 0
+},
+{
+"text": "Une fois que tu auras éliminé ces",
+"width": 120,
+"wrapped": "Une fois que tu auras\néliminé ces",
+"font": 0
+},
+{
+"text": "Chimères, le Roi te pardonnera sûrement",
+"width": 208,
+"wrapped": "Chimères, le Roi te pardonnera sûrement",
+"font": 0
+},
+{
+"text": "Chimères, le Roi te pardonnera sûrement",
+"width": 120,
+"wrapped": "Chimères, le Roi te\npardonnera sûrement",
+"font": 0
+},
+{
+"text": "et tu seras réintégré comme commandant",
+"width": 208,
+"wrapped": "et tu seras réintégré comme commandant",
+"font": 0
+},
+{
+"text": "et tu seras réintégré comme commandant",
+"width": 120,
+"wrapped": "et tu seras réintégré\ncomme commandant",
+"font": 0
+},
+{
+"text": "des Ailes Rouges.[new]",
+"width": 208,
+"wrapped": "des Ailes Rouges.new",
+"font": 0
+},
+{
+"text": "des Ailes Rouges.[new]",
+"width": 120,
+"wrapped": "des Ailes Rouges.new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: ...[new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: ...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: ...[new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: ...new",
+"font": 0
+},
+{
+"text": "Laisse-moi m'occuper des préparatifs et",
+"width": 208,
+"wrapped": "Laisse-moi m'occuper des préparatifs et",
+"font": 0
+},
+{
+"text": "Laisse-moi m'occuper des préparatifs et",
+"width": 120,
+"wrapped": "Laisse-moi m'occuper\ndes préparatifs et",
+"font": 0
+},
+{
+"text": "va te reposer un peu.[end]",
+"width": 208,
+"wrapped": "va te reposer un peu.[end]",
+"font": 0
+},
+{
+"text": "va te reposer un peu.[end]",
+"width": 120,
+"wrapped": "va te reposer un peu.[end]",
+"font": 0
+},
+{
+"text": "Je t'ai défendu de mon plein gré!![new]",
+"width": 208,
+"wrapped": "Je t'ai défendu de mon plein gré!!new",
+"font": 0
+},
+{
+"text": "Je t'ai défendu de mon plein gré!![new]",
+"width": 120,
+"wrapped": "Je t'ai défendu de mon\nplein gré!!new",
+"font": 0
+},
+{
+"text": "C'était ma mission d'aujourd'hui...",
+"width": 208,
+"wrapped": "C'était ma mission d'aujourd'hui...",
+"font": 0
+},
+{
+"text": "C'était ma mission d'aujourd'hui...",
+"width": 120,
+"wrapped": "C'était ma mission\nd'aujourd'hui...",
+"font": 0
+},
+{
+"text": "J'ai maîtrisé l'art de la lame noire comme",
+"width": 208,
+"wrapped": "J'ai maîtrisé l'art de la lame noire comme",
+"font": 0
+},
+{
+"text": "J'ai maîtrisé l'art de la lame noire comme",
+"width": 120,
+"wrapped": "J'ai maîtrisé l'art de la\nlame noire comme",
+"font": 0
+},
+{
+"text": "me l'avait ordonné Sa Majesté.[new]",
+"width": 208,
+"wrapped": "me l'avait ordonné Sa Majesté.new",
+"font": 0
+},
+{
+"text": "me l'avait ordonné Sa Majesté.[new]",
+"width": 120,
+"wrapped": "me l'avait ordonné Sa\nMajesté.new",
+"font": 0
+},
+{
+"text": "Mais cela aurait dû servir à défendre",
+"width": 208,
+"wrapped": "Mais cela aurait dû servir à défendre",
+"font": 0
+},
+{
+"text": "Mais cela aurait dû servir à défendre",
+"width": 120,
+"wrapped": "Mais cela aurait dû\nservir à défendre",
+"font": 0
+},
+{
+"text": "Baron, non à attaquer un peuple innocent.",
+"width": 208,
+"wrapped": "Baron, non à attaquer un peuple innocent.",
+"font": 0
+},
+{
+"text": "Baron, non à attaquer un peuple innocent.",
+"width": 120,
+"wrapped": "Baron, non à attaquer\nun peuple innocent.",
+"font": 0
+},
+{
+"text": "Peut-être que mes excuses apaiseront",
+"width": 208,
+"wrapped": "Peut-être que mes excuses apaiseront",
+"font": 0
+},
+{
+"text": "Peut-être que mes excuses apaiseront",
+"width": 120,
+"wrapped": "Peut-être que mes\nexcuses apaiseront",
+"font": 0
+},
+{
+"text": "ma conscience...[new]",
+"width": 208,
+"wrapped": "ma conscience...new",
+"font": 0
+},
+{
+"text": "ma conscience...[new]",
+"width": 120,
+"wrapped": "ma conscience...new",
+"font": 0
+},
+{
+"text": "toi-même.",
+"width": 208,
+"wrapped": "toi-même.",
+"font": 0
+},
+{
+"text": "toi-même.",
+"width": 120,
+"wrapped": "toi-même.",
+"font": 0
+},
+{
+"text": "Je suis certain que Sa Majesté a de",
+"width": 208,
+"wrapped": "Je suis certain que Sa Majesté a de",
+"font": 0
+},
+{
+"text": "Je suis certain que Sa Majesté a de",
+"width": 120,
+"wrapped": "Je suis certain que Sa\nMajesté a de",
+"font": 0
+},
+{
+"text": "nobles raisons pour ses actions.[new]",
+"width": 208,
+"wrapped": "nobles raisons pour ses actions.new",
+"font": 0
+},
+{
+"text": "nobles raisons pour ses actions.[new]",
+"width": 120,
+"wrapped": "nobles raisons pour ses\nactions.new",
+"font": 0
+},
+{
+"text": "Il nous a élevés comme ses propres fils.",
+"width": 208,
+"wrapped": "Il nous a élevés comme ses propres fils.",
+"font": 0
+},
+{
+"text": "Il nous a élevés comme ses propres fils.",
+"width": 120,
+"wrapped": "Il nous a élevés comme\nses propres fils.",
+"font": 0
+},
+{
+"text": "Il n'accomplirait rien qui ne soit",
+"width": 208,
+"wrapped": "Il n'accomplirait rien qui ne soit",
+"font": 0
+},
+{
+"text": "Il n'accomplirait rien qui ne soit",
+"width": 120,
+"wrapped": "Il n'accomplirait rien qui\nne soit",
+"font": 0
+},
+{
+"text": "honorable...[new]",
+"width": 208,
+"wrapped": "honorable...new",
+"font": 0
+},
+{
+"text": "honorable...[new]",
+"width": 120,
+"wrapped": "honorable...new",
+"font": 0
+},
+{
+"text": "Majesté.",
+"width": 208,
+"wrapped": "Majesté.",
+"font": 0
+},
+{
+"text": "Majesté.",
+"width": 120,
+"wrapped": "Majesté.",
+"font": 0
+},
+{
+"text": "Il a évoqué ton père...[new]",
+"width": 208,
+"wrapped": "Il a évoqué ton père...new",
+"font": 0
+},
+{
+"text": "Il a évoqué ton père...[new]",
+"width": 120,
+"wrapped": "Il a évoqué ton\npère...new",
+"font": 0
+},
+{
+"text": "Il possédait la même loyauté indéfectible...[new]",
+"width": 208,
+"wrapped": "Il possédait la même loyauté\nindéfectible...new",
+"font": 0
+},
+{
+"text": "Il possédait la même loyauté indéfectible...[new]",
+"width": 120,
+"wrapped": "Il possédait la même\nloyauté indéfectible...new",
+"font": 0
+},
+{
+"text": "un chevalier dragon.",
+"width": 208,
+"wrapped": "un chevalier dragon.",
+"font": 0
+},
+{
+"text": "un chevalier dragon.",
+"width": 120,
+"wrapped": "un chevalier dragon.",
+"font": 0
+},
+{
+"text": "Si j'avais maîtrisé l'art de la lame noire",
+"width": 208,
+"wrapped": "Si j'avais maîtrisé l'art de la lame noire",
+"font": 0
+},
+{
+"text": "Si j'avais maîtrisé l'art de la lame noire",
+"width": 120,
+"wrapped": "Si j'avais maîtrisé l'art\nde la lame noire",
+"font": 0
+},
+{
+"text": "comme le roi me l'avait demandé...[new]",
+"width": 208,
+"wrapped": "comme le roi me l'avait demandé...new",
+"font": 0
+},
+{
+"text": "comme le roi me l'avait demandé...[new]",
+"width": 120,
+"wrapped": "comme le roi me l'avait\ndemandé...new",
+"font": 0
+},
+{
+"text": "J'aurais sûrement évolué comme toi...",
+"width": 208,
+"wrapped": "J'aurais sûrement évolué comme toi...",
+"font": 0
+},
+{
+"text": "J'aurais sûrement évolué comme toi...",
+"width": 120,
+"wrapped": "J'aurais sûrement\névolué comme toi...",
+"font": 0
+},
+{
+"text": "Cependant, je sentais que mon devoir",
+"width": 208,
+"wrapped": "Cependant, je sentais que mon devoir",
+"font": 0
+},
+{
+"text": "Cependant, je sentais que mon devoir",
+"width": 120,
+"wrapped": "Cependant, je sentais\nque mon devoir",
+"font": 0
+},
+{
+"text": "était d'honorer mon père en suivant sa",
+"width": 208,
+"wrapped": "était d'honorer mon père en suivant sa",
+"font": 0
+},
+{
+"text": "était d'honorer mon père en suivant sa",
+"width": 120,
+"wrapped": "était d'honorer mon\npère en suivant sa",
+"font": 0
+},
+{
+"text": "voie.[new]",
+"width": 208,
+"wrapped": "voie.new",
+"font": 0
+},
+{
+"text": "voie.[new]",
+"width": 120,
+"wrapped": "voie.new",
+"font": 0
+},
+{
+"text": "Il a péri quand j'étais encore enfant...",
+"width": 208,
+"wrapped": "Il a péri quand j'étais encore enfant...",
+"font": 0
+},
+{
+"text": "Il a péri quand j'étais encore enfant...",
+"width": 120,
+"wrapped": "Il a péri quand j'étais\nencore enfant...",
+"font": 0
+},
+{
+"text": "Il y a des moments où j'espère qu'il",
+"width": 208,
+"wrapped": "Il y a des moments où j'espère qu'il",
+"font": 0
+},
+{
+"text": "Il y a des moments où j'espère qu'il",
+"width": 120,
+"wrapped": "Il y a des moments où\nj'espère qu'il",
+"font": 0
+},
+{
+"text": "m'observe...",
+"width": 208,
+"wrapped": "m'observe...",
+"font": 0
+},
+{
+"text": "m'observe...",
+"width": 120,
+"wrapped": "m'observe...",
+"font": 0
+},
+{
+"text": "J'espère qu'il serait fier de moi...[new]",
+"width": 208,
+"wrapped": "J'espère qu'il serait fier de moi...new",
+"font": 0
+},
+{
+"text": "J'espère qu'il serait fier de moi...[new]",
+"width": 120,
+"wrapped": "J'espère qu'il serait fier\nde moi...new",
+"font": 0
+},
+{
+"text": "J'ai souvent ces moments... ...moments de",
+"width": 208,
+"wrapped": "J'ai souvent ces moments... ...moments de",
+"font": 0
+},
+{
+"text": "J'ai souvent ces moments... ...moments de",
+"width": 120,
+"wrapped": "J'ai souvent ces\nmoments... ...moments de",
+"font": 0
+},
+{
+"text": "réflexion silencieuse où je peux sentir son",
+"width": 208,
+"wrapped": "réflexion silencieuse où je peux sentir\nson",
+"font": 0
+},
+{
+"text": "réflexion silencieuse où je peux sentir son",
+"width": 120,
+"wrapped": "réflexion silencieuse où\nje peux sentir son",
+"font": 0
+},
+{
+"text": "esprit en moi qui me guide...[new]",
+"width": 208,
+"wrapped": "esprit en moi qui me guide...new",
+"font": 0
+},
+{
+"text": "esprit en moi qui me guide...[new]",
+"width": 120,
+"wrapped": "esprit en moi qui me\nguide...new",
+"font": 0
+},
+{
+"text": "ainsi...",
+"width": 208,
+"wrapped": "ainsi...",
+"font": 0
+},
+{
+"text": "ainsi...",
+"width": 120,
+"wrapped": "ainsi...",
+"font": 0
+},
+{
+"text": "Cela ne me ressemble guère.[new]",
+"width": 208,
+"wrapped": "Cela ne me ressemble guère.new",
+"font": 0
+},
+{
+"text": "Cela ne me ressemble guère.[new]",
+"width": 120,
+"wrapped": "Cela ne me ressemble\nguère.new",
+"font": 0
+},
+{
+"text": "Quoi qu'il en soit, je ne me tourmente",
+"width": 208,
+"wrapped": "Quoi qu'il en soit, je ne me tourmente",
+"font": 0
+},
+{
+"text": "Quoi qu'il en soit, je ne me tourmente",
+"width": 120,
+"wrapped": "Quoi qu'il en soit, je ne\nme tourmente",
+"font": 0
+},
+{
+"text": "pas outre mesure pour aujourd'hui.",
+"width": 208,
+"wrapped": "pas outre mesure pour aujourd'hui.",
+"font": 0
+},
+{
+"text": "pas outre mesure pour aujourd'hui.",
+"width": 120,
+"wrapped": "pas outre mesure pour\naujourd'hui.",
+"font": 0
+},
+{
+"text": "Tu ferais mieux de te préoccuper de",
+"width": 208,
+"wrapped": "Tu ferais mieux de te préoccuper de",
+"font": 0
+},
+{
+"text": "Tu ferais mieux de te préoccuper de",
+"width": 120,
+"wrapped": "Tu ferais mieux de te\npréoccuper de",
+"font": 0
+},
+{
+"text": "demain![new]",
+"width": 208,
+"wrapped": "demain!new",
+"font": 0
+},
+{
+"text": "demain![new]",
+"width": 120,
+"wrapped": "demain!new",
+"font": 0
+},
+{
+"text": "Tu as accompli ce que le roi souhaitait, et",
+"width": 208,
+"wrapped": "Tu as accompli ce que le roi souhaitait, et",
+"font": 0
+},
+{
+"text": "Tu as accompli ce que le roi souhaitait, et",
+"width": 120,
+"wrapped": "Tu as accompli ce que le\nroi souhaitait, et",
+"font": 0
+},
+{
+"text": "tu es devenu un chevalier noir...[new]",
+"width": 208,
+"wrapped": "tu es devenu un chevalier noir...new",
+"font": 0
+},
+{
+"text": "tu es devenu un chevalier noir...[new]",
+"width": 120,
+"wrapped": "tu es devenu un\nchevalier noir...new",
+"font": 0
+},
+{
+"text": "Tu détiens un rang et un prestige",
+"width": 208,
+"wrapped": "Tu détiens un rang et un prestige",
+"font": 0
+},
+{
+"text": "Tu détiens un rang et un prestige",
+"width": 120,
+"wrapped": "Tu détiens un rang et\nun prestige",
+"font": 0
+},
+{
+"text": "supérieurs aux miens, mais demain, nous",
+"width": 208,
+"wrapped": "supérieurs aux miens, mais demain, nous",
+"font": 0
+},
+{
+"text": "supérieurs aux miens, mais demain, nous",
+"width": 120,
+"wrapped": "supérieurs aux miens,\nmais demain, nous",
+"font": 0
+},
+{
+"text": "verrons bien qui excelle!",
+"width": 208,
+"wrapped": "verrons bien qui excelle!",
+"font": 0
+},
+{
+"text": "verrons bien qui excelle!",
+"width": 120,
+"wrapped": "verrons bien qui excelle!",
+"font": 0
+},
+{
+"text": "On part tôt demain, va te reposer.[end]",
+"width": 208,
+"wrapped": "On part tôt demain, va te reposer.[end]",
+"font": 0
+},
+{
+"text": "On part tôt demain, va te reposer.[end]",
+"width": 120,
+"wrapped": "On part tôt demain, va\nte reposer.[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Cecil![end]",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Cecil![end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Cecil![end]",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Cecil![end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Dieu merci, tu es sain et sauf!",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Dieu merci, tu es sain et sauf!",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Dieu merci, tu es sain et sauf!",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Dieu merci,\ntu es sain et sauf!",
+"font": 0
+},
+{
+"text": "Ta mission était si soudaine, je m'inquiétais",
+"width": 208,
+"wrapped": "Ta mission était si soudaine, je m'inquiétais",
+"font": 0
+},
+{
+"text": "Ta mission était si soudaine, je m'inquiétais",
+"width": 120,
+"wrapped": "Ta mission était si\nsoudaine, je m'inquiétais",
+"font": 0
+},
+{
+"text": "terriblement.[new]",
+"width": 208,
+"wrapped": "terriblement.new",
+"font": 0
+},
+{
+"text": "terriblement.[new]",
+"width": 120,
+"wrapped": "terriblement.new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Nous allons bien...",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Nous allons bien...",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Nous allons bien...",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Nous allons\nbien...",
+"font": 0
+},
+{
+"text": "Nous ne risquions guère d'être blessés",
+"width": 208,
+"wrapped": "Nous ne risquions guère d'être blessés",
+"font": 0
+},
+{
+"text": "Nous ne risquions guère d'être blessés",
+"width": 120,
+"wrapped": "Nous ne risquions guère\nd'être blessés",
+"font": 0
+},
+{
+"text": "par une poignée de magiciens... ...qui n'ont",
+"width": 208,
+"wrapped": "par une poignée de magiciens... ...qui n'ont",
+"font": 0
+},
+{
+"text": "par une poignée de magiciens... ...qui n'ont",
+"width": 120,
+"wrapped": "par une poignée de\nmagiciens... ...qui n'ont",
+"font": 0
+},
+{
+"text": "offert aucune résistance...[end]",
+"width": 208,
+"wrapped": "offert aucune résistance...[end]",
+"font": 0
+},
+{
+"text": "offert aucune résistance...[end]",
+"width": 120,
+"wrapped": "offert aucune\nrésistance...[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Je viendrai te voir dans tes",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Je viendrai te voir dans tes",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Je viendrai te voir dans tes",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Je viendrai\nte voir dans tes",
+"font": 0
+},
+{
+"text": "appartements ce soir...[new]",
+"width": 208,
+"wrapped": "appartements ce soir...new",
+"font": 0
+},
+{
+"text": "appartements ce soir...[new]",
+"width": 120,
+"wrapped": "appartements ce\nsoir...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Pourquoi le roi agit-il de la",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Pourquoi le roi agit-il de la",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Pourquoi le roi agit-il de la",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Pourquoi le\nroi agit-il de la",
+"font": 0
+},
+{
+"text": "sorte?",
+"width": 208,
+"wrapped": "sorte?",
+"font": 0
+},
+{
+"text": "sorte?",
+"width": 120,
+"wrapped": "sorte?",
+"font": 0
+},
+{
+"text": "Il était réputé comme chevalier pour son",
+"width": 208,
+"wrapped": "Il était réputé comme chevalier pour son",
+"font": 0
+},
+{
+"text": "Il était réputé comme chevalier pour son",
+"width": 120,
+"wrapped": "Il était réputé comme\nchevalier pour son",
+"font": 0
+},
+{
+"text": "courage et sa bonté.[new]",
+"width": 208,
+"wrapped": "courage et sa bonté.new",
+"font": 0
+},
+{
+"text": "courage et sa bonté.[new]",
+"width": 120,
+"wrapped": "courage et sa\nbonté.new",
+"font": 0
+},
+{
+"text": "nous a élevés comme ses propres fils.",
+"width": 208,
+"wrapped": "nous a élevés comme ses propres fils.",
+"font": 0
+},
+{
+"text": "nous a élevés comme ses propres fils.",
+"width": 120,
+"wrapped": "nous a élevés comme\nses propres fils.",
+"font": 0
+},
+{
+"text": "Mais maintenant...",
+"width": 208,
+"wrapped": "Mais maintenant...",
+"font": 0
+},
+{
+"text": "Mais maintenant...",
+"width": 120,
+"wrapped": "Mais maintenant...",
+"font": 0
+},
+{
+"text": "Le cristal de Mythidia...[new]",
+"width": 208,
+"wrapped": "Le cristal de Mythidia...new",
+"font": 0
+},
+{
+"text": "Le cristal de Mythidia...[new]",
+"width": 120,
+"wrapped": "Le cristal de\nMythidia...new",
+"font": 0
+},
+{
+"text": "Revêt-il donc une telle importance qu'il",
+"width": 208,
+"wrapped": "Revêt-il donc une telle importance qu'il",
+"font": 0
+},
+{
+"text": "Revêt-il donc une telle importance qu'il",
+"width": 120,
+"wrapped": "Revêt-il donc une telle\nimportance qu'il",
+"font": 0
+},
+{
+"text": "faille l'arracher à d'innocents villageois?",
+"width": 208,
+"wrapped": "faille l'arracher à d'innocents villageois?",
+"font": 0
+},
+{
+"text": "faille l'arracher à d'innocents villageois?",
+"width": 120,
+"wrapped": "faille l'arracher à\nd'innocents villageois?",
+"font": 0
+},
+{
+"text": "Et dire que nous avons dû commettre un",
+"width": 208,
+"wrapped": "Et dire que nous avons dû commettre un",
+"font": 0
+},
+{
+"text": "Et dire que nous avons dû commettre un",
+"width": 120,
+"wrapped": "Et dire que nous avons\ndû commettre un",
+"font": 0
+},
+{
+"text": "tel acte, sur ordre royal!![end]",
+"width": 208,
+"wrapped": "tel acte, sur ordre royal!![end]",
+"font": 0
+},
+{
+"text": "tel acte, sur ordre royal!![end]",
+"width": 120,
+"wrapped": "tel acte, sur ordre\nroyal!![end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Que s'est-il passé?",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Que s'est-il passé?",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Que s'est-il passé?",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Que s'est-il\npassé?",
+"font": 0
+},
+{
+"text": "D'abord, tu es envoyé à Mythidia, puis",
+"width": 208,
+"wrapped": "D'abord, tu es envoyé à Mythidia, puis",
+"font": 0
+},
+{
+"text": "D'abord, tu es envoyé à Mythidia, puis",
+"width": 120,
+"wrapped": "D'abord, tu es envoyé\nà Mythidia, puis",
+"font": 0
+},
+{
+"text": "soudain, tu es envoyé éliminer d'horribles",
+"width": 208,
+"wrapped": "soudain, tu es envoyé éliminer d'horribles",
+"font": 0
+},
+{
+"text": "soudain, tu es envoyé éliminer d'horribles",
+"width": 120,
+"wrapped": "soudain, tu es envoyé\néliminer d'horribles",
+"font": 0
+},
+{
+"text": "créatures.[new]",
+"width": 208,
+"wrapped": "créatures.new",
+"font": 0
+},
+{
+"text": "créatures.[new]",
+"width": 120,
+"wrapped": "créatures.new",
+"font": 0
+},
+{
+"text": "Et tu te comportes de manière si étrange",
+"width": 208,
+"wrapped": "Et tu te comportes de manière si étrange",
+"font": 0
+},
+{
+"text": "Et tu te comportes de manière si étrange",
+"width": 120,
+"wrapped": "Et tu te comportes de\nmanière si étrange",
+"font": 0
+},
+{
+"text": "depuis ton retour.[new]",
+"width": 208,
+"wrapped": "depuis ton retour.new",
+"font": 0
+},
+{
+"text": "depuis ton retour.[new]",
+"width": 120,
+"wrapped": "depuis ton retour.new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Non...",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Non...",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Non...",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Non...",
+"font": 0
+},
+{
+"text": "Ce n'est rien...[end]",
+"width": 208,
+"wrapped": "Ce n'est rien...[end]",
+"font": 0
+},
+{
+"text": "Ce n'est rien...[end]",
+"width": 120,
+"wrapped": "Ce n'est rien...[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Dans ce cas...",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Dans ce cas...",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Dans ce cas...",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Dans ce cas...",
+"font": 0
+},
+{
+"text": "Regarde-moi plutôt.[end]",
+"width": 208,
+"wrapped": "Regarde-moi plutôt.[end]",
+"font": 0
+},
+{
+"text": "Regarde-moi plutôt.[end]",
+"width": 120,
+"wrapped": "Regarde-moi plutôt.[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: À Mythidia...",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: À Mythidia...",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: À Mythidia...",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: À Mythidia...",
+"font": 0
+},
+{
+"text": "J'ai ôté la vie à des innocents et dérobé",
+"width": 208,
+"wrapped": "J'ai ôté la vie à des innocents et dérobé",
+"font": 0
+},
+{
+"text": "J'ai ôté la vie à des innocents et dérobé",
+"width": 120,
+"wrapped": "J'ai ôté la vie à des\ninnocents et dérobé",
+"font": 0
+},
+{
+"text": "leur cristal sacré... mais pour quelle",
+"width": 208,
+"wrapped": "leur cristal sacré... mais pour quelle",
+"font": 0
+},
+{
+"text": "leur cristal sacré... mais pour quelle",
+"width": 120,
+"wrapped": "leur cristal sacré... mais\npour quelle",
+"font": 0
+},
+{
+"text": "raison?![new]",
+"width": 208,
+"wrapped": "raison?!new",
+"font": 0
+},
+{
+"text": "raison?![new]",
+"width": 120,
+"wrapped": "raison?!new",
+"font": 0
+},
+{
+"text": "Mon cœur s'est assombri tout autant que",
+"width": 208,
+"wrapped": "Mon cœur s'est assombri tout autant que",
+"font": 0
+},
+{
+"text": "Mon cœur s'est assombri tout autant que",
+"width": 120,
+"wrapped": "Mon cœur s'est\nassombri tout autant\nque",
+"font": 0
+},
+{
+"text": "cette armure maudite![end]",
+"width": 208,
+"wrapped": "cette armure maudite![end]",
+"font": 0
+},
+{
+"text": "cette armure maudite![end]",
+"width": 120,
+"wrapped": "cette armure maudite![end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: ...Tu n'es pas comme cela.[end]",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: ...Tu n'es pas comme cela.[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: ...Tu n'es pas comme cela.[end]",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: ...Tu n'es pas\ncomme cela.[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne suis rien qu'un chevalier",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Je ne suis rien qu'un chevalier",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne suis rien qu'un chevalier",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Je ne suis\nrien qu'un chevalier",
+"font": 0
+},
+{
+"text": "noir docile, tout juste un pantin du roi.[end]",
+"width": 208,
+"wrapped": "noir docile, tout juste un pantin du roi.[end]",
+"font": 0
+},
+{
+"text": "noir docile, tout juste un pantin du roi.[end]",
+"width": 120,
+"wrapped": "noir docile, tout juste\nun pantin du roi.[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Le Cecil des Ailes Rouges",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Le Cecil des Ailes Rouges",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Le Cecil des Ailes Rouges",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Le Cecil\ndes Ailes Rouges",
+"font": 0
+},
+{
+"text": "n'aurait jamais pleurniché comme ça!",
+"width": 208,
+"wrapped": "n'aurait jamais pleurniché comme ça!",
+"font": 0
+},
+{
+"text": "n'aurait jamais pleurniché comme ça!",
+"width": 120,
+"wrapped": "n'aurait jamais\npleurniché comme ça!",
+"font": 0
+},
+{
+"text": "Pas le Cecil que j'aime...[end]",
+"width": 208,
+"wrapped": "Pas le Cecil que j'aime...[end]",
+"font": 0
+},
+{
+"text": "Pas le Cecil que j'aime...[end]",
+"width": 120,
+"wrapped": "Pas le Cecil que\nj'aime...[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Tu t'en vas à Mist demain,",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Tu t'en vas à Mist demain,",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Tu t'en vas à Mist demain,",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Tu t'en vas à\nMist demain,",
+"font": 0
+},
+{
+"text": "hein?",
+"width": 208,
+"wrapped": "hein?",
+"font": 0
+},
+{
+"text": "hein?",
+"width": 120,
+"wrapped": "hein?",
+"font": 0
+},
+{
+"text": "Si jamais il t'arrivait quelque chose, je...[end]",
+"width": 208,
+"wrapped": "Si jamais il t'arrivait quelque chose, je...[end]",
+"font": 0
+},
+{
+"text": "Si jamais il t'arrivait quelque chose, je...[end]",
+"width": 120,
+"wrapped": "Si jamais il t'arrivait\nquelque chose, je...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Il se fait tard.",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Il se fait tard.",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Il se fait tard.",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Il se fait tard.",
+"font": 0
+},
+{
+"text": "Va donc te coucher.[end]",
+"width": 208,
+"wrapped": "Va donc te coucher.[end]",
+"font": 0
+},
+{
+"text": "Va donc te coucher.[end]",
+"width": 120,
+"wrapped": "Va donc te coucher.[end]",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Sois prudent!",
+"width": 208,
+"wrapped": "[bold]Rosa[normal]: Sois prudent!",
+"font": 0
+},
+{
+"text": "[bold]Rosa[normal]: Sois prudent!",
+"width": 120,
+"wrapped": "[bold]Rosa[normal]: Sois prudent!",
+"font": 0
+},
+{
+"text": "Pour l'amour de moi...[end]",
+"width": 208,
+"wrapped": "Pour l'amour de moi...[end]",
+"font": 0
+},
+{
+"text": "Pour l'amour de moi...[end]",
+"width": 120,
+"wrapped": "Pour l'amour de moi...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Merci, Rosa.",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Merci, Rosa.",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Merci, Rosa.",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Merci,\nRosa.",
+"font": 0
+},
+{
+"text": "Pourtant, je ne suis qu'un chevalier noir...",
+"width": 208,
+"wrapped": "Pourtant, je ne suis qu'un chevalier noir...",
+"font": 0
+},
+{
+"text": "Pourtant, je ne suis qu'un chevalier noir...",
+"width": 120,
+"wrapped": "Pourtant, je ne suis\nqu'un chevalier noir...",
+"font": 0
+},
+{
+"text": "Qu'est-ce que je peux y faire?[end]",
+"width": 208,
+"wrapped": "Qu'est-ce que je peux y faire?[end]",
+"font": 0
+},
+{
+"text": "Qu'est-ce que je peux y faire?[end]",
+"width": 120,
+"wrapped": "Qu'est-ce que je peux\ny faire?[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Yang, tu vas bien![new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Yang, tu vas bien!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Yang, tu vas bien![new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Yang,\ntu vas bien!new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Toi...![new]",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Toi...!new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Toi...![new]",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Toi...!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Tu ne me reconnais pas?",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Tu ne me reconnais pas?",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Tu ne me reconnais pas?",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Tu ne me\nreconnais pas?",
+"font": 0
+},
+{
+"text": "C'est moi, Cecil!",
+"width": 208,
+"wrapped": "C'est moi, Cecil!",
+"font": 0
+},
+{
+"text": "C'est moi, Cecil!",
+"width": 120,
+"wrapped": "C'est moi, Cecil!",
+"font": 0
+},
+{
+"text": "Je suis devenu un paladin...[new]",
+"width": 208,
+"wrapped": "Je suis devenu un paladin...new",
+"font": 0
+},
+{
+"text": "Je suis devenu un paladin...[new]",
+"width": 120,
+"wrapped": "Je suis devenu un\npaladin...new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Cecil!",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Cecil!",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Cecil!",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Cecil!",
+"font": 0
+},
+{
+"text": "Je te cherchais!",
+"width": 208,
+"wrapped": "Je te cherchais!",
+"font": 0
+},
+{
+"text": "Je te cherchais!",
+"width": 120,
+"wrapped": "Je te cherchais!",
+"font": 0
+},
+{
+"text": "Traître au Roi!",
+"width": 208,
+"wrapped": "Traître au Roi!",
+"font": 0
+},
+{
+"text": "Traître au Roi!",
+"width": 120,
+"wrapped": "Traître au Roi!",
+"font": 0
+},
+{
+"text": "Chien![new]",
+"width": 208,
+"wrapped": "Chien!new",
+"font": 0
+},
+{
+"text": "Chien![new]",
+"width": 120,
+"wrapped": "Chien!new",
+"font": 0
+},
+{
+"text": "Attaquez![new]",
+"width": 208,
+"wrapped": "Attaquez!new",
+"font": 0
+},
+{
+"text": "Attaquez![new]",
+"width": 120,
+"wrapped": "Attaquez!new",
+"font": 0
+},
+{
+"text": "[bold]Soldats[normal]: À vos ordres![end]",
+"width": 208,
+"wrapped": "[bold]Soldats[normal]: À vos ordres![end]",
+"font": 0
+},
+{
+"text": "[bold]Soldats[normal]: À vos ordres![end]",
+"width": 120,
+"wrapped": "[bold]Soldats[normal]: À vos ordres![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Yang!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Yang!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Yang!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Yang!",
+"font": 0
+},
+{
+"text": "Tu ne me reconnais pas!?[new]",
+"width": 208,
+"wrapped": "Tu ne me reconnais pas!?new",
+"font": 0
+},
+{
+"text": "Tu ne me reconnais pas!?[new]",
+"width": 120,
+"wrapped": "Tu ne me reconnais\npas!?new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Si, je te reconnais, criminel![end]",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Si, je te reconnais, criminel![end]",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Si, je te reconnais, criminel![end]",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Si, je te\nreconnais, criminel![end]",
+"font": 0
+},
+{
+"text": "Qu'ai-je fait?!",
+"width": 208,
+"wrapped": "Qu'ai-je fait?!",
+"font": 0
+},
+{
+"text": "Qu'ai-je fait?!",
+"width": 120,
+"wrapped": "Qu'ai-je fait?!",
+"font": 0
+},
+{
+"text": "J'ai été assommé par Léviathan... et",
+"width": 208,
+"wrapped": "J'ai été assommé par Léviathan... et",
+"font": 0
+},
+{
+"text": "J'ai été assommé par Léviathan... et",
+"width": 120,
+"wrapped": "J'ai été assommé par\nLéviathan... et",
+"font": 0
+},
+{
+"text": "alors...[new]",
+"width": 208,
+"wrapped": "alors...new",
+"font": 0
+},
+{
+"text": "alors...[new]",
+"width": 120,
+"wrapped": "alors...new",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Apparemment, Baron se",
+"width": 208,
+"wrapped": "[bold]Tellah[normal]: Apparemment, Baron se",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Apparemment, Baron se",
+"width": 120,
+"wrapped": "[bold]Tellah[normal]:\nApparemment, Baron se",
+"font": 0
+},
+{
+"text": "servait de vous pendant votre amnésie.[new]",
+"width": 208,
+"wrapped": "servait de vous pendant votre\namnésie.new",
+"font": 0
+},
+{
+"text": "servait de vous pendant votre amnésie.[new]",
+"width": 120,
+"wrapped": "servait de vous\npendant votre\namnésie.new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: B...Baron?",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: B...Baron?",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: B...Baron?",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: B...Baron?",
+"font": 0
+},
+{
+"text": "Quelle honte...[end]",
+"width": 208,
+"wrapped": "Quelle honte...[end]",
+"font": 0
+},
+{
+"text": "Quelle honte...[end]",
+"width": 120,
+"wrapped": "Quelle honte...[end]",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Rydia a été avalée par",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Rydia a été avalée par",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Rydia a été avalée par",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Rydia a\nété avalée par",
+"font": 0
+},
+{
+"text": "Léviathan.",
+"width": 208,
+"wrapped": "Léviathan.",
+"font": 0
+},
+{
+"text": "Léviathan.",
+"width": 120,
+"wrapped": "Léviathan.",
+"font": 0
+},
+{
+"text": "Edward... je ne sais pas...[new]",
+"width": 208,
+"wrapped": "Edward... je ne sais pas...new",
+"font": 0
+},
+{
+"text": "Edward... je ne sais pas...[new]",
+"width": 120,
+"wrapped": "Edward... je ne sais\npas...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je comprends...[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Je comprends...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je comprends...[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Je\ncomprends...[end]",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Où sommes-nous?[new]",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Où sommes-nous?new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Où sommes-nous?[new]",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Où\nsommes-nous?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: À Baron.",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: À Baron.",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: À Baron.",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: À Baron.",
+"font": 0
+},
+{
+"text": "Si les soldats nous entendent, on aura",
+"width": 208,
+"wrapped": "Si les soldats nous entendent, on aura",
+"font": 0
+},
+{
+"text": "Si les soldats nous entendent, on aura",
+"width": 120,
+"wrapped": "Si les soldats nous\nentendent, on aura",
+"font": 0
+},
+{
+"text": "des ennuis.[new]",
+"width": 208,
+"wrapped": "des ennuis.new",
+"font": 0
+},
+{
+"text": "des ennuis.[new]",
+"width": 120,
+"wrapped": "des ennuis.new",
+"font": 0
+},
+{
+"text": "Il y a une chambre tranquille à l'auberge.",
+"width": 208,
+"wrapped": "Il y a une chambre tranquille à l'auberge.",
+"font": 0
+},
+{
+"text": "Il y a une chambre tranquille à l'auberge.",
+"width": 120,
+"wrapped": "Il y a une chambre\ntranquille à l'auberge.",
+"font": 0
+},
+{
+"text": "Allons-y! [0xfa]Le Moine Yang a rejoint le",
+"width": 208,
+"wrapped": "Allons-y! [0xfa]Le Moine Yang a rejoint le",
+"font": 0
+},
+{
+"text": "Allons-y! [0xfa]Le Moine Yang a rejoint le",
+"width": 120,
+"wrapped": "Allons-y! [0xfa]Le Moine\nYang a rejoint le",
+"font": 0
+},
+{
+"text": "groupe![music][0x29][delay][0x28][end]",
+"width": 208,
+"wrapped": "groupe![music][0x29][delay][0x28][end]",
+"font": 0
+},
+{
+"text": "groupe![music][0x29][delay][0x28][end]",
+"width": 120,
+"wrapped": "groupe![music][0x29][delay][0x28][end]",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Et qui est ce monsieur?[new]",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Et qui est ce monsieur?new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Et qui est ce monsieur?[new]",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Et qui est ce\nmonsieur?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Tellah, le sage.",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Tellah, le sage.",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Tellah, le sage.",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Tellah, le\nsage.",
+"font": 0
+},
+{
+"text": "Edward a...[new]",
+"width": 208,
+"wrapped": "Edward a...new",
+"font": 0
+},
+{
+"text": "Edward a...[new]",
+"width": 120,
+"wrapped": "Edward a...new",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Ma fille a donné sa vie... pour",
+"width": 208,
+"wrapped": "[bold]Tellah[normal]: Ma fille a donné sa vie... pour",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Ma fille a donné sa vie... pour",
+"width": 120,
+"wrapped": "[bold]Tellah[normal]: Ma fille a\ndonné sa vie... pour",
+"font": 0
+},
+{
+"text": "protéger cet homme qu'elle aimait...[new]",
+"width": 208,
+"wrapped": "protéger cet homme qu'elle aimait...new",
+"font": 0
+},
+{
+"text": "protéger cet homme qu'elle aimait...[new]",
+"width": 120,
+"wrapped": "protéger cet homme\nqu'elle aimait...new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Je vois...",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: Je vois...",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: Je vois...",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: Je vois...",
+"font": 0
+},
+{
+"text": "Je suis Yang, capitaine des moines",
+"width": 208,
+"wrapped": "Je suis Yang, capitaine des moines",
+"font": 0
+},
+{
+"text": "Je suis Yang, capitaine des moines",
+"width": 120,
+"wrapped": "Je suis Yang,\ncapitaine des moines",
+"font": 0
+},
+{
+"text": "de Fabul.[end]",
+"width": 208,
+"wrapped": "de Fabul.[end]",
+"font": 0
+},
+{
+"text": "de Fabul.[end]",
+"width": 120,
+"wrapped": "de Fabul.[end]",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: J'ai honte...[new]",
+"width": 208,
+"wrapped": "[bold]Yang[normal]: J'ai honte...new",
+"font": 0
+},
+{
+"text": "[bold]Yang[normal]: J'ai honte...[new]",
+"width": 120,
+"wrapped": "[bold]Yang[normal]: J'ai\nhonte...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Peu importe, il faut sauver",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Peu importe, il faut sauver",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Peu importe, il faut sauver",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Peu importe,\nil faut sauver",
+"font": 0
+},
+{
+"text": "Cid.[new]",
+"width": 208,
+"wrapped": "Cid.new",
+"font": 0
+},
+{
+"text": "Cid.[new]",
+"width": 120,
+"wrapped": "Cid.new",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Mais ce ne sera pas facile",
+"width": 208,
+"wrapped": "[bold]Tellah[normal]: Mais ce ne sera pas facile",
+"font": 0
+},
+{
+"text": "[bold]Tellah[normal]: Mais ce ne sera pas facile",
+"width": 120,
+"wrapped": "[bold]Tellah[normal]: Mais ce ne\nsera pas facile",
+"font": 0
+},
+{
+"text": "d'entrer dans le château...[end]",
+"width": 208,
+"wrapped": "d'entrer dans le château...[end]",
+"font": 0
+},
+{
+"text": "d'entrer dans le château...[end]",
+"width": 120,
+"wrapped": "d'entrer dans le\nchâteau...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: C'est la clef de Baron!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: C'est la clef de Baron!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: C'est la clef de Baron!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: C'est la clef\nde Baron!",
+"font": 0
+},
+{
+"text": "Bien sûr!",
+"width": 208,
+"wrapped": "Bien sûr!",
+"font": 0
+},
+{
+"text": "Bien sûr!",
+"width": 120,
+"wrapped": "Bien sûr!",
+"font": 0
+},
+{
+"text": "Yang, ils t'ont fait commander la",
+"width": 208,
+"wrapped": "Yang, ils t'ont fait commander la",
+"font": 0
+},
+{
+"text": "Yang, ils t'ont fait commander la",
+"width": 120,
+"wrapped": "Yang, ils t'ont fait\ncommander la",
+"font": 0
+},
+{
+"text": "garde... c'est pour ça que tu l'as![new]",
+"width": 208,
+"wrapped": "garde... c'est pour ça que tu l'as!new",
+"font": 0
+},
+{
+"text": "garde... c'est pour ça que tu l'as![new]",
+"width": 120,
+"wrapped": "garde... c'est pour ça\nque tu l'as!new",
+"font": 0
+},
+{
+"text": "Avec ça, on devrait pouvoir s'en sortir!",
+"width": 208,
+"wrapped": "Avec ça, on devrait pouvoir s'en sortir!",
+"font": 0
+},
+{
+"text": "Avec ça, on devrait pouvoir s'en sortir!",
+"width": 120,
+"wrapped": "Avec ça, on devrait\npouvoir s'en sortir!",
+"font": 0
+},
+{
+"text": "[0xfa]Tu as la clef de Baron![music][0x29][delay][0x28][end]",
+"width": 208,
+"wrapped": "[0xfa]Tu as la clef de Baron![music][0x29][delay][0x28][end]",
+"font": 0
+},
+{
+"text": "[0xfa]Tu as la clef de Baron![music][0x29][delay][0x28][end]",
+"width": 120,
+"wrapped": "[0xfa]Tu as la clef de Baron![music][0x29][delay][0x28][end]",
+"font": 0
+},
+{
+"text": "L'anneau scintille..!?[end]",
+"width": 208,
+"wrapped": "L'anneau scintille..!?[end]",
+"font": 0
+},
+{
+"text": "L'anneau scintille..!?[end]",
+"width": 120,
+"wrapped": "L'anneau scintille..!?[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Voilà pourquoi on a été",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Voilà pourquoi on a été",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Voilà pourquoi on a été",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Voilà\npourquoi on a été",
+"font": 0
+},
+{
+"text": "envoyé ici..![new]",
+"width": 208,
+"wrapped": "envoyé ici..!new",
+"font": 0
+},
+{
+"text": "envoyé ici..![new]",
+"width": 120,
+"wrapped": "envoyé ici..!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: POURQUOI?!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: POURQUOI?!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: POURQUOI?!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: POURQUOI?!",
+"font": 0
+},
+{
+"text": "Roi Baron!!",
+"width": 208,
+"wrapped": "Roi Baron!!",
+"font": 0
+},
+{
+"text": "Roi Baron!!",
+"width": 120,
+"wrapped": "Roi Baron!!",
+"font": 0
+},
+{
+"text": "NON!![new]",
+"width": 208,
+"wrapped": "NON!!new",
+"font": 0
+},
+{
+"text": "NON!![new]",
+"width": 120,
+"wrapped": "NON!!new",
+"font": 0
+},
+{
+"text": "«Ouiiiiin! Ouiiiiin...!!»[end]",
+"width": 208,
+"wrapped": "«Ouiiiiin! Ouiiiiin...!!»[end]",
+"font": 0
+},
+{
+"text": "«Ouiiiiin! Ouiiiiin...!!»[end]",
+"width": 120,
+"wrapped": "«Ouiiiiin! Ouiiiiin...!!»[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Qui c'est?[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Qui c'est?[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Qui c'est?[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Qui c'est?[end]",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: Le dragon de maman est mort...",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: Le dragon de maman est mort...",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: Le dragon de maman est mort...",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: Le dragon de\nmaman est mort...",
+"font": 0
+},
+{
+"text": "donc maman aussi... -sanglot-, -sanglot-...[end]",
+"width": 208,
+"wrapped": "donc maman aussi... -sanglot-, -sanglot-...[end]",
+"font": 0
+},
+{
+"text": "donc maman aussi... -sanglot-, -sanglot-...[end]",
+"width": 120,
+"wrapped": "donc maman aussi...\n-sanglot-, -sanglot-...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Bon sang![new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Bon sang!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Bon sang![new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Bon\nsang!new",
+"font": 0
+},
+{
+"text": "ai entendu parler.",
+"width": 208,
+"wrapped": "ai entendu parler.",
+"font": 0
+},
+{
+"text": "ai entendu parler.",
+"width": 120,
+"wrapped": "ai entendu parler.",
+"font": 0
+},
+{
+"text": "Des gens qui ont le pouvoir d'invoquer",
+"width": 208,
+"wrapped": "Des gens qui ont le pouvoir d'invoquer",
+"font": 0
+},
+{
+"text": "Des gens qui ont le pouvoir d'invoquer",
+"width": 120,
+"wrapped": "Des gens qui ont le\npouvoir d'invoquer",
+"font": 0
+},
+{
+"text": "des monstres...[new]",
+"width": 208,
+"wrapped": "des monstres...new",
+"font": 0
+},
+{
+"text": "des monstres...[new]",
+"width": 120,
+"wrapped": "des monstres...new",
+"font": 0
+},
+{
+"text": "Ce sont les Invocateurs![new]",
+"width": 208,
+"wrapped": "Ce sont les Invocateurs!new",
+"font": 0
+},
+{
+"text": "Ce sont les Invocateurs![new]",
+"width": 120,
+"wrapped": "Ce sont les\nInvocateurs!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Non!!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Non!!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Non!!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Non!!",
+"font": 0
+},
+{
+"text": "Ce n'est pas possible qu'en battant ce",
+"width": 208,
+"wrapped": "Ce n'est pas possible qu'en battant ce",
+"font": 0
+},
+{
+"text": "Ce n'est pas possible qu'en battant ce",
+"width": 120,
+"wrapped": "Ce n'est pas possible\nqu'en battant ce",
+"font": 0
+},
+{
+"text": "dragon... on ait causé la mort de la mère",
+"width": 208,
+"wrapped": "dragon... on ait causé la mort de la mère",
+"font": 0
+},
+{
+"text": "dragon... on ait causé la mort de la mère",
+"width": 120,
+"wrapped": "dragon... on ait causé la\nmort de la mère",
+"font": 0
+},
+{
+"text": "de cette fille?[end]",
+"width": 208,
+"wrapped": "de cette fille?[end]",
+"font": 0
+},
+{
+"text": "de cette fille?[end]",
+"width": 120,
+"wrapped": "de cette fille?[end]",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: Alors c'est vous qui avez tué le",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: Alors c'est vous qui avez tué le",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: Alors c'est vous qui avez tué le",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: Alors c'est vous\nqui avez tué le",
+"font": 0
+},
+{
+"text": "dragon de maman?![new]",
+"width": 208,
+"wrapped": "dragon de maman?!new",
+"font": 0
+},
+{
+"text": "dragon de maman?![new]",
+"width": 120,
+"wrapped": "dragon de maman?!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: On ne savait pas... qu'en tuant",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: On ne savait pas... qu'en tuant",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: On ne savait pas... qu'en tuant",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: On ne savait\npas... qu'en tuant",
+"font": 0
+},
+{
+"text": "ce dragon... on causerait la mort de ta",
+"width": 208,
+"wrapped": "ce dragon... on causerait la mort de ta",
+"font": 0
+},
+{
+"text": "ce dragon... on causerait la mort de ta",
+"width": 120,
+"wrapped": "ce dragon... on\ncauserait la mort de ta",
+"font": 0
+},
+{
+"text": "mère...[end]",
+"width": 208,
+"wrapped": "mère...[end]",
+"font": 0
+},
+{
+"text": "mère...[end]",
+"width": 120,
+"wrapped": "mère...[end]",
+"font": 0
+},
+{
+"text": "exterminer les invocateurs...[new]",
+"width": 208,
+"wrapped": "exterminer les invocateurs...new",
+"font": 0
+},
+{
+"text": "exterminer les invocateurs...[new]",
+"width": 120,
+"wrapped": "exterminer les\ninvocateurs...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Miséricorde![new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Miséricorde!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Miséricorde![new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]:\nMiséricorde!new",
+"font": 0
+},
+{
+"text": "sont les ordres...",
+"width": 208,
+"wrapped": "sont les ordres...",
+"font": 0
+},
+{
+"text": "sont les ordres...",
+"width": 120,
+"wrapped": "sont les ordres...",
+"font": 0
+},
+{
+"text": "On n'a d'autre choix que de la tuer aussi.[end]",
+"width": 208,
+"wrapped": "On n'a d'autre choix que de la tuer aussi.[end]",
+"font": 0
+},
+{
+"text": "On n'a d'autre choix que de la tuer aussi.[end]",
+"width": 120,
+"wrapped": "On n'a d'autre choix\nque de la tuer aussi.[end]",
+"font": 0
+},
+{
+"text": "exécuté pour trahison![new]",
+"width": 208,
+"wrapped": "exécuté pour trahison!new",
+"font": 0
+},
+{
+"text": "exécuté pour trahison![new]",
+"width": 120,
+"wrapped": "exécuté pour\ntrahison!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Mais ce n'est qu'une enfant![new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Mais ce n'est qu'une\nenfant!new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Mais ce n'est qu'une enfant![new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Mais ce n'est\nqu'une enfant!new",
+"font": 0
+},
+{
+"text": "braver le Roi?[new]",
+"width": 208,
+"wrapped": "braver le Roi?new",
+"font": 0
+},
+{
+"text": "braver le Roi?[new]",
+"width": 120,
+"wrapped": "braver le Roi?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Si le roi attend de nous qu'on",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Si le roi attend de nous qu'on",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Si le roi attend de nous qu'on",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Si le roi\nattend de nous qu'on",
+"font": 0
+},
+{
+"text": "assassine des gens comme ça...",
+"width": 208,
+"wrapped": "assassine des gens comme ça...",
+"font": 0
+},
+{
+"text": "assassine des gens comme ça...",
+"width": 120,
+"wrapped": "assassine des gens\ncomme ça...",
+"font": 0
+},
+{
+"text": "Je n'ai aucune intention de le suivre![new]",
+"width": 208,
+"wrapped": "Je n'ai aucune intention de le suivre!new",
+"font": 0
+},
+{
+"text": "Je n'ai aucune intention de le suivre![new]",
+"width": 120,
+"wrapped": "Je n'ai aucune intention\nde le suivre!new",
+"font": 0
+},
+{
+"text": "Je renonce à toute loyauté envers le roi,",
+"width": 208,
+"wrapped": "Je renonce à toute loyauté envers le roi,",
+"font": 0
+},
+{
+"text": "Je renonce à toute loyauté envers le roi,",
+"width": 120,
+"wrapped": "Je renonce à toute\nloyauté envers le roi,",
+"font": 0
+},
+{
+"text": "les Ailes Rouges, et Baron!!![end]",
+"width": 208,
+"wrapped": "les Ailes Rouges, et Baron!!![end]",
+"font": 0
+},
+{
+"text": "les Ailes Rouges, et Baron!!![end]",
+"width": 120,
+"wrapped": "les Ailes Rouges, et\nBaron!!![end]",
+"font": 0
+},
+{
+"text": "ça.",
+"width": 208,
+"wrapped": "ça.",
+"font": 0
+},
+{
+"text": "ça.",
+"width": 120,
+"wrapped": "ça.",
+"font": 0
+},
+{
+"text": "Je ne vais pas te laisser affronter le roi",
+"width": 208,
+"wrapped": "Je ne vais pas te laisser affronter le roi",
+"font": 0
+},
+{
+"text": "Je ne vais pas te laisser affronter le roi",
+"width": 120,
+"wrapped": "Je ne vais pas te\nlaisser affronter le roi",
+"font": 0
+},
+{
+"text": "tout seul.[new]",
+"width": 208,
+"wrapped": "tout seul.new",
+"font": 0
+},
+{
+"text": "tout seul.[new]",
+"width": 120,
+"wrapped": "tout seul.new",
+"font": 0
+},
+{
+"text": "roi, en tant que chevalier dragon...",
+"width": 208,
+"wrapped": "roi, en tant que chevalier dragon...",
+"font": 0
+},
+{
+"text": "roi, en tant que chevalier dragon...",
+"width": 120,
+"wrapped": "roi, en tant que\nchevalier dragon...",
+"font": 0
+},
+{
+"text": "Jamais je ne pourrais commettre un acte",
+"width": 208,
+"wrapped": "Jamais je ne pourrais commettre un acte",
+"font": 0
+},
+{
+"text": "Jamais je ne pourrais commettre un acte",
+"width": 120,
+"wrapped": "Jamais je ne pourrais\ncommettre un acte",
+"font": 0
+},
+{
+"text": "aussi bas.[new]",
+"width": 208,
+"wrapped": "aussi bas.new",
+"font": 0
+},
+{
+"text": "aussi bas.[new]",
+"width": 120,
+"wrapped": "aussi bas.new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Alors, tu n'avais pas",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Alors, tu n'avais pas",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Alors, tu n'avais pas",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Alors, tu\nn'avais pas",
+"font": 0
+},
+{
+"text": "réellement l'intention de...[new]",
+"width": 208,
+"wrapped": "réellement l'intention de...new",
+"font": 0
+},
+{
+"text": "réellement l'intention de...[new]",
+"width": 120,
+"wrapped": "réellement l'intention\nde...new",
+"font": 0
+},
+{
+"text": "militaire au monde.",
+"width": 208,
+"wrapped": "militaire au monde.",
+"font": 0
+},
+{
+"text": "militaire au monde.",
+"width": 120,
+"wrapped": "militaire au monde.",
+"font": 0
+},
+{
+"text": "On ne peut pas combattre son pouvoir",
+"width": 208,
+"wrapped": "On ne peut pas combattre son pouvoir",
+"font": 0
+},
+{
+"text": "On ne peut pas combattre son pouvoir",
+"width": 120,
+"wrapped": "On ne peut pas\ncombattre son pouvoir",
+"font": 0
+},
+{
+"text": "rien qu'à deux.[new]",
+"width": 208,
+"wrapped": "rien qu'à deux.new",
+"font": 0
+},
+{
+"text": "rien qu'à deux.[new]",
+"width": 120,
+"wrapped": "rien qu'à deux.new",
+"font": 0
+},
+{
+"text": "Il faut prévenir les autres pays et obtenir",
+"width": 208,
+"wrapped": "Il faut prévenir les autres pays et obtenir",
+"font": 0
+},
+{
+"text": "Il faut prévenir les autres pays et obtenir",
+"width": 120,
+"wrapped": "Il faut prévenir les\nautres pays et obtenir",
+"font": 0
+},
+{
+"text": "à tout prix leur aide.",
+"width": 208,
+"wrapped": "à tout prix leur aide.",
+"font": 0
+},
+{
+"text": "à tout prix leur aide.",
+"width": 120,
+"wrapped": "à tout prix leur aide.",
+"font": 0
+},
+{
+"text": "Et il faut sauver Rosa![new]",
+"width": 208,
+"wrapped": "Et il faut sauver Rosa!new",
+"font": 0
+},
+{
+"text": "Et il faut sauver Rosa![new]",
+"width": 120,
+"wrapped": "Et il faut sauver\nRosa!new",
+"font": 0
+},
+{
+"text": "pour toi que je le fais, tu sais.[end]",
+"width": 208,
+"wrapped": "pour toi que je le fais, tu sais.[end]",
+"font": 0
+},
+{
+"text": "pour toi que je le fais, tu sais.[end]",
+"width": 120,
+"wrapped": "pour toi que je le fais,\ntu sais.[end]",
+"font": 0
+},
+{
+"text": "dangereux pour nous de rester ici.",
+"width": 208,
+"wrapped": "dangereux pour nous de rester ici.",
+"font": 0
+},
+{
+"text": "dangereux pour nous de rester ici.",
+"width": 120,
+"wrapped": "dangereux pour nous\nde rester ici.",
+"font": 0
+},
+{
+"text": "Nous devons quitter ce village.",
+"width": 208,
+"wrapped": "Nous devons quitter ce village.",
+"font": 0
+},
+{
+"text": "Nous devons quitter ce village.",
+"width": 120,
+"wrapped": "Nous devons quitter ce\nvillage.",
+"font": 0
+},
+{
+"text": "Que faisons-nous de la fille?[new]",
+"width": 208,
+"wrapped": "Que faisons-nous de la fille?new",
+"font": 0
+},
+{
+"text": "Que faisons-nous de la fille?[new]",
+"width": 120,
+"wrapped": "Que faisons-nous de la\nfille?new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Nous n'avons pas le choix!",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Nous n'avons pas le choix!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Nous n'avons pas le choix!",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Nous n'avons\npas le choix!",
+"font": 0
+},
+{
+"text": "Elle doit venir![end]",
+"width": 208,
+"wrapped": "Elle doit venir![end]",
+"font": 0
+},
+{
+"text": "Elle doit venir![end]",
+"width": 120,
+"wrapped": "Elle doit venir![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Écoute, c'est dangereux ici.",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Écoute, c'est dangereux ici.",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Écoute, c'est dangereux ici.",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Écoute, c'est\ndangereux ici.",
+"font": 0
+},
+{
+"text": "Viens avec nous.[new]",
+"width": 208,
+"wrapped": "Viens avec nous.new",
+"font": 0
+},
+{
+"text": "Viens avec nous.[new]",
+"width": 120,
+"wrapped": "Viens avec nous.new",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: Non![end]",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: Non![end]",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: Non![end]",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: Non![end]",
+"font": 0
+},
+{
+"text": "Il faut la forcer à venir![new]",
+"width": 208,
+"wrapped": "Il faut la forcer à venir!new",
+"font": 0
+},
+{
+"text": "Il faut la forcer à venir![new]",
+"width": 120,
+"wrapped": "Il faut la forcer à\nvenir!new",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: N'approchez pas![end]",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: N'approchez pas![end]",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: N'approchez pas![end]",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: N'approchez pas![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Attends![end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Attends![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Attends![end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Attends![end]",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: J'en peux plus!",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: J'en peux plus!",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: J'en peux plus!",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: J'en peux plus!",
+"font": 0
+},
+{
+"text": "Je vous déteste!",
+"width": 208,
+"wrapped": "Je vous déteste!",
+"font": 0
+},
+{
+"text": "Je vous déteste!",
+"width": 120,
+"wrapped": "Je vous déteste!",
+"font": 0
+},
+{
+"text": "Je vous déteste tous![end]",
+"width": 208,
+"wrapped": "Je vous déteste tous![end]",
+"font": 0
+},
+{
+"text": "Je vous déteste tous![end]",
+"width": 120,
+"wrapped": "Je vous déteste tous![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Ouf, la petite va bien.",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Ouf, la petite va bien.",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Ouf, la petite va bien.",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Ouf, la\npetite va bien.",
+"font": 0
+},
+{
+"text": "Où es-tu? !![end]",
+"width": 208,
+"wrapped": "Où es-tu? !![end]",
+"font": 0
+},
+{
+"text": "Où es-tu? !![end]",
+"width": 120,
+"wrapped": "Où es-tu? !![end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne peux pas rester ici",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Je ne peux pas rester ici",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne peux pas rester ici",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Je ne peux\npas rester ici",
+"font": 0
+},
+{
+"text": "éternellement...",
+"width": 208,
+"wrapped": "éternellement...",
+"font": 0
+},
+{
+"text": "éternellement...",
+"width": 120,
+"wrapped": "éternellement...",
+"font": 0
+},
+{
+"text": "Je dois emmener cette enfant et fuir d'ici...",
+"width": 208,
+"wrapped": "Je dois emmener cette enfant et fuir d'ici...",
+"font": 0
+},
+{
+"text": "Je dois emmener cette enfant et fuir d'ici...",
+"width": 120,
+"wrapped": "Je dois emmener cette\nenfant et fuir d'ici...",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Si elle ne se repose pas...[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Si elle ne se repose pas...[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Si elle ne se repose pas...[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Si elle ne se\nrepose pas...[end]",
+"font": 0
+},
+{
+"text": "Oh, elle a l'air malade!",
+"width": 208,
+"wrapped": "Oh, elle a l'air malade!",
+"font": 0
+},
+{
+"text": "Oh, elle a l'air malade!",
+"width": 120,
+"wrapped": "Oh, elle a l'air malade!",
+"font": 0
+},
+{
+"text": "Vite, vite, allez dans la chambre!",
+"width": 208,
+"wrapped": "Vite, vite, allez dans la chambre!",
+"font": 0
+},
+{
+"text": "Vite, vite, allez dans la chambre!",
+"width": 120,
+"wrapped": "Vite, vite, allez dans la\nchambre!",
+"font": 0
+},
+{
+"text": "Ne vous inquiétez pas pour l'argent!",
+"width": 208,
+"wrapped": "Ne vous inquiétez pas pour l'argent!",
+"font": 0
+},
+{
+"text": "Ne vous inquiétez pas pour l'argent!",
+"width": 120,
+"wrapped": "Ne vous inquiétez pas\npour l'argent!",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Merci.[end]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Merci.[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Merci.[end]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Merci.[end]",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Tu as enfin repris conscience...[new]",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Tu as enfin repris\nconscience...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Tu as enfin repris conscience...[new]",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Tu as enfin\nrepris conscience...new",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: ...[new]",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: ...new",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: ...[new]",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: ...new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne sais même pas comment",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Je ne sais même pas comment",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne sais même pas comment",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Je ne sais\nmême pas comment",
+"font": 0
+},
+{
+"text": "tu t'appelles.[new]",
+"width": 208,
+"wrapped": "tu t'appelles.new",
+"font": 0
+},
+{
+"text": "tu t'appelles.[new]",
+"width": 120,
+"wrapped": "tu t'appelles.new",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne peux pas te demander",
+"width": 208,
+"wrapped": "[bold]Cecil[normal]: Je ne peux pas te demander",
+"font": 0
+},
+{
+"text": "[bold]Cecil[normal]: Je ne peux pas te demander",
+"width": 120,
+"wrapped": "[bold]Cecil[normal]: Je ne peux\npas te demander",
+"font": 0
+},
+{
+"text": "de me pardonner d'avoir tué ta mère....",
+"width": 208,
+"wrapped": "de me pardonner d'avoir tué ta mère....",
+"font": 0
+},
+{
+"text": "de me pardonner d'avoir tué ta mère....",
+"width": 120,
+"wrapped": "de me pardonner\nd'avoir tué ta mère....",
+"font": 0
+},
+{
+"text": "Mais je t'en prie, laisse-moi te protéger...[new]",
+"width": 208,
+"wrapped": "Mais je t'en prie, laisse-moi te\nprotéger...new",
+"font": 0
+},
+{
+"text": "Mais je t'en prie, laisse-moi te protéger...[new]",
+"width": 120,
+"wrapped": "Mais je t'en prie,\nlaisse-moi te\nprotéger...new",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: ...[end]",
+"width": 208,
+"wrapped": "[bold]Fille[normal]: ...[end]",
+"font": 0
+},
+{
+"text": "[bold]Fille[normal]: ...[end]",
+"width": 120,
+"wrapped": "[bold]Fille[normal]: ...[end]",
+"font": 0
+},
+{
+"text": "[bold]Général[normal]: Enfin, Cecil, nous t'avons",
+"width": 208,
+"wrapped": "[bold]Général[normal]: Enfin, Cecil, nous t'avons",
+"font": 0
+},
+{
+"text": "[bold]Général[normal]: Enfin, Cecil, nous t'avons",
+"width": 120,
+"wrapped": "[bold]Général[normal]: Enfin,\nCecil, nous t'avons",
+"font": 0
+},
+{
+"text": "trouvé!![new]",
+"width": 208,
+"wrapped": "trouvé!!new",
+"font": 0
+},
+{
+"text": "trouvé!![new]",
+"width": 120,
+"wrapped": "trouvé!!new",
+"font": 0
+}
+]
