@@ -11,6 +11,8 @@ from script import Table
 
 from katsuji.atlas import save_png
 from katsuji.banner import banner, to_blocks
+from katsuji.build import build
+from katsuji.config import ConfigError, load
 from katsuji.formats import VwfFont
 from katsuji.wrap import Controls
 
@@ -31,11 +33,15 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument("--font-switch", type=_code, help="code switching font, followed by the font index (ff4: 0xFE)")
     show.add_argument("--no-kerning", action="store_true", help="ignore the fonts' kerning pairs")
     show.add_argument("--png", type=Path, help="save the banner as a PNG instead of printing it")
+    make = commands.add_parser("build", help="build the fonts and strings a katsuji.toml describes")
+    make.add_argument("config", nargs="?", type=Path, default=Path("katsuji.toml"))
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "build":
+        return _build(args.config)
     fonts = [VwfFont.decode(path.read_bytes()) for path in args.fonts]
     codes = Table(str(args.table)).to_bytes(args.text)
     pixels = banner(fonts, codes, Controls(font_switch=args.font_switch), kerning=not args.no_kerning)
@@ -44,6 +50,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         print(to_blocks(pixels))
         print(f"width: {pixels.shape[1]}", file=sys.stderr)
+    return 0
+
+
+def _build(path: Path) -> int:
+    try:
+        for written in build(load(path)):
+            print(written)
+    except ConfigError as error:
+        print(f"katsuji: {error}", file=sys.stderr)
+        return 2
     return 0
 
 
