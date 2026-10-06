@@ -34,6 +34,10 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
+[tool.ruff.lint.per-file-ignores]
+# ff4's dialog goldens, copied verbatim: their expected strings are long lines.
+"tests/test_dialog_ff4.py" = ["E501"]
+
 [tool.mypy]
 strict = true
 packages = ["katsuji", "tests"]
