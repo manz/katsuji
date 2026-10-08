@@ -9,6 +9,7 @@ as written. Everything else is shared:
   than the window breaks at spaces over as few, balanced, lines as it needs.
 - Kept as written: blank lines (they separate paragraphs), speaker labels and
   headings alone on their line, lines starting with one space (choices).
+  A numbered item is a paragraph of its own.
   Lines starting with two or more are placed: centred, or right-aligned when
   set well right of the middle (a signature).
 - `paginate`: a block of lines never crosses into the next window, a speaker
@@ -45,8 +46,13 @@ class TextLayout:
     """A heading alone on its line ("-Aller-"): kept."""
     placed_measure: Measure | None = None
     """Where a line sits, as opposed to how wide it may grow: names at their default spelling."""
+    items: str | None = None
+    """A numbered line ("1- "): a paragraph of its own, wrapped but never joined to the lines around it."""
     right_of_centre: int = 10
     """Pixels: an indented line set further right than this is right-aligned."""
+    min_balanced_width: int = 0
+    """Pixels: a balanced sentence's lines are never set narrower, so one just over a line does not become two
+    half-empty ones (bahamut_lagoon: two thirds of the window)."""
 
     def reflow(self, text: str, page_lines: int | None = None) -> str:
         """`text` typeset, then laid out to the window; given the window's `page_lines`, paginated."""
@@ -62,17 +68,25 @@ class TextLayout:
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1
         blocks: list[Block] = []
         paragraph: list[str] = []
+
+        def close_paragraph() -> None:
+            if paragraph:
+                blocks.extend(self._wrap_paragraph(" ".join(paragraph)))
+                paragraph.clear()
+
         for line in lines:
-            if line.strip() and not line.startswith(" ") and not self._kept(line):
-                paragraph.append(line)
-                continue
-            blocks.extend(self._wrap_paragraph(" ".join(paragraph)) if paragraph else [])
-            paragraph = []
             if not line.strip():
+                close_paragraph()
                 blocks.append([""])  # a spacer, spaces or not, draws nothing
-            else:
+            elif line.startswith(" ") or self._kept(line):
+                close_paragraph()
                 blocks.append([line if block_indent else self.place(line)])
-        blocks.extend(self._wrap_paragraph(" ".join(paragraph)) if paragraph else [])
+            elif self.items and re.match(self.items, line):
+                close_paragraph()
+                blocks.extend(self._wrap_paragraph(line))
+            else:
+                paragraph.append(line)
+        close_paragraph()
         return blocks
 
     def paginate(self, blocks: list[Block], page_lines: int) -> list[Block]:
@@ -191,7 +205,7 @@ class TextLayout:
 
     def _break_words(self, sentence: str) -> list[str]:
         """`sentence` broken at spaces into as few lines as the window allows, balanced: the narrowest width that
-        still needs no more lines, so the last line is not left with a word or two."""
+        still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`."""
         lines = self._greedy(sentence, self.width)
         narrow, wide = 1, self.width
         while narrow < wide:
@@ -200,7 +214,7 @@ class TextLayout:
                 wide = middle
             else:
                 narrow = middle + 1
-        return self._greedy(sentence, wide)
+        return self._greedy(sentence, max(wide, self.min_balanced_width))
 
     def _greedy(self, sentence: str, width: int) -> list[str]:
         """Words fill each line up to `width`; a word that would pass it starts the next."""

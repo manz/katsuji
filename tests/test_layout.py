@@ -145,3 +145,22 @@ def test_reflowing_twice_changes_nothing(layout: TextLayout) -> None:
 
 def test_overflows_lists_lines_wider_than_the_window(layout: TextLayout) -> None:
     assert list(layout.overflows("short\n" + "x" * 21)) == [("x" * 21, 21)]
+
+
+def test_a_balanced_sentence_is_set_no_narrower_than_the_floor() -> None:
+    layout = TextLayout(monospace, 20, min_balanced_width=18)
+    assert layout.reflow("aaaa bbbb cccc dddd ee") == "aaaa bbbb cccc\ndddd ee"
+
+
+def test_without_a_floor_the_sentence_is_balanced_to_its_narrowest(layout: TextLayout) -> None:
+    assert layout.reflow("aaaa bbbb cccc dddd ee") == "aaaa bbbb\ncccc dddd ee"
+
+
+def test_a_numbered_item_is_a_paragraph_of_its_own() -> None:
+    layout = TextLayout(monospace, 20, items=r"\d+-")
+    assert layout.reflow("Pick one.\n1- red\n2- blue") == "Pick one.\n1- red\n2- blue"
+
+
+def test_a_numbered_item_wider_than_the_window_still_wraps() -> None:
+    layout = TextLayout(monospace, 20, items=r"\d+-")
+    assert layout.reflow("1- aaaa bbbb cccc dddd") == "1- aaaa bbbb\ncccc dddd"
