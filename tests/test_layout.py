@@ -197,3 +197,43 @@ def test_a_break_at_the_end_of_a_line_ends_it_whatever_fits() -> None:
 def test_a_break_pattern_sees_the_whole_text() -> None:
     layout = TextLayout(monospace, 20, breaks=r"\[WAIT\](?!(?:\[[^\]]*\])*$)")
     assert layout.reflow("A.[WAIT]\nB.[WAIT][END]") == "A.[WAIT]\nB.[WAIT][END]"
+
+
+SPEAKER = r"(?:\[[^\]]*\])*\[D4\][^:\n]{1,24} ?: "
+
+
+def test_a_speaker_s_continuation_lines_hang() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER)
+    text = "[D4]Luida: A tavern where travellers gather."
+    assert layout.reflow(text) == "[D4]Luida: A tavern\n  where travellers\n  gather."
+
+
+def test_a_hanging_line_is_measured_with_its_indent() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER)
+    assert all(monospace(line) <= 20 for line in layout.reflow("[D4]Bo: " + "aaa " * 20 + "end.").split("\n"))
+
+
+def test_the_source_indent_of_a_speaker_s_lines_is_set_again() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER, hanging=1)
+    assert layout.reflow("[D4]Bo: one two\n   three four five") == "[D4]Bo: one two\n three four five"
+
+
+def test_each_sentence_after_the_first_line_hangs() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER)
+    assert layout.reflow("[D4]Bo: Hello there. Come along now.") == "[D4]Bo: Hello there.\n  Come along now."
+
+
+def test_a_paragraph_without_a_speaker_does_not_hang() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER)
+    assert layout.reflow("A tavern where travellers gather.") == "A tavern where\ntravellers gather."
+
+
+def test_after_a_break_the_next_speaker_hangs_on_its_own() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER, breaks=WAIT)
+    text = "[D4]Bo: Hello there.[WAIT]\n[D4]Al: Come along with me."
+    assert layout.reflow(text) == "[D4]Bo: Hello there.[WAIT]\n[D4]Al: Come along\n  with me."
+
+
+def test_a_break_on_a_speaker_s_indented_line_still_breaks() -> None:
+    layout = TextLayout(monospace, 20, speaker=SPEAKER, breaks=WAIT)
+    assert layout.reflow("[D4]Bo: one\n  two.[WAIT] Yes.") == "[D4]Bo: one two.[WAIT]\nYes."

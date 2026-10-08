@@ -54,6 +54,10 @@ class TextLayout:
     breaks: str | None = None
     """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one. Matched
     over the whole text, so `$` is the text's end: `\\[WAIT\\](?!(?:\\[[^]]*\\])*$)` skips a [WAIT] closing it."""
+    speaker: str | None = None
+    """A speaker opening a paragraph ("[D4]Soldier: "): its continuation lines hang `hanging` spaces in, whatever
+    their indent in the source."""
+    hanging: int = 2
     items: str | None = None
     """A numbered line ("1- "): a paragraph of its own, wrapped but never joined to the lines around it."""
     right_of_centre: int = 10
@@ -79,10 +83,12 @@ class TextLayout:
 
         def close_paragraph() -> None:
             if paragraph:
-                blocks.extend(self._wrap_paragraph(" ".join(paragraph)))
+                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0])))
                 paragraph.clear()
 
         for marked in lines:
+            if marked.startswith(" ") and paragraph and self._hanging(paragraph[0]) is not None:
+                marked = marked.lstrip(" ")  # a speaker's continuation: its indent is set again
             line = marked.replace(BREAK, "")
             if not line.strip():
                 close_paragraph()
@@ -171,23 +177,32 @@ class TextLayout:
     def _is_label(self, line: str) -> bool:
         return bool(self.labels and re.fullmatch(self.labels, line))
 
-    def _wrap_paragraph(self, text: str) -> list[Block]:
+    def _hanging(self, first_line: str) -> str | None:
+        """The indent of a paragraph's continuation lines when it opens with a speaker."""
+        if self.speaker and re.match(self.speaker, first_line, re.IGNORECASE):
+            return " " * self.hanging
+        return None
+
+    def _wrap_paragraph(self, text: str, indent: str | None = None) -> list[Block]:
         """`text` by sentences: sentences share a line while they fit, a sentence that does not fit after the line
         so far starts its own, and one wider than the window breaks at spaces into its own block, its last line
-        taking no further sentence."""
+        taking no further sentence. Lines after the first start with `indent`, measured with it."""
+        indent = indent or ""
         blocks: list[Block] = []
         current = ""
         for sentence in self._sentences(text):
-            candidate = f"{current} {sentence}" if current else sentence
+            lead = indent if blocks else ""
+            candidate = f"{current} {sentence}" if current else lead + sentence
             if self.measure(candidate) <= self.width:
                 current = candidate
                 continue
             if current:
                 blocks.append([current])
-            if self.measure(sentence) <= self.width:
-                current = sentence
+                lead = indent
+            if self.measure(lead + sentence) <= self.width:
+                current = lead + sentence
             else:
-                blocks.append(self._break_words(sentence))
+                blocks.append(self._break_words(sentence, lead, indent))
                 current = ""
         if current:
             blocks.append([current])
@@ -224,28 +239,30 @@ class TextLayout:
             word = word[: trailing.start()]
         return word.rstrip(self.typography.quotes[1:] + " ")[-1:] in set(SENTENCE_ENDS)
 
-    def _break_words(self, sentence: str) -> list[str]:
+    def _break_words(self, sentence: str, lead: str = "", indent: str = "") -> list[str]:
         """`sentence` broken at spaces into as few lines as the window allows, balanced: the narrowest width that
         still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`."""
-        lines = self._greedy(sentence, self.width)
+        lines = self._greedy(sentence, self.width, lead, indent)
         narrow, wide = 1, self.width
         while narrow < wide:
             middle = (narrow + wide) // 2
-            if len(self._greedy(sentence, middle)) <= len(lines):
+            if len(self._greedy(sentence, middle, lead, indent)) <= len(lines):
                 wide = middle
             else:
                 narrow = middle + 1
-        return self._greedy(sentence, max(wide, self.min_balanced_width))
+        return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent)
 
-    def _greedy(self, sentence: str, width: int) -> list[str]:
-        """Words fill each line up to `width`; a word that would pass it starts the next."""
+    def _greedy(self, sentence: str, width: int, lead: str = "", indent: str = "") -> list[str]:
+        """Words fill each line up to `width`, the first line after `lead`, the others after `indent`; a word that
+        would pass it starts the next."""
         lines: list[str] = []
-        current = ""
+        current = lead
         for word in self._words(sentence):
-            candidate = f"{current} {word}" if current else word
-            if current and self.measure(candidate) > width:
+            started = current.strip() != ""
+            candidate = f"{current} {word}" if started else current + word
+            if started and self.measure(candidate) > width:
                 lines.append(current)
-                current = word
+                current = indent + word
             else:
                 current = candidate
         lines.append(current)
