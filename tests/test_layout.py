@@ -187,3 +187,13 @@ def test_the_break_pattern_decides_what_stays_on_the_line() -> None:
 
 def test_lines_after_a_break_are_joined_again() -> None:
     assert TextLayout(monospace, 20, breaks=WAIT).reflow("Hi.[WAIT]\nhow\nare you") == "Hi.[WAIT]\nhow are you"
+
+
+def test_a_break_at_the_end_of_a_line_ends_it_whatever_fits() -> None:
+    layout = TextLayout(monospace, 20, breaks=r"\[WAIT\](?!(?:\[[^\]]*\])*$)")
+    assert layout.reflow("A.[WAIT]\nB.[END]") == "A.[WAIT]\nB.[END]"
+
+
+def test_a_break_pattern_sees_the_whole_text() -> None:
+    layout = TextLayout(monospace, 20, breaks=r"\[WAIT\](?!(?:\[[^\]]*\])*$)")
+    assert layout.reflow("A.[WAIT]\nB.[WAIT][END]") == "A.[WAIT]\nB.[WAIT][END]"

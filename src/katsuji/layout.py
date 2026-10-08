@@ -34,6 +34,7 @@ Block = list[str]
 """Lines that go into one window together."""
 
 SENTENCE_ENDS = ".!?…"
+BREAK = "\ue003"  # after a paragraph break, between typesetting and layout
 
 
 @dataclass(frozen=True)
@@ -51,7 +52,8 @@ class TextLayout:
     placed_measure: Measure | None = None
     """Where a line sits, as opposed to how wide it may grow: names at their default spelling."""
     breaks: str | None = None
-    """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one."""
+    """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one. Matched
+    over the whole text, so `$` is the text's end: `\\[WAIT\\](?!(?:\\[[^]]*\\])*$)` skips a [WAIT] closing it."""
     items: str | None = None
     """A numbered line ("1- "): a paragraph of its own, wrapped but never joined to the lines around it."""
     right_of_centre: int = 10
@@ -69,7 +71,7 @@ class TextLayout:
 
     def blocks(self, text: str) -> list[Block]:
         """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
-        lines = typeset(text, self.typography, self.markup).split("\n")
+        lines = self._mark_breaks(typeset(text, self.typography, self.markup)).split("\n")
         indented = [line for line in lines if line.startswith("  ") and line.strip()]
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1
         blocks: list[Block] = []
@@ -80,7 +82,8 @@ class TextLayout:
                 blocks.extend(self._wrap_paragraph(" ".join(paragraph)))
                 paragraph.clear()
 
-        for line in lines:
+        for marked in lines:
+            line = marked.replace(BREAK, "")
             if not line.strip():
                 close_paragraph()
                 blocks.append([""])  # a spacer, spaces or not, draws nothing
@@ -91,12 +94,12 @@ class TextLayout:
                 close_paragraph()
                 blocks.extend(self._wrap_paragraph(line))
             else:
-                *closed, rest = self._split_breaks(line)
+                *closed, rest = marked.split(BREAK)
                 for piece in closed:
-                    paragraph.append(piece)
+                    paragraph.append(piece.lstrip(" "))
                     close_paragraph()
-                if rest:
-                    paragraph.append(rest)
+                if rest.strip():
+                    paragraph.append(rest.lstrip(" "))
         close_paragraph()
         return blocks
 
@@ -156,16 +159,11 @@ class TextLayout:
             if width > self.width:
                 yield line, width
 
-    def _split_breaks(self, line: str) -> list[str]:
-        """`line` cut after each paragraph break; the last piece is what follows the last break, maybe empty."""
-        pieces: list[str] = []
-        start = 0
-        for match in re.finditer(self.breaks, line, re.IGNORECASE) if self.breaks else ():
-            if match.end() > start:
-                pieces.append(line[start : match.end()])
-                start = match.end()
-        pieces.append(line[start:].lstrip(" "))
-        return pieces
+    def _mark_breaks(self, text: str) -> str:
+        """`text` with `BREAK` after each paragraph break, matched over the whole text (`$` is its end)."""
+        if not self.breaks:
+            return text
+        return re.sub(self.breaks, lambda match: match[0] + BREAK, text, flags=re.IGNORECASE)
 
     def _kept(self, line: str) -> bool:
         return self._is_label(line) or bool(self.headings and re.fullmatch(self.headings, line))
