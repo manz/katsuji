@@ -1,7 +1,5 @@
 """Build everything a `katsuji.toml` describes: font files, string blobs, constants."""
 
-from __future__ import annotations
-
 from pathlib import Path
 
 from script import Table

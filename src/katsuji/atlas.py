@@ -1,7 +1,5 @@
 """A font drawn as a PNG grid of fixed-size cells, one glyph per cell."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from pathlib import Path
 

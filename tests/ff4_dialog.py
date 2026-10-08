@@ -7,8 +7,6 @@ its own window, a speaker change opens a new one). It lives in the tests to
 prove the builder is enough; `test_dialog_ff4.py` runs ff4's goldens on it.
 """
 
-from __future__ import annotations
-
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass

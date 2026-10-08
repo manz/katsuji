@@ -7,8 +7,6 @@ the same so pre-rendered and runtime pixels match. (ff4's Python preview
 clipped glyphs to their width instead.)
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
 
 import numpy as np

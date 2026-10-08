@@ -4,8 +4,6 @@ A 2bpp tile is 8 rows of (plane 0, plane 1) byte pairs. A 4bpp tile is that
 for planes 0/1, followed by the same for planes 2/3. Bit 7 is the leftmost pixel.
 """
 
-from __future__ import annotations
-
 from enum import Enum
 
 import numpy as np

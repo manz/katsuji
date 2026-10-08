@@ -1,7 +1,5 @@
 """Advance widths: measured from the ink, adjusted by per-glyph overrides."""
 
-from __future__ import annotations
-
 from collections.abc import Mapping
 
 from katsuji.atlas import Atlas

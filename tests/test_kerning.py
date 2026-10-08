@@ -1,7 +1,5 @@
 """ff4's kerning results, kept as goldens on its dialog font."""
 
-from __future__ import annotations
-
 import numpy as np
 import pytest
 from script import Table
