@@ -25,7 +25,11 @@ from dataclasses import dataclass, field
 from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
 
 Measure = Callable[[str], int]
-"""A line's width in pixels, as the game draws it."""
+"""A line's width in pixels as the engine writes it, compared against the window's width.
+
+Whether that counts the blank gap after the last glyph is the engine's: one
+that writes the gap column needs `Wrapper.measure` as is (gap included), one
+that only ORs ink into the line needs `Wrapper.measure(...) - gap`."""
 Block = list[str]
 """Lines that go into one window together."""
 
@@ -46,6 +50,8 @@ class TextLayout:
     """A heading alone on its line ("-Aller-"): kept."""
     placed_measure: Measure | None = None
     """Where a line sits, as opposed to how wide it may grow: names at their default spelling."""
+    breaks: str | None = None
+    """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one."""
     items: str | None = None
     """A numbered line ("1- "): a paragraph of its own, wrapped but never joined to the lines around it."""
     right_of_centre: int = 10
@@ -85,7 +91,12 @@ class TextLayout:
                 close_paragraph()
                 blocks.extend(self._wrap_paragraph(line))
             else:
-                paragraph.append(line)
+                *closed, rest = self._split_breaks(line)
+                for piece in closed:
+                    paragraph.append(piece)
+                    close_paragraph()
+                if rest:
+                    paragraph.append(rest)
         close_paragraph()
         return blocks
 
@@ -120,7 +131,8 @@ class TextLayout:
 
     def place(self, line: str) -> str:
         """A line starting with two spaces or more, re-indented in the window: right-aligned when it was set well
-        right of the middle, else centred; within half a space, the indent's unit. Others stay as they are."""
+        right of the middle, else centred; within half a space, the indent's unit. Others stay as they are.
+        A placed line is never wrapped: one wider than the window stays wider (`overflows` lists it)."""
         if not line.startswith("  "):
             return line
         text = line.lstrip(" ")
@@ -143,6 +155,17 @@ class TextLayout:
             width = self.measure(line)
             if width > self.width:
                 yield line, width
+
+    def _split_breaks(self, line: str) -> list[str]:
+        """`line` cut after each paragraph break; the last piece is what follows the last break, maybe empty."""
+        pieces: list[str] = []
+        start = 0
+        for match in re.finditer(self.breaks, line, re.IGNORECASE) if self.breaks else ():
+            if match.end() > start:
+                pieces.append(line[start : match.end()])
+                start = match.end()
+        pieces.append(line[start:].lstrip(" "))
+        return pieces
 
     def _kept(self, line: str) -> bool:
         return self._is_label(line) or bool(self.headings and re.fullmatch(self.headings, line))

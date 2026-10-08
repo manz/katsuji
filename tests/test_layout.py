@@ -164,3 +164,26 @@ def test_a_numbered_item_is_a_paragraph_of_its_own() -> None:
 def test_a_numbered_item_wider_than_the_window_still_wraps() -> None:
     layout = TextLayout(monospace, 20, items=r"\d+-")
     assert layout.reflow("1- aaaa bbbb cccc dddd") == "1- aaaa bbbb\ncccc dddd"
+
+
+WAIT = r"\[WAIT\](?!\[END\])"
+
+
+def test_a_break_ends_its_paragraph() -> None:
+    assert TextLayout(monospace, 20, breaks=WAIT).reflow("Hi.[WAIT]\nYo.") == "Hi.[WAIT]\nYo."
+
+
+def test_without_breaks_the_lines_are_joined(layout: TextLayout) -> None:
+    assert layout.reflow("Hi.[WAIT]\nYo.") == "Hi.[WAIT] Yo."
+
+
+def test_a_break_inside_a_line_starts_a_new_one() -> None:
+    assert TextLayout(monospace, 20, breaks=WAIT).reflow("Hi.[WAIT] Yo.") == "Hi.[WAIT]\nYo."
+
+
+def test_the_break_pattern_decides_what_stays_on_the_line() -> None:
+    assert TextLayout(monospace, 20, breaks=WAIT).reflow("Hi.[WAIT][END]") == "Hi.[WAIT][END]"
+
+
+def test_lines_after_a_break_are_joined_again() -> None:
+    assert TextLayout(monospace, 20, breaks=WAIT).reflow("Hi.[WAIT]\nhow\nare you") == "Hi.[WAIT]\nhow are you"
