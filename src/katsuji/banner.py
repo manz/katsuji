@@ -5,8 +5,6 @@ text between font switches is set with its font and the runs are joined edge
 to edge, as ff4's banner did.
 """
 
-from __future__ import annotations
-
 import dataclasses
 from collections.abc import Sequence
 

@@ -23,8 +23,6 @@ index = "assets/items_vwf.idx"
 Both tables take `constants = "path.i"`: a816 constants describing the output.
 """
 
-from __future__ import annotations
-
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path

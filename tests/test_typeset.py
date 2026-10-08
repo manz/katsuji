@@ -1,7 +1,5 @@
 """Typesetting, with bahamut_lagoon's French cases (utils/tests/test_dialog_layout.py) as the spec."""
 
-from __future__ import annotations
-
 import pytest
 
 from katsuji.typeset import ENGLISH, FRENCH, Markup, Typography, typeset

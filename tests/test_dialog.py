@@ -1,7 +1,5 @@
 """`WindowBuilder` on its own: a 2-line window, every glyph advancing 4 pixels."""
 
-from __future__ import annotations
-
 from katsuji import VwfFont
 from katsuji.dialog import Window, WindowBuilder
 from katsuji.wrap import Controls, Wrapper

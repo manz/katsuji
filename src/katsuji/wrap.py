@@ -8,8 +8,6 @@ after a break the line restarts at the word's width (no space counted), and
 a word is kerned against the last glyph of the word before it.
 """
 
-from __future__ import annotations
-
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 

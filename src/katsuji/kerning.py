@@ -6,8 +6,6 @@ pixels removed from the gap after the left glyph, the value the assembly
 subtracts from the advance and the byte a font file stores.
 """
 
-from __future__ import annotations
-
 from collections.abc import Iterable
 
 import numpy as np

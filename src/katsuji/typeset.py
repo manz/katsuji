@@ -10,8 +10,6 @@ raw glyph code keeps the mark after it tight; any other tag is a control
 (a terminator, a wait) and nothing is spaced before it.
 """
 
-from __future__ import annotations
-
 import re
 from dataclasses import dataclass
 

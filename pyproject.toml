@@ -3,7 +3,7 @@ name = "katsuji"
 dynamic = ["version"]
 description = "Variable-width font tooling for a816 SNES projects: fonts, kerning, tiles, static text"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 license = "MIT"
 dependencies = [
     "numpy>=1.26",
@@ -36,7 +36,7 @@ packages = ["src/katsuji"]
 
 [tool.ruff]
 line-length = 120
-target-version = "py313"
+target-version = "py314"
 src = ["src", "tests"]
 
 [tool.ruff.lint]

@@ -10,8 +10,6 @@ Layout, all little-endian:
 - one byte: `height`.
 """
 
-from __future__ import annotations
-
 import struct
 from collections.abc import Mapping
 from dataclasses import dataclass, field

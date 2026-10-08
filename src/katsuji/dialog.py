@@ -11,8 +11,6 @@ gives the pieces those rules drive:
 `tests/ff4_dialog.py` is ff4's French script rules written on top of them.
 """
 
-from __future__ import annotations
-
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol

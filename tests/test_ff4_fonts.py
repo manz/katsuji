@@ -5,8 +5,6 @@ build produced. The candidate pairs, width overrides and the hand-tuned `tt`
 pair are ff4's build configuration, kept here as data.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import pytest

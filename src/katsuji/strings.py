@@ -5,8 +5,6 @@ copies tiles. Rendering goes through `render`, so a static string has the
 pixels the runtime renderer would have drawn.
 """
 
-from __future__ import annotations
-
 import struct
 from collections.abc import Sequence
 

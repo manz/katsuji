@@ -6,8 +6,6 @@ metrics.py on its built fonts. Lines with the gil code (0x08) are left out:
 ff4 measures them with a bug (`size = 32` instead of `+=`) that katsuji fixes.
 """
 
-from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import Any
