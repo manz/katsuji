@@ -91,3 +91,19 @@ def test_french_glues_its_spaced_marks_and_closing_quote() -> None:
 
 def test_english_glues_nothing() -> None:
     assert Typography().glued == ""
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["...Heh heh.", "Yes.\n...My heart's", "[WAIT]...dès que", "    ...indented"],
+)
+def test_an_ellipsis_resuming_a_line_stays_tight(text: str) -> None:
+    assert typeset(text, ENGLISH, Markup(words=r"\[HERO\]")) == text
+
+
+def test_an_ellipsis_after_a_word_still_gets_its_space() -> None:
+    assert typeset("Hmm...yes", ENGLISH) == "Hmm... yes"
+
+
+def test_an_ellipsis_after_a_space_is_spaced_like_one_after_a_word() -> None:
+    assert typeset("... ...[0xd8]", FRENCH, BAHAMUT_LAGOON) == "... ... [0xd8]"

@@ -2,8 +2,10 @@
 
 What a language spaces is data (`Typography`, `ENGLISH`, `FRENCH`); how a game
 writes its tags is the game's (`Markup`). Shared by every language: a space
-after a comma and after an ellipsis that run into the next word (never inside
-a number: 1,5), single spaces between words, the indentation left alone.
+after a comma that runs into the next word (never inside a number: 1,5) and
+after an ellipsis that runs into it ("Hmm... yes"; one opening the line or
+following a tag resumes it, "...yes"), single spaces between words,
+the indentation left alone.
 
 Tags are atomic. One that reads as a word (a name) is spaced like a word; a
 raw glyph code keeps the mark after it tight; any other tag is a control
@@ -18,7 +20,7 @@ GLYPH = "\ue001"
 CONTROL = "\ue002"
 _PLACEHOLDER = re.compile(f"[{WORD}{GLYPH}{CONTROL}]")
 _COMMA = re.compile(rf",(?=[^\s\d{CONTROL}])|(?<=\D),(?=\d)")
-_ELLIPSIS = re.compile(rf"(\.\.\.+)(?![\s.?!,;:»\"')\u201d\u2019{CONTROL}]|$)")
+_ELLIPSIS = re.compile(rf"(?<=[^.{WORD}{GLYPH}{CONTROL}])(\.\.\.+)(?![\s.?!,;:»\"')\u201d\u2019{CONTROL}]|$)")
 _SPEAKER = re.compile(r"[^\s:.?!,]+(?: [^\s:.?!,]+){0,2}:")  # "Roi de Kana:"
 _SPACES = re.compile(r"(?<=\S)  +(?=\S)")
 
