@@ -54,9 +54,21 @@ def test_open_treats_any_non_zero_pixel_as_ink(tmp_path: Path) -> None:
     assert atlas.glyph(0).tolist() == [[0, 1], [1, 0]]
 
 
-def test_save_png_writes_black_ink(tmp_path: Path) -> None:
+def test_save_png_shows_black_ink_on_white(tmp_path: Path) -> None:
     save_png(np.array([[1, 0]], dtype=np.uint8), tmp_path / "out.png")
-    assert np.array(Image.open(tmp_path / "out.png")).tolist() == [[0, 255]]
+    assert np.array(Image.open(tmp_path / "out.png").convert("L")).tolist() == [[0, 255]]
+
+
+def test_save_png_keeps_ink_at_index_one(tmp_path: Path) -> None:
+    save_png(np.array([[1, 0]], dtype=np.uint8), tmp_path / "out.png")
+    assert np.array(Image.open(tmp_path / "out.png")).tolist() == [[1, 0]]
+
+
+def test_a_saved_png_reads_back_the_same_pixels(tmp_path: Path) -> None:
+    pixels = np.zeros((16, 8), dtype=np.uint8)
+    pixels[3, 2] = 1
+    save_png(pixels, tmp_path / "glyph.png")
+    assert (Atlas.open(tmp_path / "glyph.png").glyph(0) == pixels).all()
 
 
 def test_open_reads_the_first_channel_of_a_colour_png(tmp_path: Path) -> None:

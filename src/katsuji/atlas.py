@@ -16,7 +16,8 @@ class Atlas:
     """Glyph cells laid out left to right, top to bottom.
 
     `grid` atlases separate cells with a 1-pixel line (and start with one), so
-    a cell sits at `index * (size + 1) + 1`. Any non-zero pixel is ink.
+    a cell sits at `index * (size + 1) + 1`. Any non-zero pixel is ink: palette
+    index 1 in a palettized PNG (what `save_png` writes), light on dark otherwise.
     """
 
     pixels: Pixels
@@ -84,5 +85,8 @@ def ink_rows(glyph: Pixels) -> tuple[int, int]:
 
 
 def save_png(pixels: Pixels, path: str | Path) -> None:
-    """Write 0/1 pixels as a black-on-white PNG."""
-    Image.fromarray(np.where(pixels != 0, 0, 255).astype(np.uint8)).save(path, format="PNG")
+    """Write 0/1 pixels as a palettized PNG that `Atlas.open` reads back: index 0 paper, 1 ink, shown black on
+    white."""
+    image = Image.fromarray((pixels != 0).astype(np.uint8), mode="P")
+    image.putpalette([255, 255, 255, 0, 0, 0])
+    image.save(path, format="PNG")
