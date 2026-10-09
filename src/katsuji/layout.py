@@ -65,6 +65,8 @@ class TextLayout:
     min_balanced_width: int = 0
     """Pixels: a balanced sentence's lines are never set narrower, so one just over a line does not become two
     half-empty ones (bahamut_lagoon: two thirds of the window)."""
+    _widths: dict[str, int] = field(default_factory=dict, init=False, repr=False, compare=False)
+    """`measure` is pure and balancing asks for the same lines again: each line is measured once."""
 
     def reflow(self, text: str, page_lines: int | None = None) -> str:
         """`text` typeset, then laid out to the window; given the window's `page_lines`, paginated."""
@@ -171,6 +173,11 @@ class TextLayout:
             return text
         return re.sub(self.breaks, lambda match: match[0] + BREAK, text, flags=re.IGNORECASE)
 
+    def _width(self, line: str) -> int:
+        if line not in self._widths:
+            self._widths[line] = self.measure(line)
+        return self._widths[line]
+
     def _kept(self, line: str) -> bool:
         return self._is_label(line) or bool(self.headings and re.fullmatch(self.headings, line))
 
@@ -193,13 +200,13 @@ class TextLayout:
         for sentence in self._sentences(text):
             lead = indent if blocks else ""
             candidate = f"{current} {sentence}" if current else lead + sentence
-            if self.measure(candidate) <= self.width:
+            if self._width(candidate) <= self.width:
                 current = candidate
                 continue
             if current:
                 blocks.append([current])
                 lead = indent
-            if self.measure(lead + sentence) <= self.width:
+            if self._width(lead + sentence) <= self.width:
                 current = lead + sentence
             else:
                 blocks.append(self._break_words(sentence, lead, indent))
@@ -260,7 +267,7 @@ class TextLayout:
         for word in self._words(sentence):
             started = current.strip() != ""
             candidate = f"{current} {word}" if started else current + word
-            if started and self.measure(candidate) > width:
+            if started and self._width(candidate) > width:
                 lines.append(current)
                 current = indent + word
             else:
