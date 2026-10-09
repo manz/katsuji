@@ -237,3 +237,14 @@ def test_after_a_break_the_next_speaker_hangs_on_its_own() -> None:
 def test_a_break_on_a_speaker_s_indented_line_still_breaks() -> None:
     layout = TextLayout(monospace, 20, speaker=SPEAKER, breaks=WAIT)
     assert layout.reflow("[D4]Bo: one\n  two.[WAIT] Yes.") == "[D4]Bo: one two.[WAIT]\nYes."
+
+
+def test_each_line_is_measured_once() -> None:
+    measured: list[str] = []
+
+    def counting(line: str) -> int:
+        measured.append(line)
+        return monospace(line)
+
+    TextLayout(counting, 20).reflow("aaaa bbbb cccc dddd eeee ffff gggg hhhh.")
+    assert len(measured) == len(set(measured))
