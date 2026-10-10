@@ -248,3 +248,36 @@ def test_each_line_is_measured_once() -> None:
 
     TextLayout(counting, 20).reflow("aaaa bbbb cccc dddd eeee ffff gggg hhhh.")
     assert len(measured) == len(set(measured))
+
+
+def test_an_abbreviation_ends_no_sentence() -> None:
+    layout = TextLayout(monospace, 20, abbreviations=("M.",))
+    assert layout.reflow("Voici M. Rosa ici. Bon.") == "Voici M. Rosa ici.\nBon."
+
+
+def test_a_line_never_ends_on_an_abbreviation() -> None:
+    layout = TextLayout(monospace, 12, abbreviations=("M.",))
+    assert layout.reflow("Bonjour M. Rosa") == "Bonjour\nM. Rosa"
+
+
+def wide_after_switch(line: str, before: str) -> int:
+    """Characters are 1 pixel, 2 once a [wide] switch is in effect (in the line or ahead of it)."""
+    return monospace(line) * (2 if "[wide]" in before + line else 1)
+
+
+def test_a_line_is_measured_in_the_state_ahead_of_it() -> None:
+    lines = (
+        TextLayout(monospace, 20, measure_after=wide_after_switch).reflow("[wide]aaaa bbbb cccc dddd ee").split("\n")
+    )
+    assert all(wide_after_switch(line, "\n".join(lines[:index])) <= 20 for index, line in enumerate(lines))
+
+
+def test_the_measure_after_hook_sees_the_lines_laid_out_ahead() -> None:
+    seen: list[tuple[str, str]] = []
+
+    def recording(line: str, before: str) -> int:
+        seen.append((line, before))
+        return monospace(line)
+
+    TextLayout(monospace, 10, measure_after=recording).reflow("aaaa bbbb. cccc dddd.")
+    assert ("cccc dddd.", "aaaa bbbb.") in seen
