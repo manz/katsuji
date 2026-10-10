@@ -19,7 +19,7 @@ bahamut_lagoon's French dialog is the reference: utils/dialog_layout.py.
 """
 
 import re
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 
 from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
@@ -65,7 +65,12 @@ class TextLayout:
     min_balanced_width: int = 0
     """Pixels: a balanced sentence's lines are never set narrower, so one just over a line does not become two
     half-empty ones (bahamut_lagoon: two thirds of the window)."""
-    _widths: dict[str, int] = field(default_factory=dict, init=False, repr=False, compare=False)
+    abbreviations: tuple[str, ...] = ()
+    """Words ending in a period that end no sentence and stay with the next word ("M." in "M. Rosa")."""
+    measure_after: Callable[[str, str], int] | None = None
+    """In place of `measure`: a line's width given the text laid out ahead of it in the same call, for a game
+    whose state carries across lines (a font switch holding until the next)."""
+    _widths: dict[tuple[str, str], int] = field(default_factory=dict, init=False, repr=False, compare=False)
     """`measure` is pure and balancing asks for the same lines again: each line is measured once."""
 
     def reflow(self, text: str, page_lines: int | None = None) -> str:
@@ -85,7 +90,8 @@ class TextLayout:
 
         def close_paragraph() -> None:
             if paragraph:
-                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0])))
+                before = _ahead("", (line for block in blocks for line in block))
+                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0]), before))
                 paragraph.clear()
 
         for marked in lines:
@@ -100,7 +106,7 @@ class TextLayout:
                 blocks.append([line if block_indent else self.place(line)])
             elif self.items and re.match(self.items, line):
                 close_paragraph()
-                blocks.extend(self._wrap_paragraph(line))
+                blocks.extend(self._wrap_paragraph(line, before=_ahead("", (row for block in blocks for row in block))))
             else:
                 *closed, rest = marked.split(BREAK)
                 for piece in closed:
@@ -173,10 +179,11 @@ class TextLayout:
             return text
         return re.sub(self.breaks, lambda match: match[0] + BREAK, text, flags=re.IGNORECASE)
 
-    def _width(self, line: str) -> int:
-        if line not in self._widths:
-            self._widths[line] = self.measure(line)
-        return self._widths[line]
+    def _width(self, line: str, before: str = "") -> int:
+        key = (before, line) if self.measure_after else ("", line)
+        if key not in self._widths:
+            self._widths[key] = self.measure_after(line, before) if self.measure_after else self.measure(line)
+        return self._widths[key]
 
     def _kept(self, line: str) -> bool:
         return self._is_label(line) or bool(self.headings and re.fullmatch(self.headings, line))
@@ -190,36 +197,42 @@ class TextLayout:
             return " " * self.hanging
         return None
 
-    def _wrap_paragraph(self, text: str, indent: str | None = None) -> list[Block]:
+    def _wrap_paragraph(self, text: str, indent: str | None = None, before: str = "") -> list[Block]:
         """`text` by sentences: sentences share a line while they fit, a sentence that does not fit after the line
         so far starts its own, and one wider than the window breaks at spaces into its own block, its last line
-        taking no further sentence. Lines after the first start with `indent`, measured with it."""
+        taking no further sentence. Lines after the first start with `indent`, measured with it; `before` is the
+        text laid out ahead of the paragraph."""
         indent = indent or ""
         blocks: list[Block] = []
         current = ""
+        ahead = before
         for sentence in self._sentences(text):
             lead = indent if blocks else ""
             candidate = f"{current} {sentence}" if current else lead + sentence
-            if self._width(candidate) <= self.width:
+            if self._width(candidate, ahead) <= self.width:
                 current = candidate
                 continue
             if current:
                 blocks.append([current])
+                ahead = _ahead(ahead, [current])
                 lead = indent
-            if self._width(lead + sentence) <= self.width:
+            if self._width(lead + sentence, ahead) <= self.width:
                 current = lead + sentence
             else:
-                blocks.append(self._break_words(sentence, lead, indent))
+                blocks.append(self._break_words(sentence, lead, indent, ahead))
+                ahead = _ahead(ahead, blocks[-1])
                 current = ""
         if current:
             blocks.append([current])
         return blocks
 
     def _words(self, text: str) -> list[str]:
-        """Words, with a mark the line may not start with (French ? ! ; : ») kept on the word before it."""
+        """Words, with a mark the line may not start with (French ? ! ; : ») kept on the word before it, and an
+        abbreviation kept with the word after it."""
         words: list[str] = []
         for word in text.split(" "):
-            if words and word[:1] and word[0] in self.typography.glued:
+            glued = word[:1] != "" and word[0] in self.typography.glued
+            if words and (glued or words[-1].endswith(self.abbreviations)):
                 words[-1] += f" {word}"
             else:
                 words.append(word)
@@ -239,27 +252,30 @@ class TextLayout:
         return sentences
 
     def _ends_sentence(self, word: str) -> bool:
-        """`word` ends in . ! ? or …, before any control tags (a terminator) and closing quote."""
+        """`word` ends in . ! ? or …, before any control tags (a terminator) and closing quote, and is no
+        abbreviation."""
+        if self.abbreviations and word.endswith(self.abbreviations):
+            return False
         while trailing := re.search(f"(?:{self.markup.tag})$", word, re.IGNORECASE):
             if self.markup.kind(trailing[0]) != CONTROL:
                 break
             word = word[: trailing.start()]
         return word.rstrip(self.typography.quotes[1:] + " ")[-1:] in set(SENTENCE_ENDS)
 
-    def _break_words(self, sentence: str, lead: str = "", indent: str = "") -> list[str]:
+    def _break_words(self, sentence: str, lead: str = "", indent: str = "", before: str = "") -> list[str]:
         """`sentence` broken at spaces into as few lines as the window allows, balanced: the narrowest width that
         still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`."""
-        lines = self._greedy(sentence, self.width, lead, indent)
+        lines = self._greedy(sentence, self.width, lead, indent, before)
         narrow, wide = 1, self.width
         while narrow < wide:
             middle = (narrow + wide) // 2
-            if len(self._greedy(sentence, middle, lead, indent)) <= len(lines):
+            if len(self._greedy(sentence, middle, lead, indent, before)) <= len(lines):
                 wide = middle
             else:
                 narrow = middle + 1
-        return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent)
+        return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent, before)
 
-    def _greedy(self, sentence: str, width: int, lead: str = "", indent: str = "") -> list[str]:
+    def _greedy(self, sentence: str, width: int, lead: str = "", indent: str = "", before: str = "") -> list[str]:
         """Words fill each line up to `width`, the first line after `lead`, the others after `indent`; a word that
         would pass it starts the next."""
         lines: list[str] = []
@@ -267,10 +283,16 @@ class TextLayout:
         for word in self._words(sentence):
             started = current.strip() != ""
             candidate = f"{current} {word}" if started else current + word
-            if started and self._width(candidate) > width:
+            if started and self._width(candidate, before) > width:
                 lines.append(current)
+                before = _ahead(before, [current])
                 current = indent + word
             else:
                 current = candidate
         lines.append(current)
         return lines
+
+
+def _ahead(before: str, lines: Iterable[str]) -> str:
+    """`before` followed by `lines`, as the text laid out ahead of the next line."""
+    return "\n".join([before, *lines]) if before else "\n".join(lines)
