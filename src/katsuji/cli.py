@@ -7,11 +7,12 @@ from pathlib import Path
 
 from script import Table
 
-from katsuji.atlas import save_png
+from katsuji.atlas import Atlas, save_png
 from katsuji.banner import banner, to_blocks
 from katsuji.build import build
 from katsuji.config import ConfigError, load
 from katsuji.formats import VwfFont
+from katsuji.remap import remap, table_codes
 from katsuji.wrap import Controls
 
 
@@ -33,6 +34,12 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument("--png", type=Path, help="save the banner as a PNG instead of printing it")
     make = commands.add_parser("build", help="build the fonts and strings a katsuji.toml describes")
     make.add_argument("config", nargs="?", type=Path, default=Path("katsuji.toml"))
+    move = commands.add_parser("remap", help="move a font PNG from one text table's codes to another's")
+    move.add_argument("png", type=Path, help="the font: a grid of fixed-size cells, glyph N in cell N")
+    move.add_argument("--table", required=True, type=Path, help="the table (.tbl) the font is laid out for")
+    move.add_argument("--to", required=True, type=Path, dest="target", help="the table (.tbl) to lay it out for")
+    move.add_argument("--cell", default="8x16", help="cell size, WIDTHxHEIGHT (default 8x16)")
+    move.add_argument("-o", "--output", required=True, type=Path, help="the PNG to write")
     return parser
 
 
@@ -40,6 +47,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "build":
         return _build(args.config)
+    if args.command == "remap":
+        return _remap(args)
     fonts = [VwfFont.decode(path.read_bytes()) for path in args.fonts]
     codes = Table(str(args.table)).to_bytes(args.text)
     pixels = banner(fonts, codes, Controls(font_switch=args.font_switch), kerning=not args.no_kerning)
@@ -48,6 +57,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         print(to_blocks(pixels))
         print(f"width: {pixels.shape[1]}", file=sys.stderr)
+    return 0
+
+
+def _remap(args: argparse.Namespace) -> int:
+    width, _, height = str(args.cell).partition("x")
+    atlas = Atlas.open(args.png, int(width), int(height))
+    remapped = remap(atlas, table_codes(args.table), table_codes(args.target))
+    save_png(remapped.pixels, args.output)
+    print(args.output)
+    if remapped.missing:
+        print(f"not in the font: {' '.join(remapped.missing)}", file=sys.stderr)
     return 0
 
 
