@@ -9,13 +9,21 @@ from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
 from katsuji.strings import index_entry, pack_runs, text_tiles
+from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
 
 
 def build(config: Config) -> list[Path]:
     """Write every output of `config`; returns the paths written."""
     written: list[Path] = []
-    fonts = {name: _build_font(font, written) for name, font in config.fonts.items()}
+    fonts: dict[str, VwfFont] = {}
+    for name, font in config.fonts.items():
+        if font.format == "vwf":
+            fonts[name] = _build_font(font, written)
+        else:
+            _build_tile_font(font, written)
     for strings in config.strings.values():
+        if strings.font not in fonts:
+            raise ConfigError(f"[strings.{strings.name}] font {strings.font!r} is not a 'vwf' font")
         _build_strings(strings, fonts[strings.font], config.fonts[strings.font], written)
     return written
 
@@ -58,6 +66,18 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
             written,
         )
     return font
+
+
+def _build_tile_font(config: FontConfig, written: list[Path]) -> None:
+    atlas = Atlas.open(config.png, config.cell_width, config.cell_height, config.grid)
+    if config.format == "tiles":
+        data = encode_tile_font(atlas, config.bpp, config.first, config.count, config.size)
+    else:
+        data = encode_rows16_font(atlas, config.x_offset, config.first, config.count, config.size)
+        assert config.widths_output is not None  # config.load requires it for rows16
+        widths = rows16_widths(atlas, config.spacing, config.widths, config.first, config.count)
+        _write(config.widths_output, widths, written)
+    _write(config.output, data, written)
 
 
 def _build_strings(config: StringsConfig, font: VwfFont, font_config: FontConfig, written: list[Path]) -> None:

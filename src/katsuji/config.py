@@ -10,6 +10,15 @@ widths = { "0xFF" = 3, "0xA0" = -1 }   # negative: trim, positive: set
 kerning-candidates = ["Ta", "Te"]      # pairs to test for collision kerning
 kerning = { "tt" = 2 }                 # hand-tuned pairs: pixels tighter
 
+[fonts.menu]                    # a font the game reads as its own layout (see katsuji.tile_fonts)
+format = "tiles"                # or "rows16" (16-pixel 1bpp rows, widths written apart); default "vwf"
+png = "fonts/menu.png"          # palettized: the cells' colour indices are the tiles' colours
+cell = [8, 8]
+bpp = 2
+first = "0x00"                  # first code written, then `count` glyphs
+output = "build/menu_font.dat"
+size = 0x1000                   # pad the file to this many bytes
+
 [strings.items]
 font = "menu"
 texts = ["Potion", "Ether"]     # or `file = "text/items.txt"`, one per line
@@ -47,6 +56,18 @@ class FontConfig:
     kerning: dict[str, int] = field(default_factory=dict)
     default_kerning: int = 1
     constants: Path | None = None
+    format: str = "vwf"
+    """`vwf` (katsuji's VWF file), `tiles` or `rows16` (see `katsuji.tile_fonts`)."""
+    bpp: int = 2
+    first: int = 0
+    count: int = 256
+    x_offset: int = 0
+    spacing: int = 0
+    size: int | None = None
+    widths_output: Path | None = None
+
+
+FORMATS = ("vwf", "tiles", "rows16")
 
 
 @dataclass(frozen=True)
@@ -72,10 +93,14 @@ class Config:
     strings: dict[str, StringsConfig]
 
 
-_FONT_KEYS = {"png", "output", "table", "cell", "grid", "widths", "kerning-candidates", "kerning", "default-kerning"}
+_COMMON_FONT_KEYS = {"png", "output", "table", "cell", "grid", "widths", "format"}
+_FONT_KEYS = {
+    "vwf": _COMMON_FONT_KEYS | {"kerning-candidates", "kerning", "default-kerning", "constants"},
+    "tiles": _COMMON_FONT_KEYS | {"bpp", "first", "count", "size"},
+    "rows16": _COMMON_FONT_KEYS | {"first", "count", "size", "x-offset", "spacing", "widths-output"},
+}
 _STRING_KEYS = {"font", "blob", "index", "texts", "file", "bpp", "ink", "paper", "gap", "max-tiles", "bank-size"}
 _STRING_KEYS |= {"table", "constants"}
-_FONT_KEYS |= {"constants"}
 
 
 def load(path: Path) -> Config:
@@ -111,7 +136,12 @@ def _path(root: Path, value: str | None) -> Path | None:
 
 def _font(name: str, table: dict[str, Any], root: Path) -> FontConfig:
     where = f"fonts.{name}"
-    _check_keys(where, table, _FONT_KEYS, {"png", "output"})
+    kind = table.get("format", "vwf")
+    if kind not in FORMATS:
+        raise ConfigError(f"[{where}] format {kind!r} is not one of {', '.join(FORMATS)}")
+    _check_keys(where, table, _FONT_KEYS[kind], {"png", "output"})
+    if kind == "rows16" and "widths-output" not in table:
+        raise ConfigError(f"[{where}] format 'rows16' needs `widths-output`")
     width, height = table.get("cell", [8, 16])
     return FontConfig(
         name=name,
@@ -126,6 +156,14 @@ def _font(name: str, table: dict[str, Any], root: Path) -> FontConfig:
         kerning=dict(table.get("kerning", {})),
         default_kerning=table.get("default-kerning", 1),
         constants=_path(root, table.get("constants")),
+        format=kind,
+        bpp=table.get("bpp", 2),
+        first=_code(where, str(table.get("first", 0))),
+        count=table.get("count", 256),
+        x_offset=table.get("x-offset", 0),
+        spacing=table.get("spacing", 0),
+        size=table.get("size"),
+        widths_output=_path(root, table.get("widths-output")),
     )
 
 
@@ -159,4 +197,4 @@ def _code(where: str, key: str) -> int:
     try:
         return int(key, 0)
     except ValueError as error:
-        raise ConfigError(f'[{where}] widths key {key!r} is not a code (write it like "0xFF")') from error
+        raise ConfigError(f'[{where}] {key!r} is not a code (write it like "0xFF")') from error

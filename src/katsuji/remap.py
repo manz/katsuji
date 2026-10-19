@@ -29,9 +29,12 @@ def table_codes(path: Path) -> dict[str, int]:
 @dataclass(frozen=True)
 class Remapped:
     pixels: Pixels
-    """The new atlas: 16 cells per row, 256 cells, each glyph at its target code."""
+    """The new atlas: 16 cells per row, 256 cells, each glyph at its target code. Colour indices when the source
+    PNG is palettized, else ink (1) and paper (0)."""
     missing: list[str]
     """Texts the target table has that the source font doesn't draw."""
+    palette: tuple[int, ...] | None = None
+    """The source PNG's palette, to write the new one with."""
 
 
 def remap(atlas: Atlas, source: dict[str, int], target: dict[str, int]) -> Remapped:
@@ -44,5 +47,6 @@ def remap(atlas: Atlas, source: dict[str, int], target: dict[str, int]) -> Remap
             missing.append(text)
             continue
         row, column = divmod(code, COLUMNS)
-        pixels[row * height : (row + 1) * height, column * width : (column + 1) * width] = atlas.glyph(source[text])
-    return Remapped(pixels, missing)
+        cell = atlas.glyph_colours(source[text])
+        pixels[row * height : (row + 1) * height, column * width : (column + 1) * width] = cell
+    return Remapped(pixels, missing, atlas.palette)
