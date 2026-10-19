@@ -34,6 +34,12 @@ index = "assets/items_vwf.idx"           # 4 bytes per string: offset lo16, bank
 ```
 
 ```
+katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png
+```
+
+moves a font's glyphs to the codes another table gives the same texts, keeping a palettized PNG's colours.
+
+```
 katsuji build            # writes every output, paths relative to katsuji.toml
 katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 ```

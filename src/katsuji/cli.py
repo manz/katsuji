@@ -64,7 +64,7 @@ def _remap(args: argparse.Namespace) -> int:
     width, _, height = str(args.cell).partition("x")
     atlas = Atlas.open(args.png, int(width), int(height))
     remapped = remap(atlas, table_codes(args.table), table_codes(args.target))
-    save_png(remapped.pixels, args.output)
+    save_png(remapped.pixels, args.output, remapped.palette)
     print(args.output)
     if remapped.missing:
         print(f"not in the font: {' '.join(remapped.missing)}", file=sys.stderr)
