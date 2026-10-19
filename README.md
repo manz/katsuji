@@ -33,6 +33,29 @@ blob = "assets/items_vwf.dat"            # tiles, no string across a bank edge
 index = "assets/items_vwf.idx"           # 4 bytes per string: offset lo16, bank, tiles
 ```
 
+A font the game reads in its own layout instead of katsuji's VWF file takes a `format`:
+
+```toml
+[fonts.menu]
+format = "tiles"                         # SNES planar tiles of the PNG's colour indices
+png = "fonts/menu.png"                   # palettized: index N is colour N
+cell = [8, 8]
+bpp = 2
+output = "build/menu_font.dat"
+
+[fonts.dialog]
+format = "rows16"                        # 1bpp rows, 16 pixels wide, little-endian words (FF6)
+png = "fonts/dialog.png"
+cell = [12, 11]
+first = "0x20"                           # codes written: first .. first + count - 1
+count = 224
+x-offset = 4                             # glyph drawn 4 pixels into the row
+spacing = 1                              # width = ink + spacing, then `widths` overrides
+size = 0x1400                            # padded to this many bytes
+output = "build/dialog_font.dat"
+widths-output = "build/dialog_widths.dat"  # one width byte per code
+```
+
 ```
 katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png
 ```
