@@ -13,6 +13,7 @@ from katsuji.build import build
 from katsuji.config import ConfigError, load
 from katsuji.formats import VwfFont
 from katsuji.remap import remap, table_codes
+from katsuji.render import autohint
 from katsuji.wrap import Controls
 
 
@@ -32,6 +33,12 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument("--font-switch", type=_code, help="code switching font, followed by the font index (ff4: 0xFE)")
     show.add_argument("--no-kerning", action="store_true", help="ignore the fonts' kerning pairs")
     show.add_argument("--png", type=Path, help="save the banner as a PNG instead of printing it")
+    show.add_argument(
+        "--auto",
+        action="store_true",
+        help="FONT is a PNG atlas: measure widths and kern each pair on the glyphs, keeping its colours",
+    )
+    show.add_argument("--cell", default="8x16", help="with --auto, the atlas's cell size, WIDTHxHEIGHT")
     make = commands.add_parser("build", help="build the fonts and strings a katsuji.toml describes")
     make.add_argument("config", nargs="?", type=Path, default=Path("katsuji.toml"))
     move = commands.add_parser("remap", help="move a font PNG from one text table's codes to another's")
@@ -49,8 +56,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _build(args.config)
     if args.command == "remap":
         return _remap(args)
-    fonts = [VwfFont.decode(path.read_bytes()) for path in args.fonts]
     codes = Table(str(args.table)).to_bytes(args.text)
+    if args.auto:
+        return _auto(args, codes)
+    fonts = [VwfFont.decode(path.read_bytes()) for path in args.fonts]
     pixels = banner(fonts, codes, Controls(font_switch=args.font_switch), kerning=not args.no_kerning)
     if args.png:
         save_png(pixels, args.png)
@@ -58,6 +67,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(to_blocks(pixels))
         print(f"width: {pixels.shape[1]}", file=sys.stderr)
     return 0
+
+
+def _auto(args: argparse.Namespace, codes: bytes) -> int:
+    width, _, height = str(args.cell).partition("x")
+    atlas = Atlas.open(args.fonts[0], int(width), int(height))
+    pixels = autohint(atlas, codes)
+    if args.png:
+        save_png(pixels, args.png, atlas.palette or _greys(int(pixels.max(initial=1))))
+    else:
+        print(to_blocks(pixels))
+        print(f"width: {pixels.shape[1]}", file=sys.stderr)
+    return 0
+
+
+def _greys(top: int) -> tuple[int, ...]:
+    """Paper white, then evenly darker greys up to colour `top` black."""
+    return tuple(value for level in range(top + 1) for value in (255 - 255 * level // top,) * 3)
 
 
 def _remap(args: argparse.Namespace) -> int:

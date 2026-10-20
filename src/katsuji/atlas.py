@@ -10,6 +10,8 @@ from PIL import Image
 Pixels = NDArray[np.uint8]
 """A 2D array of 0 (paper) and 1 (ink), indexed `[row, column]`."""
 
+GREY_LEVELS = 16
+
 
 @dataclass(frozen=True)
 class Atlas:
@@ -20,7 +22,9 @@ class Atlas:
     index 1 in a palettized PNG (what `save_png` writes), light on dark otherwise.
 
     A palettized PNG also keeps its colour indices (`colours`, `palette`), for
-    fonts drawn in more than ink and paper: a 2bpp menu font's shadows.
+    fonts drawn in more than ink and paper: a 2bpp menu font's shadows. A grey
+    PNG with at most GREY_LEVELS levels keeps them as colours too, darkest first
+    (a 2bpp font saved as 0/85/170/255 reads back as colours 0-3).
     """
 
     pixels: Pixels
@@ -39,7 +43,7 @@ class Atlas:
             image = np.array(png)
         if image.ndim == 3:
             image = image[..., 0]
-        colours = image.astype(np.uint8) if palette is not None else None
+        colours = image.astype(np.uint8) if palette is not None else _grey_levels(image)
         return cls((image != 0).astype(np.uint8), cell_width, cell_height, grid, colours, palette)
 
     @property
@@ -85,6 +89,15 @@ class Atlas:
             for row in range(self.rows)
         ]
         return np.concatenate(lines, axis=0)
+
+
+def _grey_levels(image: NDArray[np.generic]) -> Pixels | None:
+    """Each pixel's rank among the image's grey levels, when there are few enough to be colours."""
+    levels, ranks = np.unique(image, return_inverse=True)
+    if len(levels) > GREY_LEVELS or levels[0] != 0:
+        return None
+    out: Pixels = ranks.reshape(image.shape).astype(np.uint8)
+    return out
 
 
 def ink_width(glyph: Pixels) -> int:
