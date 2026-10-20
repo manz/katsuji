@@ -1,5 +1,6 @@
 """A font drawn as a PNG grid of fixed-size cells, one glyph per cell."""
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -10,7 +11,7 @@ from PIL import Image
 Pixels = NDArray[np.uint8]
 """A 2D array of 0 (paper) and 1 (ink), indexed `[row, column]`."""
 
-GREY_LEVELS = 16
+GREY_BITS = (1, 2, 4)
 
 
 @dataclass(frozen=True)
@@ -23,7 +24,7 @@ class Atlas:
 
     A palettized PNG also keeps its colour indices (`colours`, `palette`), for
     fonts drawn in more than ink and paper: a 2bpp menu font's shadows. A grey
-    PNG with at most GREY_LEVELS levels keeps them as colours too, darkest first
+    PNG whose greys sit on an even 1, 2 or 4-bit scale keeps them as colours too
     (a 2bpp font saved as 0/85/170/255 reads back as colours 0-3).
     """
 
@@ -82,6 +83,13 @@ class Atlas:
         """Columns up to and including the rightmost ink pixel (0 for a blank cell)."""
         return ink_width(self.glyph(index))
 
+    def ink_only(self, ink: Iterable[int]) -> Atlas:
+        """The atlas whose ink is only the `ink` colours: a shadowed font measured and kerned on its letters, its
+        shadows left out. Colours and palette are kept."""
+        source = self.pixels if self.colours is None else self.colours
+        pixels = np.isin(source, list(ink)).astype(np.uint8)
+        return Atlas(pixels, self.cell_width, self.cell_height, self.grid, self.colours, self.palette)
+
     def without_grid(self) -> Pixels:
         """The atlas with its grid lines removed: cells packed edge to edge."""
         lines = [
@@ -92,12 +100,14 @@ class Atlas:
 
 
 def _grey_levels(image: NDArray[np.generic]) -> Pixels | None:
-    """Each pixel's rank among the image's grey levels, when there are few enough to be colours."""
-    levels, ranks = np.unique(image, return_inverse=True)
-    if len(levels) > GREY_LEVELS or levels[0] != 0:
-        return None
-    out: Pixels = ranks.reshape(image.shape).astype(np.uint8)
-    return out
+    """Each pixel's colour, when its greys are an even 1, 2 or 4-bit scale (a 2bpp font: 0/85/170/255 = 0-3)."""
+    levels = np.unique(image)
+    for bits in GREY_BITS:
+        step = 255 // ((1 << bits) - 1)
+        if not np.any(levels % step):
+            out: Pixels = (image // step).astype(np.uint8)
+            return out
+    return None
 
 
 def ink_width(glyph: Pixels) -> int:

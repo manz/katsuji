@@ -39,6 +39,9 @@ def _parser() -> argparse.ArgumentParser:
         help="FONT is a PNG atlas: measure widths and kern each pair on the glyphs, keeping its colours",
     )
     show.add_argument("--cell", default="8x16", help="with --auto, the atlas's cell size, WIDTHxHEIGHT")
+    show.add_argument(
+        "--ink", type=_code, action="append", help="with --auto, a colour to measure and kern on (repeat); default: all"
+    )
     make = commands.add_parser("build", help="build the fonts and strings a katsuji.toml describes")
     make.add_argument("config", nargs="?", type=Path, default=Path("katsuji.toml"))
     move = commands.add_parser("remap", help="move a font PNG from one text table's codes to another's")
@@ -72,7 +75,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _auto(args: argparse.Namespace, codes: bytes) -> int:
     width, _, height = str(args.cell).partition("x")
     atlas = Atlas.open(args.fonts[0], int(width), int(height))
-    pixels = autohint(atlas, codes)
+    pixels = autohint(atlas, codes, ink=args.ink)
     if args.png:
         save_png(pixels, args.png, atlas.palette or _greys(int(pixels.max(initial=1))))
     else:
