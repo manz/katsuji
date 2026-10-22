@@ -13,7 +13,8 @@ as written. Everything else is shared:
   Lines starting with two or more are placed: centred, or right-aligned when
   set well right of the middle (a signature).
 - `paginate`: a block of lines never crosses into the next window, a speaker
-  label stays with the block after it.
+  label stays with the block after it; given `blank_ends_window`, a blank line
+  in the middle of a window ends it.
 
 bahamut_lagoon's French dialog is the reference: utils/dialog_layout.py.
 """
@@ -109,6 +110,9 @@ class TextLayout:
     half-empty ones (bahamut_lagoon: two thirds of the window)."""
     abbreviations: tuple[str, ...] = ()
     """Words ending in a period that end no sentence and stay with the next word ("M." in "M. Rosa")."""
+    blank_ends_window: bool = False
+    """A blank line in the middle of a window ends it: padded to the window's last line, so the next paragraph
+    opens a window, for an engine whose page turns once a window's lines are full (bahamut_lagoon's)."""
     measure_after: Callable[[str, str], int] | None = None
     """In place of `measure`: a line's width given the text laid out ahead of it in the same call, for a game
     whose state carries across lines (a font switch holding until the next)."""
@@ -166,16 +170,18 @@ class TextLayout:
     def paginate(self, blocks: list[Block], page_lines: int) -> list[Block]:
         """`blocks` laid over windows of `page_lines` lines: a block that would cross into the next window is
         pushed there by blank lines, a speaker label stays with the block after it, and a blank line that would
-        open a window is dropped."""
+        open a window is dropped (given `blank_ends_window`, one in the middle of a window fills it)."""
         out: list[Block] = []
         row = 0
         pending_label: Block = []
         for block in blocks:
             if block == [""] and not pending_label:
-                if row % page_lines == 0 and out and not self.newlines:
+                used = row % page_lines
+                if used == 0 and out and not self.newlines:
                     continue
-                out.append(block)
-                row += 1
+                spacers = page_lines - used if used and self.blank_ends_window else 1
+                out.append(block * spacers)
+                row += spacers
                 continue
             if len(block) == 1 and self._is_label(block[0]) and not pending_label:
                 pending_label = block

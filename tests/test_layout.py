@@ -5,6 +5,7 @@ tag none, a name ([HERO]) five.
 """
 
 import re
+from dataclasses import replace
 
 import pytest
 
@@ -132,6 +133,20 @@ def test_a_speaker_label_stays_with_its_text_across_windows(layout: TextLayout) 
 def test_a_blank_line_does_not_open_a_window(layout: TextLayout) -> None:
     text = "aaaa bbbb cccc dddd eeee ffff.\n\nthree."
     assert layout.reflow(text, page_lines=2) == "aaaa bbbb cccc\ndddd eeee ffff.\nthree."
+
+
+def test_a_blank_line_keeps_its_row_in_the_middle_of_a_window(layout: TextLayout) -> None:
+    assert layout.reflow("one.\n\ntwo.", page_lines=3) == "one.\n\ntwo."
+
+
+def test_a_blank_line_ends_its_window_when_asked(layout: TextLayout) -> None:
+    paged = replace(layout, blank_ends_window=True)
+    assert paged.reflow("one.\n\ntwo.", page_lines=3) == "one.\n\n\ntwo."
+
+
+def test_a_blank_line_opening_the_text_keeps_one_row_when_asked(layout: TextLayout) -> None:
+    paged = replace(layout, blank_ends_window=True)
+    assert paged.reflow("\none.", page_lines=3) == "\none."
 
 
 def test_a_label_closing_the_text_is_kept(layout: TextLayout) -> None:
