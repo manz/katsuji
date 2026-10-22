@@ -19,10 +19,12 @@ bahamut_lagoon's French dialog is the reference: utils/dialog_layout.py.
 """
 
 import re
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 
+from katsuji.dialog import TextTable
 from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
+from katsuji.wrap import Wrapper
 
 Measure = Callable[[str], int]
 """A line's width in pixels as the engine writes it, compared against the window's width.
@@ -32,6 +34,36 @@ that writes the gap column needs `Wrapper.measure` as is (gap included), one
 that only ORs ink into the line needs `Wrapper.measure(...) - gap`."""
 Block = list[str]
 """Lines that go into one window together."""
+
+
+@dataclass(frozen=True)
+class TableMeasure:
+    """A `Measure` for script text: the text between tags encoded through `table` and measured by `wrapper` (glyph
+    widths, kerning, the gap after the last glyph), each tag at the width of the first `tag_widths` pattern it fully
+    matches, none for any other tag. Kerning is not taken across a tag.
+
+    TMZ: `TableMeasure(Table(tbl), Wrapper([font], Controls(space=0x00)), tag_widths={r"\\[name:\\d\\]": 48})`.
+    """
+
+    table: TextTable
+    wrapper: Wrapper
+    markup: Markup = field(default_factory=Markup)
+    tag_widths: Mapping[str, int] = field(default_factory=dict)
+
+    def __call__(self, line: str) -> int:
+        width = 0
+        position = 0
+        for tag in re.finditer(self.markup.tag, line):
+            width += self._text(line[position : tag.start()]) + self._tag(tag[0])
+            position = tag.end()
+        return width + self._text(line[position:])
+
+    def _text(self, text: str) -> int:
+        return self.wrapper.measure(self.table.to_bytes(text)) if text else 0
+
+    def _tag(self, tag: str) -> int:
+        return next((px for pattern, px in self.tag_widths.items() if re.fullmatch(pattern, tag)), 0)
+
 
 SENTENCE_ENDS = ".!?…"
 BREAK = "\ue003"  # after a paragraph break, between typesetting and layout
