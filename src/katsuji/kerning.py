@@ -104,14 +104,21 @@ def pair_kerning(atlas: Atlas, left: int, right: int, default: int = 1) -> int:
     return best
 
 
-def find_kerning(atlas: Atlas, pairs: Iterable[tuple[int, int]], default: int = 1) -> dict[tuple[int, int], int]:
+def find_kerning(
+    atlas: Atlas, pairs: Iterable[tuple[int, int]], default: int = 1, avoid: Iterable[int] = ()
+) -> dict[tuple[int, int], int]:
     """Kerning bytes for the candidate `pairs` that tighten, as `{(left, right): pixels}`.
 
     Only pairs whose `pair_kerning` is negative are kept, stored as the
-    positive number of pixels removed, ready for `VwfFont.kerning`.
+    positive number of pixels removed, ready for `VwfFont.kerning`. A pair
+    touching a glyph with no ink (a space) or an `avoid` code is never kerned:
+    with no rows to collide on, the blank glyph would tighten away entirely.
     """
+    skipped = set(avoid)
     found: dict[tuple[int, int], int] = {}
     for left, right in pairs:
+        if {left, right} & skipped or not atlas.ink_width(left) or not atlas.ink_width(right):
+            continue
         value = pair_kerning(atlas, left, right, default)
         if value < 0:
             found[(left, right)] = -value

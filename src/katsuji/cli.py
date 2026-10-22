@@ -20,6 +20,13 @@ def _code(value: str) -> int:
     return int(value, 0)
 
 
+def _width(value: str) -> tuple[int, int]:
+    code, sep, pixels = value.partition("=")
+    if not sep:
+        raise argparse.ArgumentTypeError(f"{value!r} is not CODE=PX")
+    return int(code, 0), int(pixels, 0)
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="katsuji", description="Variable-width font tooling for a816 projects.")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -40,6 +47,17 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument("--cell", default="8x16", help="with --auto, the atlas's cell size, WIDTHxHEIGHT")
     show.add_argument(
         "--ink", type=_code, action="append", help="with --auto, a colour to measure and kern on (repeat); default: all"
+    )
+    show.add_argument(
+        "--width",
+        type=_width,
+        action="append",
+        default=[],
+        dest="widths",
+        help="with --auto, CODE=PX: set a glyph's width (negative trims), e.g. 0x00=3 for a space; repeat",
+    )
+    show.add_argument(
+        "--avoid", type=_code, action="append", default=[], help="with --auto, a code never kerned (repeat)"
     )
     make = commands.add_parser("build", help="build the fonts and strings a katsuji.toml describes")
     make.add_argument("config", nargs="?", type=Path, default=Path("katsuji.toml"))
@@ -74,7 +92,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _auto(args: argparse.Namespace, codes: bytes) -> int:
     width, _, height = str(args.cell).partition("x")
     atlas = Atlas.open(args.fonts[0], int(width), int(height))
-    pixels = autohint(atlas, codes, ink=args.ink)
+    pixels = autohint(atlas, codes, ink=args.ink, widths=dict(args.widths), avoid=args.avoid)
     if args.png:
         save_png(pixels, args.png, atlas.palette or _greys(int(pixels.max(initial=1))))
     else:
