@@ -82,6 +82,7 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 - `katsuji.script`: `.tbl` text tables (`Table`), pointer tables and their XML (`pointers`), pointer formulas
   (`formulas`, given the bus mapping by the caller). Moved from a816's `script` package; a816 reads its `.table`
   directive through it. Imports neither numpy nor pillow.
+- `katsuji.codecs.sdd1`: the S-DD1 decompressor and a compressor whose streams it reads back.
 
 Grown from ff4's tooling: its five fonts rebuild byte for byte, its wrapping and dialog goldens pass.
 
