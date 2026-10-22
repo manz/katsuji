@@ -8,7 +8,6 @@ license = "MIT"
 dependencies = [
     "numpy>=1.26",
     "pillow>=10",
-    "a816>=1.1.0a44",
 ]
 
 [project.scripts]
@@ -20,6 +19,7 @@ dev = [
     "pytest-cov>=5",
     "ruff>=0.16",
     "mypy>=1.13",
+    "a816>=1.1.0a44",  # tests check generated constants parse as a816
 ]
 
 [build-system]

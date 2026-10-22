@@ -5,8 +5,6 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from script import Table
-
 from katsuji.atlas import Atlas, save_png
 from katsuji.banner import banner, to_blocks
 from katsuji.build import build
@@ -14,6 +12,7 @@ from katsuji.config import ConfigError, load
 from katsuji.formats import VwfFont
 from katsuji.remap import remap, table_codes
 from katsuji.render import autohint
+from katsuji.script import Table
 from katsuji.wrap import Controls
 
 

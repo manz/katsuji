@@ -1,7 +1,7 @@
 """Variable-width font tooling for a816 SNES projects.
 
-The names below load on first use, so importing a submodule that needs
-neither numpy nor pillow does not pull them in.
+The names below load on first use, so `import katsuji.script` (what a816
+imports for its `.table` directive) pulls in neither numpy nor pillow.
 """
 
 import sys

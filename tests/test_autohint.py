@@ -4,11 +4,11 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-from script import Table
 
 from katsuji import Atlas, autohint, render_colours
 from katsuji.cli import main
 from katsuji.formats import VwfFont
+from katsuji.script import Table
 
 LEVELS = (0, 85, 170, 255)
 

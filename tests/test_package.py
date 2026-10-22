@@ -12,6 +12,12 @@ def test_ships_the_py_typed_marker() -> None:
     assert files("katsuji").joinpath("py.typed").is_file()
 
 
+def test_script_loads_without_numpy_or_pillow() -> None:
+    probe = "import sys, katsuji.script, katsuji.script.pointers; print(sorted({'numpy', 'PIL'} & set(sys.modules)))"
+    result = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, check=True)
+    assert result.stdout.strip() == "[]"
+
+
 def test_top_level_names_load_on_first_use() -> None:
     assert katsuji.Atlas is Atlas
 

@@ -11,9 +11,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from script import Table
 
 from katsuji import VwfFont
+from katsuji.script import Table
 from katsuji.wrap import Controls, Fixed, Wrapper
 
 FF4 = Path(__file__).parent / "fixtures" / "ff4"

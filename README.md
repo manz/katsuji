@@ -77,6 +77,9 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 - `Window` / `WindowBuilder`: fill text windows; a game's script rules drive them.
 - `encode_tiles` / `colourize`: SNES 2bpp / 4bpp planar tiles.
 - `text_tiles` / `pack_runs`: static strings pre-rendered to a bank-safe blob.
+- `katsuji.script`: `.tbl` text tables (`Table`), pointer tables and their XML (`pointers`), pointer formulas
+  (`formulas`, given the bus mapping by the caller). Moved from a816's `script` package; a816 reads its `.table`
+  directive through it. Imports neither numpy nor pillow.
 
 Grown from ff4's tooling: its five fonts rebuild byte for byte, its wrapping and dialog goldens pass.
 

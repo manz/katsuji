@@ -1,9 +1,9 @@
 from pathlib import Path
 
 import pytest
-from script import Table
 
 from katsuji import Atlas
+from katsuji.script import Table
 
 FF4 = Path(__file__).parent / "fixtures" / "ff4"
 
