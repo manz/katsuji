@@ -89,10 +89,13 @@ class TextLayout:
     newlines: str | None = None
     """A tag that is the line break itself ("[br]", one engine newline each): consumed with the spaces before it and
     a source newline after it, the text between two reflows on its own, and the lines come out as written otherwise:
-    consecutive tags keep their empty lines (even one opening a window) and runs of spaces their width. Unlike
+    consecutive tags keep their empty lines (even one opening a window), runs of spaces their width and an indented
+    line its indent. Unlike
     `breaks`, whose tag stays in the text."""
     squeeze: bool = True
     """A run of spaces between words is set as one (see `typeset`)."""
+    placed: bool = True
+    """An indented line is re-indented in the window (see `place`); off, it stays as written."""
     speaker: str | None = None
     """A speaker opening a paragraph ("[D4]Soldier: "): its continuation lines hang `hanging` spaces in, whatever
     their indent in the source."""
@@ -122,7 +125,7 @@ class TextLayout:
     def blocks(self, text: str) -> list[Block]:
         """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
         if self.newlines:
-            between = replace(self, newlines=None, squeeze=False)
+            between = replace(self, newlines=None, squeeze=False, placed=False)
             segments = re.split(rf" *(?:{self.newlines})\n?", text, flags=re.IGNORECASE)
             return [block for segment in segments for block in (between.blocks(segment) if segment else [[""]])]
         lines = self._mark_breaks(typeset(text, self.typography, self.markup, squeeze=self.squeeze)).split("\n")
@@ -146,7 +149,7 @@ class TextLayout:
                 blocks.append([""])  # a spacer, spaces or not, draws nothing
             elif line.startswith(" ") or self._kept(line):
                 close_paragraph()
-                blocks.append([line if block_indent else self.place(line)])
+                blocks.append([line if block_indent or not self.placed else self.place(line)])
             elif self.items and re.match(self.items, line):
                 close_paragraph()
                 blocks.extend(self._wrap_paragraph(line, before=_ahead("", (row for block in blocks for row in block))))

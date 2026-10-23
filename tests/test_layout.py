@@ -321,3 +321,8 @@ def test_newline_tags_keep_an_empty_line_opening_a_window(lines: TextLayout) -> 
 
 def test_newline_tags_keep_runs_of_spaces(lines: TextLayout) -> None:
     assert lines.reflow("Nom : [HERO]  Race[br]x").split("\n")[0] == "Nom : [HERO]  Race"
+
+
+@pytest.mark.parametrize("indented", ["  dieu de la terre", "            Illico"], ids=["indent", "signature"])
+def test_newline_tags_keep_an_indented_line_as_written(lines: TextLayout, indented: str) -> None:
+    assert lines.reflow(f"Ninigi,[br]\n{indented}").split("\n") == ["Ninigi,", indented]
