@@ -35,6 +35,13 @@ class Controls:
     font_switch: int | None = None
     fixed: Mapping[int, Fixed] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        codes: dict[str, object] = {"space": self.space, "newline": self.newline, "font_switch": self.font_switch}
+        codes.update({f"fixed {key!r}": key for key in self.fixed})
+        for name, code in codes.items():
+            if code is not None and (not isinstance(code, int) or isinstance(code, bool) or not 0 <= code <= 0xFF):
+                raise ValueError(f"Controls {name}: {code!r} is not a byte code (an int 0-255)")
+
 
 @dataclass
 class _Cursor:

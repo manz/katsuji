@@ -99,3 +99,13 @@ def test_line_count_counts_inserted_breaks() -> None:
     """At 16: AA (8 + space 3 = 11), BB would reach 19 so breaks (line restarts at 8), AA reaches 16 too."""
     text = bytes([A, A, SPACE, B, B, SPACE, A, A])
     assert _wrapper().line_count(text, 16) == 3
+
+
+@pytest.mark.parametrize(
+    "controls",
+    [{"space": b"\x20"}, {"newline": 0x100}, {"font_switch": True}],
+    ids=["bytes", "too-big", "bool"],
+)
+def test_controls_take_byte_codes(controls: dict[str, Any]) -> None:
+    with pytest.raises(ValueError, match="is not a byte code"):
+        Controls(**controls)
