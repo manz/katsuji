@@ -354,3 +354,22 @@ def test_an_indented_line_too_wide_placed_wraps(lines: TextLayout) -> None:
         "Ermite Tonnerre, le plus fort",
         [],
     )
+
+
+TWO_SENTENCES = "Un deux trois quatre cinq. Six sept huit neuf dix onze."
+
+
+def test_a_paragraph_over_its_line_budget_is_balanced_as_a_whole() -> None:
+    budget = TextLayout(monospace, 20, FRENCH, MARKUP, max_lines=3)
+    assert budget.reflow(TWO_SENTENCES).split("\n") == ["Un deux trois quatre", "cinq. Six sept huit", "neuf dix onze."]
+
+
+def test_a_paragraph_within_its_line_budget_keeps_its_sentences() -> None:
+    budget = TextLayout(monospace, 20, FRENCH, MARKUP, max_lines=4)
+    assert budget.reflow(TWO_SENTENCES) == TextLayout(monospace, 20, FRENCH, MARKUP).reflow(TWO_SENTENCES)
+
+
+def test_a_paragraph_over_its_budget_even_balanced_raises() -> None:
+    budget = TextLayout(monospace, 20, FRENCH, MARKUP, max_lines=2)
+    with pytest.raises(ValueError, match="3 lines, at most 2"):
+        budget.reflow(TWO_SENTENCES)

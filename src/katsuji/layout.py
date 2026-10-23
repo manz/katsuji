@@ -108,6 +108,9 @@ class TextLayout:
     min_balanced_width: int = 0
     """Pixels: a balanced sentence's lines are never set narrower, so one just over a line does not become two
     half-empty ones (bahamut_lagoon: two thirds of the window)."""
+    max_lines: int | None = None
+    """Lines a paragraph may take, for a screen with no scroll: one that needs more by sentences is balanced as a
+    whole, sentence ends ignored, and one that needs more even then raises `ValueError`."""
     abbreviations: tuple[str, ...] = ()
     """Words ending in a period that end no sentence and stay with the next word ("M." in "M. Rosa")."""
     blank_ends_window: bool = False
@@ -286,7 +289,16 @@ class TextLayout:
                 current = ""
         if current:
             blocks.append([current])
-        return blocks
+        return self._within_budget(text, blocks, indent, before)
+
+    def _within_budget(self, text: str, blocks: list[Block], indent: str, before: str) -> list[Block]:
+        """`blocks`, or `text` balanced as one block when they take more than `max_lines`."""
+        if self.max_lines is None or sum(map(len, blocks)) <= self.max_lines:
+            return blocks
+        balanced = self._break_words(text, "", indent, before)
+        if len(balanced) > self.max_lines:
+            raise ValueError(f"{text!r} takes {len(balanced)} lines, at most {self.max_lines}")
+        return [balanced]
 
     def _words(self, text: str) -> list[str]:
         """Words, with a mark the line may not start with (French ? ! ; : ») kept on the word before it, and an
