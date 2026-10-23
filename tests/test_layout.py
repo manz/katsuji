@@ -326,3 +326,16 @@ def test_newline_tags_keep_runs_of_spaces(lines: TextLayout) -> None:
 @pytest.mark.parametrize("indented", ["  dieu de la terre", "            Illico"], ids=["indent", "signature"])
 def test_newline_tags_keep_an_indented_line_as_written(lines: TextLayout, indented: str) -> None:
     assert lines.reflow(f"Ninigi,[br]\n{indented}").split("\n") == ["Ninigi,", indented]
+
+
+def test_an_indented_line_too_wide_as_written_is_placed(lines: TextLayout) -> None:
+    assert lines.reflow("Moi.[br]\n     abcdefghijklmnopq").split("\n") == ["Moi.", " abcdefghijklmnopq"]
+
+
+def test_an_indented_line_too_wide_placed_wraps(lines: TextLayout) -> None:
+    out = lines.reflow("Moi.[br]\n     Ermite Tonnerre, le plus fort").split("\n")
+    assert (out[0], " ".join(out[1:]), list(lines.overflows("\n".join(out)))) == (
+        "Moi.",
+        "Ermite Tonnerre, le plus fort",
+        [],
+    )

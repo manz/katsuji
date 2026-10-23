@@ -95,7 +95,7 @@ class TextLayout:
     squeeze: bool = True
     """A run of spaces between words is set as one (see `typeset`)."""
     placed: bool = True
-    """An indented line is re-indented in the window (see `place`); off, it stays as written."""
+    """An indented line is re-indented in the window (see `place`); off, it stays as written while it fits."""
     speaker: str | None = None
     """A speaker opening a paragraph ("[D4]Soldier: "): its continuation lines hang `hanging` spaces in, whatever
     their indent in the source."""
@@ -149,7 +149,7 @@ class TextLayout:
                 blocks.append([""])  # a spacer, spaces or not, draws nothing
             elif line.startswith(" ") or self._kept(line):
                 close_paragraph()
-                blocks.append([line if block_indent or not self.placed else self.place(line)])
+                blocks.extend([[line]] if block_indent else self._indented(line))
             elif self.items and re.match(self.items, line):
                 close_paragraph()
                 blocks.extend(self._wrap_paragraph(line, before=_ahead("", (row for block in blocks for row in block))))
@@ -230,6 +230,16 @@ class TextLayout:
         if key not in self._widths:
             self._widths[key] = self.measure_after(line, before) if self.measure_after else self.measure(line)
         return self._widths[key]
+
+    def _indented(self, line: str) -> list[Block]:
+        """An indented or kept line, placed (see `place`). With `placed` off it stays as written while it fits, is
+        placed when only that fits, and wraps when even placed it is wider than the window."""
+        if self.placed:
+            return [[self.place(line)]]
+        for candidate in (line, self.place(line)):
+            if self._width(candidate) <= self.width:
+                return [[candidate]]
+        return self._wrap_paragraph(line.lstrip(" "))
 
     def _kept(self, line: str) -> bool:
         return self._is_label(line) or bool(self.headings and re.fullmatch(self.headings, line))
