@@ -19,7 +19,7 @@ def test_round_trips(data: bytes) -> None:
 @pytest.mark.parametrize("header", sdd1.HEADERS, ids=lambda h: f"{h:02X}")
 def test_every_header_round_trips(header: int) -> None:
     data = random.Random(header).randbytes(300)
-    packed = sdd1._encode(data, header)
+    packed = sdd1.encode(data, header)
     assert (packed[0] & 0xF0, sdd1.decompress_bytes(packed, len(data))[0]) == (header, data)
 
 
@@ -30,4 +30,9 @@ def test_decoder_reports_the_bytes_it_read() -> None:
 
 def test_compress_keeps_the_shortest_header() -> None:
     data = b"\x55\xaa" * 300
-    assert len(sdd1.compress(data)) == min(len(sdd1._encode(data, header)) for header in sdd1.HEADERS)
+    assert len(sdd1.compress(data)) == min(len(sdd1.encode(data, header)) for header in sdd1.HEADERS)
+
+
+def test_encode_rejects_a_header_outside_headers() -> None:
+    with pytest.raises(ValueError, match="0x11"):
+        sdd1.encode(b"\0", 0x11)
