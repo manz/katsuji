@@ -33,6 +33,8 @@ class Typography:
     """Marks with a space before them; a run of them ("?!") takes one."""
     quotes: str = ""
     """Opening and closing quote, spaced inside: French « ... »."""
+    space_after_ellipsis: bool = True
+    """An ellipsis glued to the next word takes a space after it; off, a stutter ("brouil...lard") stays glued."""
 
     @property
     def glued(self) -> str:
@@ -88,7 +90,9 @@ def _typeset_line(line: str, typography: Typography, markup: Markup, squeeze: bo
 
 
 def _spaced(text: str, typography: Typography, speakers: bool, squeeze: bool) -> str:
-    text = _ELLIPSIS.sub(r"\1 ", _COMMA.sub(", ", text))
+    text = _COMMA.sub(", ", text)
+    if typography.space_after_ellipsis:
+        text = _ELLIPSIS.sub(r"\1 ", text)
     speaker = _SPEAKER.match(text) if speakers else None
     head = text[: speaker.end()] if speaker else ""
     rest = _space_before(text[len(head) :], typography.space_before)
