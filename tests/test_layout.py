@@ -10,7 +10,7 @@ from dataclasses import replace
 import pytest
 
 from katsuji.layout import TextLayout
-from katsuji.typeset import ENGLISH, FRENCH, Markup
+from katsuji.typeset import ENGLISH, FRENCH, FRENCH_ONE_LETTER_WORDS, FRENCH_SHORT_WORDS, Markup
 
 MARKUP = Markup(words=r"\[HERO\]")
 LABEL = r"[^ ].*:"
@@ -373,3 +373,25 @@ def test_a_paragraph_over_its_budget_even_balanced_raises() -> None:
     budget = TextLayout(monospace, 20, FRENCH, MARKUP, max_lines=2)
     with pytest.raises(ValueError, match="3 lines, at most 2"):
         budget.reflow(TWO_SENTENCES)
+
+
+def short_words(words: tuple[str, ...], width: int) -> TextLayout:
+    return TextLayout(monospace, width, replace(FRENCH, short_words=words), MARKUP)
+
+
+def test_a_one_letter_word_is_carried_off_a_line_end() -> None:
+    lines = short_words(FRENCH_ONE_LETTER_WORDS, 13).reflow("Il pense souvent à toi la nuit.").split("\n")
+    assert lines == ["Il pense", "souvent à toi", "la nuit."]
+
+
+def test_short_words_keep_articles_off_line_ends() -> None:
+    lines = short_words(FRENCH_SHORT_WORDS, 14).reflow("Cecil: Ce n'est pas la salle du trône ici.").split("\n")
+    assert [line.rsplit(" ", 1)[-1] for line in lines[:-1]] == ["Ce", "pas", "salle"]
+
+
+def test_french_keeps_its_breaks_without_short_words() -> None:
+    assert "souvent à" in TextLayout(monospace, 13, FRENCH, MARKUP).reflow("Il pense souvent à toi la nuit.")
+
+
+def test_a_short_word_stays_when_carrying_it_would_overflow() -> None:
+    assert short_words(FRENCH_ONE_LETTER_WORDS, 6).reflow("aaaa à bbbbb").split("\n") == ["aaaa à", "bbbbb"]

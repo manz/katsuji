@@ -35,6 +35,10 @@ class Typography:
     """Opening and closing quote, spaced inside: French « ... »."""
     space_after_ellipsis: bool = True
     """An ellipsis glued to the next word takes a space after it; off, a stutter ("brouil...lard") stays glued."""
+    short_words: tuple[str, ...] = ()
+    """Words a line should not end on, any case ("à" in French): carried to the next line with the word after
+    them, unless that costs the sentence a line or passes the window. See `FRENCH_ONE_LETTER_WORDS` and
+    `FRENCH_SHORT_WORDS`."""
 
     @property
     def glued(self) -> str:
@@ -44,6 +48,10 @@ class Typography:
 
 ENGLISH = Typography()
 FRENCH = Typography(space_before="?!;:", quotes="«»")
+FRENCH_ONE_LETTER_WORDS = ("a", "à", "ô", "y")
+"""The words careful French typesetting keeps off a line's end."""
+FRENCH_SHORT_WORDS = (*FRENCH_ONE_LETTER_WORDS, "le", "la", "les", "un", "une", "de", "du", "au", "et")
+"""Those, the articles and the commonest short prepositions: polish beyond the rule."""
 
 
 @dataclass(frozen=True)

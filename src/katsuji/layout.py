@@ -300,13 +300,14 @@ class TextLayout:
             raise ValueError(f"{text!r} takes {len(balanced)} lines, at most {self.max_lines}")
         return [balanced]
 
-    def _words(self, text: str) -> list[str]:
+    def _words(self, text: str, keep_short: bool = False) -> list[str]:
         """Words, with a mark the line may not start with (French ? ! ; : ») kept on the word before it, and an
-        abbreviation kept with the word after it."""
+        abbreviation (and, with `keep_short`, a short word) kept with the word after it."""
         words: list[str] = []
+        short = {word.lower() for word in self.typography.short_words} if keep_short else set()
         for word in text.split(" "):
             glued = word[:1] != "" and word[0] in self.typography.glued
-            if words and (glued or words[-1].endswith(self.abbreviations)):
+            if words and (glued or words[-1].endswith(self.abbreviations) or words[-1].lower() in short):
                 words[-1] += f" {word}"
             else:
                 words.append(word)
@@ -338,23 +339,38 @@ class TextLayout:
 
     def _break_words(self, sentence: str, lead: str = "", indent: str = "", before: str = "") -> list[str]:
         """`sentence` broken at spaces into as few lines as the window allows, balanced: the narrowest width that
-        still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`."""
+        still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`.
+        Short words (`Typography.short_words`) stay off a line's end unless that costs a line or overflows one."""
         lines = self._greedy(sentence, self.width, lead, indent, before)
+        keep_short = bool(self.typography.short_words)
+        if keep_short:
+            kept = self._greedy(sentence, self.width, lead, indent, before, keep_short=True)
+            keep_short = len(kept) <= len(lines) and self._fits(kept, before)
         narrow, wide = 1, self.width
         while narrow < wide:
             middle = (narrow + wide) // 2
-            if len(self._greedy(sentence, middle, lead, indent, before)) <= len(lines):
+            if len(self._greedy(sentence, middle, lead, indent, before, keep_short)) <= len(lines):
                 wide = middle
             else:
                 narrow = middle + 1
-        return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent, before)
+        return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent, before, keep_short)
 
-    def _greedy(self, sentence: str, width: int, lead: str = "", indent: str = "", before: str = "") -> list[str]:
+    def _fits(self, lines: list[str], before: str) -> bool:
+        """No line of `lines` is wider than the window."""
+        for line in lines:
+            if self._width(line, before) > self.width:
+                return False
+            before = _ahead(before, [line])
+        return True
+
+    def _greedy(
+        self, sentence: str, width: int, lead: str = "", indent: str = "", before: str = "", keep_short: bool = False
+    ) -> list[str]:
         """Words fill each line up to `width`, the first line after `lead`, the others after `indent`; a word that
         would pass it starts the next."""
         lines: list[str] = []
         current = lead
-        for word in self._words(sentence):
+        for word in self._words(sentence, keep_short):
             started = current.strip() != ""
             candidate = f"{current} {word}" if started else current + word
             if started and self._width(candidate, before) > width:
