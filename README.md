@@ -83,6 +83,8 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
   (`formulas`, given the bus mapping by the caller). Moved from a816's `script` package; a816 reads its `.table`
   directive through it. Imports neither numpy nor pillow.
 - `katsuji.codecs.sdd1`: the S-DD1 decompressor and a compressor whose streams it reads back.
+- `katsuji.codecs.lzss`: `Lzss(...)`, one flag-byte LZSS per parameter set (window, reference layout, ring
+  buffer, flag order, search); star_ocean's text and dq6's credits are two such sets.
 
 Grown from ff4's tooling: its five fonts rebuild byte for byte, its wrapping and dialog goldens pass.
 
