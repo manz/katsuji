@@ -105,23 +105,34 @@ class Lzss:
             out[flags_at] = flags
         return bytes(out)
 
-    def decompress(self, src: bytes, size: int) -> tuple[bytes, int]:
-        """`size` bytes unpacked from `src`, and how many bytes of `src` that read."""
+    def decompress(self, src: bytes, size: int | None = None, history: bytes = b"") -> tuple[bytes, int]:
+        """`size` bytes unpacked from `src`, or with `size` None every item until `src` runs out, and how many
+        bytes of `src` that read. `history` is output an earlier stream left, which references may reach into (a
+        stream split in blocks); it is not returned."""
         ring = bytearray([self.fill]) * self.ring if self.ring else bytearray()
         write = self.ring_start
-        out = bytearray()
+        if self.ring:
+            for c in history:
+                ring[write] = c
+                write = (write + 1) % self.ring
+        out = bytearray(history)
+        want = None if size is None else len(history) + size
         i = bit = flags = 0
-        while len(out) < size:
+        while len(out) < want if want is not None else i < len(src):
             if i >= len(src):
-                raise ValueError(f"LZSS stream ends after {len(out)} of {size} bytes")
+                raise ValueError(f"LZSS stream ends after {len(out) - len(history)} of {size} bytes")
             if bit == 0:
                 flags, i = src[i], i + 1
+                if i >= len(src) and want is None:
+                    break
             literal = (flags >> self._bit(bit) & 1) == self.literal
             bit = (bit + 1) % 8
             if literal:
                 run = src[i : i + 1]
                 i += 1
             else:
+                if i + 1 >= len(src):
+                    raise ValueError(f"LZSS reference cut short at byte {i} of {len(src)}")
                 offset, length = self._fields(src[i], src[i + 1])
                 i += 2
                 run = self._copy(out, ring, offset, write, length)
@@ -130,7 +141,7 @@ class Lzss:
                 if self.ring:
                     ring[write] = c
                     write = (write + 1) % self.ring
-        return bytes(out[:size]), i
+        return bytes(out[len(history) : want]), i
 
     def _copy(self, out: bytearray, ring: bytearray, offset: int, write: int, length: int) -> bytes:
         """`length` bytes from `offset`, each read after the previous one landed (an overlapping reference)."""

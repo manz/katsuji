@@ -152,3 +152,28 @@ def test_formats_that_do_not_fit_are_rejected(fields: dict[str, Any]) -> None:
 def test_oldest_takes_no_chain() -> None:
     with pytest.raises(ValueError, match="no chain"):
         replace(BL_ROOMS, chain=64)
+
+
+def test_without_a_size_every_item_is_decoded() -> None:
+    packed = BL_GFX.compress(b"abc")
+    assert BL_GFX.decompress(packed) == (b"abc" + b"\xff" * 5, len(packed))
+
+
+def test_a_block_reaches_into_the_history_before_it() -> None:
+    first = b"Bahamut Lagoon, "
+    block = bytes([0b1, 16, (16 - 3) << 4])  # one reference: 16 bytes from 16 back, in the earlier block
+    assert BL_ROOMS.decompress(block, history=first) == (first, 3)
+
+
+def test_a_ring_takes_the_history() -> None:
+    block = bytes([0b0, 0x3BE & 0xFF, 0x3BE >> 8 << 6])  # 3 bytes from where the history was written
+    assert DQ6.decompress(block, 3, history=b"xyz") == (b"xyz", 3)
+
+
+def test_a_cut_reference_raises() -> None:
+    with pytest.raises(ValueError, match="cut short"):
+        BL_ROOMS.decompress(b"\x01\x10")
+
+
+def test_a_stream_ending_on_a_flag_byte_stops_there() -> None:
+    assert BL_ROOMS.decompress(b"\x00") == (b"", 1)
