@@ -144,7 +144,11 @@ def decompress_bytes(src: bytes, size: int) -> tuple[bytes, int]:
     return bytes(out[:size]), reader.offset + (reader.bit_count > 0)
 
 
-def _encode(data: bytes, header: int) -> bytes:
+def encode(data: bytes, header: int) -> bytes:
+    """`data` as a stream with this header, one of `HEADERS` (bitplane layout and context bits): to match a
+    stream the game holds, or to test every layout. `compress` keeps the shortest of them."""
+    if header not in HEADERS:
+        raise ValueError(f"S-DD1 header 0x{header:02X} is not one of HEADERS")
     model = _Context(header)
     words: list[tuple[int, int] | None] = []  # (value, bit length) in the order the decoder reads them
     open_runs: list[tuple[int, int] | None] = [None] * 8  # per generator: (word slot, MPS so far)
@@ -185,4 +189,4 @@ def _pack(header: int, words: list[tuple[int, int] | None]) -> bytes:
 
 def compress(data: bytes) -> bytes:
     """The shortest stream `decompress_bytes` turns back into `data`."""
-    return min((_encode(data, header) for header in HEADERS), key=len)
+    return min((encode(data, header) for header in HEADERS), key=len)

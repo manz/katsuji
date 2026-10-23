@@ -15,7 +15,15 @@ def run(code: str) -> subprocess.CompletedProcess[str]:
 
 @pytest.mark.parametrize(
     "module",
-    ["katsuji", "katsuji.script", "katsuji.typeset", "katsuji.wrap", "katsuji.layout", "katsuji.codecs.sdd1"],
+    [
+        "katsuji",
+        "katsuji.script",
+        "katsuji.typeset",
+        "katsuji.wrap",
+        "katsuji.layout",
+        "katsuji.codecs.sdd1",
+        "katsuji.codecs.lzss",
+    ],
 )
 def test_text_modules_import_without_render(module: str) -> None:
     assert run(f"import {module}").stderr == ""
