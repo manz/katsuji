@@ -84,7 +84,8 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
   directive through it. Imports neither numpy nor pillow.
 - `katsuji.codecs.sdd1`: the S-DD1 decompressor and a compressor whose streams it reads back.
 - `katsuji.codecs.lzss`: `Lzss(...)`, one flag-byte LZSS per parameter set (window, reference layout, ring
-  buffer, flag order, search); star_ocean's text and dq6's credits are two such sets.
+  buffer, flag order, search, padding); star_ocean's text, dq6's credits and bahamut_lagoon's rooms and
+  graphics are such sets.
 
 Grown from ff4's tooling: its five fonts rebuild byte for byte, its wrapping and dialog goldens pass.
 

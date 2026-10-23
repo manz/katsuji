@@ -44,6 +44,14 @@ class Lzss:
     flags_msb_first: bool = False
     chain: int | None = None
     """Positions the encoder tries per byte, from a hash chain of the next `min_match` bytes; None tries all."""
+    oldest: bool = False
+    """The encoder tries lengths longest first and takes the earliest occurrence lying wholly inside the window,
+    so a reference never overlaps what it writes (bahamut_lagoon). Distances only."""
+    repeats: bool = False
+    """With `oldest`: also a repeat of the last `max_match` bytes or fewer, which may overlap. It wins over a
+    window match no longer than it, and when the longest prefix is nowhere in the window (bahamut_lagoon's rooms)."""
+    pad: int | None = None
+    """A literal filling the last flag group to 8 items (bahamut_lagoon: 0xFF); None ends the stream early."""
 
     def __post_init__(self) -> None:
         high = self.offset_bits - 8
@@ -57,6 +65,8 @@ class Lzss:
             raise ValueError(f"LZSS max_match {self.max_match} does not fit {length_bits} length bits")
         if (self.ring or self.window + 1) > 1 << self.offset_bits or (self.ring and self.window > self.ring):
             raise ValueError(f"LZSS window {self.window:#x} does not fit {self.offset_bits} offset bits")
+        if (self.oldest and (self.ring or self.chain is not None)) or (self.repeats and not self.oldest):
+            raise ValueError(f"LZSS oldest takes distances and no chain, repeats needs oldest: {self}")
 
     def compress(self, data: bytes) -> bytes:
         """`data` packed by the greedy encoder; `decompress(..., len(data))` gives it back."""
@@ -70,9 +80,17 @@ class Lzss:
             out.append(0)
             for bit in range(8):
                 if i >= len(data):
-                    break
+                    if self.pad is None:
+                        break
+                    flags |= self.literal << self._bit(bit)
+                    out.append(self.pad)
+                    continue
                 here = len(prefix) + i
-                length, v = self._longest(seq, data, i, self._candidates(here, chains, data, i))
+                if self.oldest:
+                    length, distance = self._oldest(data, i)
+                    v = here - distance
+                else:
+                    length, v = self._longest(seq, data, i, self._candidates(here, chains, data, i))
                 step = length if length >= self.min_match else 1
                 if step == 1:
                     flags |= self.literal << self._bit(bit)
@@ -163,6 +181,20 @@ class Lzss:
                 return
             yield p + offset
 
+    def _oldest(self, data: bytes, i: int) -> tuple[int, int]:
+        """`oldest`'s match for `data[i:]`, (length, distance), or (0, 0): longest first, the earliest occurrence
+        wholly inside the window, a repeat of the bytes just before taking over as `repeats` says."""
+        window = data[max(i - self.window, 0) : i]
+        ahead = data[i : i + self.max_match]
+        repeat = _repeat(data[max(i - self.max_match, 0) : i], ahead) if self.repeats else None
+        for length in range(len(ahead), self.min_match - 1, -1):
+            found = window.find(ahead[:length])
+            if found != -1:
+                return repeat if repeat and repeat[0] >= length else (length, len(window) - found)
+            if repeat and repeat[0] >= self.min_match:
+                return repeat
+        return 0, 0
+
     def _longest(self, seq: bytes, data: bytes, i: int, candidates: Iterator[int]) -> tuple[int, int]:
         """The longest match for `data[i:]` among `candidates` (the first found on a tie): (length, index)."""
         limit = min(self.max_match, len(data) - i)
@@ -176,3 +208,16 @@ class Lzss:
                 if n == limit:
                     break
         return best_len, best_v
+
+
+def _repeat(back: bytes, ahead: bytes) -> tuple[int, int] | None:
+    """The longest tail of `back` whose repetition runs past one copy of itself into `ahead`: (length matched,
+    its period), or None."""
+    for start in range(len(back)):
+        pattern = back[start:]
+        n = 0
+        while n < len(ahead) and pattern[n % len(pattern)] == ahead[n]:
+            n += 1
+        if n > len(pattern):
+            return n, len(pattern)
+    return None

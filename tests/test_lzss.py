@@ -14,6 +14,10 @@ from katsuji.codecs.lzss import Lzss
 STAR_OCEAN = Lzss(window=0xFFF, chain=64)
 # dq6 tools/dq6_lzss.py: Okumura ring of 1 KiB from $3BE, 10-bit position, length in b1's low 6 bits, full scan
 DQ6 = Lzss(window=0x400, offset_bits=10, offset_shift=6, length_shift=0, max_match=66, ring=0x400, ring_start=0x3BE)
+# bahamut_lagoon utils/lz.py: set flag = reference, earliest occurrence longest first, 0xFF padding; rooms add the
+# repeat search (lz_compress), graphics leave it out (lz_compress_gfx)
+BL_ROOMS = Lzss(window=0xFFF, literal=0, oldest=True, repeats=True, pad=0xFF)
+BL_GFX = replace(BL_ROOMS, repeats=False)
 
 # sha256 prefix and length of each game encoder's own output on these inputs (frozen 2026-10-23)
 GOLDEN = {
@@ -23,6 +27,17 @@ GOLDEN = {
     "runs": (("8c989faf1e714406", 1455), ("f6e5d159910120eb", 607)),
     "tilemap": (("5a904ab5bad0e41e", 1990), ("2293caef72e8baf8", 2113)),
     "random": (("7d3edea1cd9d50d7", 1125), ("7d3edea1cd9d50d7", 1125)),
+}
+
+# bahamut_lagoon's lz_compress (rooms) and lz_compress(search_patterns=False) (graphics), frozen 2026-10-24; its 84
+# Japanese dialogue rooms (314,461 bytes) re-encoded identically too, checked against the game's encoder
+BL_GOLDEN = {
+    "text": (("5f9d9271e05de2dc", 2439), ("1adb2e498ebf79d2", 2435)),
+    "chain": (("f261ca95b4c6bd1a", 4226), ("f261ca95b4c6bd1a", 4226)),
+    "far": (("922f5a243c5e63e9", 6075), ("922f5a243c5e63e9", 6075)),
+    "runs": (("a6d281e54c18ac3a", 1458), ("bc93def84053354b", 1469)),
+    "tilemap": (("c7ad6bf9848fe322", 1949), ("478ada26a2728019", 1900)),
+    "random": (("c7c6c992c1a7abf9", 1125), ("c7c6c992c1a7abf9", 1125)),
 }
 
 
@@ -55,6 +70,25 @@ def test_star_ocean_format_matches_its_encoder(name: str) -> None:
 @pytest.mark.parametrize("name", GOLDEN)
 def test_dq6_format_matches_its_encoder(name: str) -> None:
     assert digest(DQ6.compress(CASES[name])) == GOLDEN[name][1]
+
+
+@pytest.mark.parametrize("name", BL_GOLDEN)
+def test_bahamut_lagoon_formats_match_its_encoder(name: str) -> None:
+    assert (digest(BL_ROOMS.compress(CASES[name])), digest(BL_GFX.compress(CASES[name]))) == BL_GOLDEN[name]
+
+
+@pytest.mark.parametrize("lzss", [BL_ROOMS, BL_GFX], ids=["rooms", "gfx"])
+@pytest.mark.parametrize("name", BL_GOLDEN)
+def test_padded_streams_round_trip(lzss: Lzss, name: str) -> None:
+    assert lzss.decompress(lzss.compress(CASES[name]), len(CASES[name]))[0] == CASES[name]
+
+
+def test_padding_fills_the_last_flag_group() -> None:
+    assert BL_GFX.compress(b"ab") == b"\x00ab" + b"\xff" * 6
+
+
+def test_a_repeat_overlaps_what_it_writes() -> None:
+    assert BL_ROOMS.compress(b"ab" * 5)[:5] == b"\x04ab\x02\x50"
 
 
 @pytest.mark.parametrize("lzss", [STAR_OCEAN, DQ6], ids=["star_ocean", "dq6"])
@@ -96,9 +130,25 @@ def test_a_stream_ending_early_raises() -> None:
         {"max_match": 19},
         {"window": 0x1000},
         {"ring": 0x400, "window": 0x401, "offset_bits": 10, "offset_shift": 6, "length_shift": 0},
+        {"oldest": True, "ring": 0x1000},
+        {"repeats": True},
     ],
-    ids=["offset-too-wide", "fields-overflow", "fields-overlap", "length-too-long", "window", "window-past-ring"],
+    ids=[
+        "offset-too-wide",
+        "fields-overflow",
+        "fields-overlap",
+        "length-too-long",
+        "window",
+        "window-past-ring",
+        "oldest-with-ring",
+        "repeats-without-oldest",
+    ],
 )
 def test_formats_that_do_not_fit_are_rejected(fields: dict[str, Any]) -> None:
     with pytest.raises(ValueError, match="LZSS"):
         replace(STAR_OCEAN, chain=None, **fields)
+
+
+def test_oldest_takes_no_chain() -> None:
+    with pytest.raises(ValueError, match="no chain"):
+        replace(BL_ROOMS, chain=64)
