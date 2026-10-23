@@ -6,9 +6,8 @@
 
 from pathlib import Path
 
-from script import Table
-
 from katsuji import VwfFont
+from katsuji.script import Table
 from katsuji.wrap import Controls, Fixed, Wrapper
 from tests.ff4_dialog import format_dialog
 

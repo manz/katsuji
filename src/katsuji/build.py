@@ -2,12 +2,11 @@
 
 from pathlib import Path
 
-from script import Table
-
 from katsuji.atlas import Atlas
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
+from katsuji.script import Table
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
 

@@ -2,10 +2,10 @@
 
 import numpy as np
 import pytest
-from script import Table
 
 from katsuji import Atlas, find_kerning, pair_kerning
 from katsuji.kerning import collides, touches
+from katsuji.script import Table
 
 
 def _pair(table: Table, text: str) -> tuple[int, int]:

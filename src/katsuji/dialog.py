@@ -19,7 +19,7 @@ from katsuji.wrap import Wrapper
 
 
 class TextTable(Protocol):
-    """What a816's `script.Table` offers: text to codes and back."""
+    """What `katsuji.script.Table` offers: text to codes and back."""
 
     def to_bytes(self, text: str) -> bytes: ...
 

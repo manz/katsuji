@@ -1,24 +1,21 @@
-"""`katsuji` command line."""
+"""`katsuji` command line. The commands render fonts: their modules load only once one runs, so a text-only install
+(no `render` extra) still imports `katsuji` and `katsuji.script`."""
 
 import argparse
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from script import Table
-
-from katsuji.atlas import Atlas, save_png
-from katsuji.banner import banner, to_blocks
-from katsuji.build import build
-from katsuji.config import ConfigError, load
-from katsuji.formats import VwfFont
-from katsuji.remap import remap, table_codes
-from katsuji.render import autohint
-from katsuji.wrap import Controls
-
 
 def _code(value: str) -> int:
     return int(value, 0)
+
+
+def _width(value: str) -> tuple[int, int]:
+    code, sep, pixels = value.partition("=")
+    if not sep:
+        raise argparse.ArgumentTypeError(f"{value!r} is not CODE=PX")
+    return int(code, 0), int(pixels, 0)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -42,6 +39,17 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument(
         "--ink", type=_code, action="append", help="with --auto, a colour to measure and kern on (repeat); default: all"
     )
+    show.add_argument(
+        "--width",
+        type=_width,
+        action="append",
+        default=[],
+        dest="widths",
+        help="with --auto, CODE=PX: set a glyph's width (negative trims), e.g. 0x00=3 for a space; repeat",
+    )
+    show.add_argument(
+        "--avoid", type=_code, action="append", default=[], help="with --auto, a code never kerned (repeat)"
+    )
     make = commands.add_parser("build", help="build the fonts and strings a katsuji.toml describes")
     make.add_argument("config", nargs="?", type=Path, default=Path("katsuji.toml"))
     move = commands.add_parser("remap", help="move a font PNG from one text table's codes to another's")
@@ -55,59 +63,15 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
-    if args.command == "build":
-        return _build(args.config)
-    if args.command == "remap":
-        return _remap(args)
-    codes = Table(str(args.table)).to_bytes(args.text)
-    if args.auto:
-        return _auto(args, codes)
-    fonts = [VwfFont.decode(path.read_bytes()) for path in args.fonts]
-    pixels = banner(fonts, codes, Controls(font_switch=args.font_switch), kerning=not args.no_kerning)
-    if args.png:
-        save_png(pixels, args.png)
-    else:
-        print(to_blocks(pixels))
-        print(f"width: {pixels.shape[1]}", file=sys.stderr)
-    return 0
-
-
-def _auto(args: argparse.Namespace, codes: bytes) -> int:
-    width, _, height = str(args.cell).partition("x")
-    atlas = Atlas.open(args.fonts[0], int(width), int(height))
-    pixels = autohint(atlas, codes, ink=args.ink)
-    if args.png:
-        save_png(pixels, args.png, atlas.palette or _greys(int(pixels.max(initial=1))))
-    else:
-        print(to_blocks(pixels))
-        print(f"width: {pixels.shape[1]}", file=sys.stderr)
-    return 0
-
-
-def _greys(top: int) -> tuple[int, ...]:
-    """Paper white, then evenly darker greys up to colour `top` black."""
-    return tuple(value for level in range(top + 1) for value in (255 - 255 * level // top,) * 3)
-
-
-def _remap(args: argparse.Namespace) -> int:
-    width, _, height = str(args.cell).partition("x")
-    atlas = Atlas.open(args.png, int(width), int(height))
-    remapped = remap(atlas, table_codes(args.table), table_codes(args.target))
-    save_png(remapped.pixels, args.output, remapped.palette)
-    print(args.output)
-    if remapped.missing:
-        print(f"not in the font: {' '.join(remapped.missing)}", file=sys.stderr)
-    return 0
-
-
-def _build(path: Path) -> int:
     try:
-        for written in build(load(path)):
-            print(written)
-    except ConfigError as error:
-        print(f"katsuji: {error}", file=sys.stderr)
+        from katsuji import commands
+    except ModuleNotFoundError as missing:
+        print(
+            f"katsuji: the command line renders fonts and needs {missing.name}: install katsuji[render]",
+            file=sys.stderr,
+        )
         return 2
-    return 0
+    return commands.run(args)
 
 
 if __name__ == "__main__":

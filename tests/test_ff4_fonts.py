@@ -8,9 +8,9 @@ pair are ff4's build configuration, kept here as data.
 from pathlib import Path
 
 import pytest
-from script import Table
 
 from katsuji import Atlas, VwfFont, find_kerning
+from katsuji.script import Table
 
 FF4 = Path(__file__).parent / "fixtures" / "ff4"
 

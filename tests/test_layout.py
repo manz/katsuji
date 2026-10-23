@@ -5,6 +5,7 @@ tag none, a name ([HERO]) five.
 """
 
 import re
+from dataclasses import replace
 
 import pytest
 
@@ -132,6 +133,20 @@ def test_a_speaker_label_stays_with_its_text_across_windows(layout: TextLayout) 
 def test_a_blank_line_does_not_open_a_window(layout: TextLayout) -> None:
     text = "aaaa bbbb cccc dddd eeee ffff.\n\nthree."
     assert layout.reflow(text, page_lines=2) == "aaaa bbbb cccc\ndddd eeee ffff.\nthree."
+
+
+def test_a_blank_line_keeps_its_row_in_the_middle_of_a_window(layout: TextLayout) -> None:
+    assert layout.reflow("one.\n\ntwo.", page_lines=3) == "one.\n\ntwo."
+
+
+def test_a_blank_line_ends_its_window_when_asked(layout: TextLayout) -> None:
+    paged = replace(layout, blank_ends_window=True)
+    assert paged.reflow("one.\n\ntwo.", page_lines=3) == "one.\n\n\ntwo."
+
+
+def test_a_blank_line_opening_the_text_keeps_one_row_when_asked(layout: TextLayout) -> None:
+    paged = replace(layout, blank_ends_window=True)
+    assert paged.reflow("\none.", page_lines=3) == "\none."
 
 
 def test_a_label_closing_the_text_is_kept(layout: TextLayout) -> None:
@@ -281,3 +296,61 @@ def test_the_measure_after_hook_sees_the_lines_laid_out_ahead() -> None:
 
     TextLayout(monospace, 10, measure_after=recording).reflow("aaaa bbbb. cccc dddd.")
     assert ("cccc dddd.", "aaaa bbbb.") in seen
+
+
+@pytest.fixture
+def lines() -> TextLayout:
+    """TMZ's `[br]`: the tag is the line break itself."""
+    return TextLayout(monospace, 20, FRENCH, MARKUP, newlines=r"\[br\]")
+
+
+def test_a_newline_tag_ends_its_line_and_is_consumed(lines: TextLayout) -> None:
+    assert lines.reflow("Pour de vrai, quoi ! [br]Suite.") == "Pour de vrai, quoi !\nSuite."
+
+
+def test_text_between_newline_tags_reflows(lines: TextLayout) -> None:
+    *sentence, last = lines.reflow("Un deux trois quatre cinq six.[br]Fin.").split("\n")
+    assert (len(sentence), " ".join(sentence), last) == (2, "Un deux trois quatre cinq six.", "Fin.")
+
+
+def test_consecutive_newline_tags_keep_their_empty_lines(lines: TextLayout) -> None:
+    assert lines.reflow("texte[br][br]").split("\n") == ["texte", "", ""]
+
+
+def test_a_leading_newline_tag_keeps_its_empty_line(lines: TextLayout) -> None:
+    assert lines.reflow("[br]texte").split("\n") == ["", "texte"]
+
+
+def test_newline_tags_are_width_checked(lines: TextLayout) -> None:
+    text = lines.reflow("Unmotbeaucouptroplong[br]ok")
+    assert list(lines.overflows(text)) == [("Unmotbeaucouptroplong", 21)]
+
+
+def test_a_source_newline_after_a_newline_tag_is_layout(lines: TextLayout) -> None:
+    assert lines.reflow("Ryo ou bons ?[br]\n Ryo  Bons").split("\n") == ["Ryo ou bons ?", " Ryo  Bons"]
+
+
+def test_newline_tags_keep_an_empty_line_opening_a_window(lines: TextLayout) -> None:
+    assert lines.reflow("un[br]deux[br]trois[br][br]quatre", 3).split("\n") == ["un", "deux", "trois", "", "quatre"]
+
+
+def test_newline_tags_keep_runs_of_spaces(lines: TextLayout) -> None:
+    assert lines.reflow("Nom : [HERO]  Race[br]x").split("\n")[0] == "Nom : [HERO]  Race"
+
+
+@pytest.mark.parametrize("indented", ["  dieu de la terre", "            Illico"], ids=["indent", "signature"])
+def test_newline_tags_keep_an_indented_line_as_written(lines: TextLayout, indented: str) -> None:
+    assert lines.reflow(f"Ninigi,[br]\n{indented}").split("\n") == ["Ninigi,", indented]
+
+
+def test_an_indented_line_too_wide_as_written_is_placed(lines: TextLayout) -> None:
+    assert lines.reflow("Moi.[br]\n     abcdefghijklmnopq").split("\n") == ["Moi.", " abcdefghijklmnopq"]
+
+
+def test_an_indented_line_too_wide_placed_wraps(lines: TextLayout) -> None:
+    out = lines.reflow("Moi.[br]\n     Ermite Tonnerre, le plus fort").split("\n")
+    assert (out[0], " ".join(out[1:]), list(lines.overflows("\n".join(out)))) == (
+        "Moi.",
+        "Ermite Tonnerre, le plus fort",
+        [],
+    )

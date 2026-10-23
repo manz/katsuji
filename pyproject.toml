@@ -5,10 +5,13 @@ description = "Variable-width font tooling for a816 SNES projects: fonts, kernin
 readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
-dependencies = [
+dependencies = []
+
+[project.optional-dependencies]
+# Fonts, tiles, kerning, banners and the command line. Without it: script tables, typesetting, layout, codecs.
+render = [
     "numpy>=1.26",
     "pillow>=10",
-    "a816>=1.1.0a44",
 ]
 
 [project.scripts]
@@ -16,10 +19,12 @@ katsuji = "katsuji.cli:main"
 
 [dependency-groups]
 dev = [
+    "katsuji[render]",
     "pytest>=8",
     "pytest-cov>=5",
     "ruff>=0.16",
     "mypy>=1.13",
+    "a816>=1.1.0a44",  # tests check generated constants parse as a816
 ]
 
 [build-system]

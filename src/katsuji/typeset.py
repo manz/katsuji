@@ -33,6 +33,8 @@ class Typography:
     """Marks with a space before them; a run of them ("?!") takes one."""
     quotes: str = ""
     """Opening and closing quote, spaced inside: French « ... »."""
+    space_after_ellipsis: bool = True
+    """An ellipsis glued to the next word takes a space after it; off, a stutter ("brouil...lard") stays glued."""
 
     @property
     def glued(self) -> str:
@@ -69,31 +71,34 @@ class Markup:
         return CONTROL
 
 
-def typeset(text: str, typography: Typography, markup: Markup | None = None) -> str:
-    """`text` spaced the way `typography` says, line by line, its tags read with `markup`."""
+def typeset(text: str, typography: Typography, markup: Markup | None = None, *, squeeze: bool = True) -> str:
+    """`text` spaced the way `typography` says, line by line, its tags read with `markup`. `squeeze` sets a run of
+    spaces between words as one; off, a column layout keeps its alignment."""
     markup = markup or Markup()
-    return "\n".join(_typeset_line(line, typography, markup) for line in text.split("\n"))
+    return "\n".join(_typeset_line(line, typography, markup, squeeze) for line in text.split("\n"))
 
 
-def _typeset_line(line: str, typography: Typography, markup: Markup) -> str:
+def _typeset_line(line: str, typography: Typography, markup: Markup, squeeze: bool) -> str:
     if _PLACEHOLDER.search(line):
         raise ValueError(f"private-use character in {line!r}")
     tags = [match[0] for match in re.finditer(markup.tag, line, re.IGNORECASE)]
     text = re.sub(markup.tag, lambda match: markup.kind(match[0]), line, flags=re.IGNORECASE)
     indent = text[: len(text) - len(text.lstrip(" "))]
-    text = _spaced(text[len(indent) :], typography, markup.speakers)
+    text = _spaced(text[len(indent) :], typography, markup.speakers, squeeze)
     restored = iter(tags)
     return _PLACEHOLDER.sub(lambda _: next(restored), indent + text)
 
 
-def _spaced(text: str, typography: Typography, speakers: bool) -> str:
-    text = _ELLIPSIS.sub(r"\1 ", _COMMA.sub(", ", text))
+def _spaced(text: str, typography: Typography, speakers: bool, squeeze: bool) -> str:
+    text = _COMMA.sub(", ", text)
+    if typography.space_after_ellipsis:
+        text = _ELLIPSIS.sub(r"\1 ", text)
     speaker = _SPEAKER.match(text) if speakers else None
     head = text[: speaker.end()] if speaker else ""
     rest = _space_before(text[len(head) :], typography.space_before)
     if typography.quotes:
         rest = _space_before(_space_after(rest, typography.quotes[0]), typography.quotes[1])
-    return _SPACES.sub(" ", head + rest)
+    return _SPACES.sub(" ", head + rest) if squeeze else head + rest
 
 
 def _space_before(text: str, marks: str) -> str:

@@ -3,12 +3,13 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 from PIL import Image
-from script import Table
 
-from katsuji import Atlas, autohint, render_colours
+from katsuji import Atlas, autohint, find_kerning, render_colours
 from katsuji.cli import main
 from katsuji.formats import VwfFont
+from katsuji.script import Table
 
 LEVELS = (0, 85, 170, 255)
 
@@ -116,3 +117,39 @@ def test_banner_auto_measures_on_the_ink_colours(tmp_path: Path) -> None:
     args = ["banner", "ab", "--table", str(table), "--font", str(png), "--auto", "--cell", "8x8", "--ink", "3"]
     assert main([*args, "--png", str(out)]) == 0
     assert np.array(Image.open(out))[0].tolist() == [3, 3, 1, 3, 3, 3, 1]
+
+
+def test_find_kerning_never_kerns_a_blank_glyph(tmp_path: Path) -> None:
+    atlas = Atlas.open(_ink_png(tmp_path / "f.png"), 8, 8)
+    assert find_kerning(atlas, {(1, 0), (0, 2)}) == {}
+
+
+def test_find_kerning_skips_avoided_codes(dialog_atlas: Atlas, dialog_table: Table) -> None:
+    t, a = dialog_table.to_bytes("Ta")
+    assert find_kerning(dialog_atlas, {(t, a)}, avoid={a}) == {}
+
+
+def test_autohint_keeps_a_space_its_override_width(tmp_path: Path) -> None:
+    atlas = Atlas.open(_ink_png(tmp_path / "f.png"), 8, 8)
+    assert autohint(atlas, [1, 0, 2], ink=[3], widths={0: 3})[0].tolist() == [3, 3, 1, 0, 0, 0, 0, 3, 3, 3, 1]
+
+
+def test_autohint_keeps_the_gap_of_an_avoided_pair(dialog_atlas: Atlas, dialog_table: Table) -> None:
+    codes = list(dialog_table.to_bytes("Ta"))
+    unkerned = render_colours(VwfFont.from_atlas(dialog_atlas), dialog_atlas, codes)
+    assert autohint(dialog_atlas, codes, avoid=[codes[1]]).shape[1] == unkerned.shape[1]
+
+
+def test_banner_auto_takes_widths_and_avoided_codes(tmp_path: Path) -> None:
+    table = tmp_path / "t.tbl"
+    table.write_text("00= \n01=a\n02=b\n", encoding="utf-8")
+    png, out = _ink_png(tmp_path / "f.png"), tmp_path / "o.png"
+    args = ["banner", "a b", "--table", str(table), "--font", str(png), "--auto", "--cell", "8x8", "--ink", "3"]
+    assert main([*args, "--width", "0x00=3", "--avoid", "0x01", "--png", str(out)]) == 0
+    assert np.array(Image.open(out))[0].tolist() == [3, 3, 1, 0, 0, 0, 0, 3, 3, 3, 1]
+
+
+def test_banner_width_needs_code_equals_pixels(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit):
+        main(["banner", "a", "--table", "t.tbl", "--font", "f.png", "--auto", "--width", "0x00"])
+    assert "is not CODE=PX" in capsys.readouterr().err

@@ -13,16 +13,19 @@ as written. Everything else is shared:
   Lines starting with two or more are placed: centred, or right-aligned when
   set well right of the middle (a signature).
 - `paginate`: a block of lines never crosses into the next window, a speaker
-  label stays with the block after it.
+  label stays with the block after it; given `blank_ends_window`, a blank line
+  in the middle of a window ends it.
 
 bahamut_lagoon's French dialog is the reference: utils/dialog_layout.py.
 """
 
 import re
-from collections.abc import Callable, Iterable, Iterator
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterable, Iterator, Mapping
+from dataclasses import dataclass, field, replace
 
+from katsuji.dialog import TextTable
 from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
+from katsuji.wrap import Wrapper
 
 Measure = Callable[[str], int]
 """A line's width in pixels as the engine writes it, compared against the window's width.
@@ -32,6 +35,36 @@ that writes the gap column needs `Wrapper.measure` as is (gap included), one
 that only ORs ink into the line needs `Wrapper.measure(...) - gap`."""
 Block = list[str]
 """Lines that go into one window together."""
+
+
+@dataclass(frozen=True)
+class TableMeasure:
+    """A `Measure` for script text: the text between tags encoded through `table` and measured by `wrapper` (glyph
+    widths, kerning, the gap after the last glyph), each tag at the width of the first `tag_widths` pattern it fully
+    matches, none for any other tag. Kerning is not taken across a tag.
+
+    TMZ: `TableMeasure(Table(tbl), Wrapper([font], Controls(space=0x00)), tag_widths={r"\\[name:\\d\\]": 48})`.
+    """
+
+    table: TextTable
+    wrapper: Wrapper
+    markup: Markup = field(default_factory=Markup)
+    tag_widths: Mapping[str, int] = field(default_factory=dict)
+
+    def __call__(self, line: str) -> int:
+        width = 0
+        position = 0
+        for tag in re.finditer(self.markup.tag, line):
+            width += self._text(line[position : tag.start()]) + self._tag(tag[0])
+            position = tag.end()
+        return width + self._text(line[position:])
+
+    def _text(self, text: str) -> int:
+        return self.wrapper.measure(self.table.to_bytes(text)) if text else 0
+
+    def _tag(self, tag: str) -> int:
+        return next((px for pattern, px in self.tag_widths.items() if re.fullmatch(pattern, tag)), 0)
+
 
 SENTENCE_ENDS = ".!?…"
 BREAK = "\ue003"  # after a paragraph break, between typesetting and layout
@@ -54,6 +87,16 @@ class TextLayout:
     breaks: str | None = None
     """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one. Matched
     over the whole text, so `$` is the text's end: `\\[WAIT\\](?!(?:\\[[^]]*\\])*$)` skips a [WAIT] closing it."""
+    newlines: str | None = None
+    """A tag that is the line break itself ("[br]", one engine newline each): consumed with the spaces before it and
+    a source newline after it, the text between two reflows on its own, and the lines come out as written otherwise:
+    consecutive tags keep their empty lines (even one opening a window), runs of spaces their width and an indented
+    line its indent. Unlike
+    `breaks`, whose tag stays in the text."""
+    squeeze: bool = True
+    """A run of spaces between words is set as one (see `typeset`)."""
+    placed: bool = True
+    """An indented line is re-indented in the window (see `place`); off, it stays as written while it fits."""
     speaker: str | None = None
     """A speaker opening a paragraph ("[D4]Soldier: "): its continuation lines hang `hanging` spaces in, whatever
     their indent in the source."""
@@ -67,6 +110,9 @@ class TextLayout:
     half-empty ones (bahamut_lagoon: two thirds of the window)."""
     abbreviations: tuple[str, ...] = ()
     """Words ending in a period that end no sentence and stay with the next word ("M." in "M. Rosa")."""
+    blank_ends_window: bool = False
+    """A blank line in the middle of a window ends it: padded to the window's last line, so the next paragraph
+    opens a window, for an engine whose page turns once a window's lines are full (bahamut_lagoon's)."""
     measure_after: Callable[[str, str], int] | None = None
     """In place of `measure`: a line's width given the text laid out ahead of it in the same call, for a game
     whose state carries across lines (a font switch holding until the next)."""
@@ -82,7 +128,11 @@ class TextLayout:
 
     def blocks(self, text: str) -> list[Block]:
         """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
-        lines = self._mark_breaks(typeset(text, self.typography, self.markup)).split("\n")
+        if self.newlines:
+            between = replace(self, newlines=None, squeeze=False, placed=False)
+            segments = re.split(rf" *(?:{self.newlines})\n?", text, flags=re.IGNORECASE)
+            return [block for segment in segments for block in (between.blocks(segment) if segment else [[""]])]
+        lines = self._mark_breaks(typeset(text, self.typography, self.markup, squeeze=self.squeeze)).split("\n")
         indented = [line for line in lines if line.startswith("  ") and line.strip()]
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1
         blocks: list[Block] = []
@@ -103,7 +153,7 @@ class TextLayout:
                 blocks.append([""])  # a spacer, spaces or not, draws nothing
             elif line.startswith(" ") or self._kept(line):
                 close_paragraph()
-                blocks.append([line if block_indent else self.place(line)])
+                blocks.extend([[line]] if block_indent else self._indented(line))
             elif self.items and re.match(self.items, line):
                 close_paragraph()
                 blocks.extend(self._wrap_paragraph(line, before=_ahead("", (row for block in blocks for row in block))))
@@ -120,16 +170,18 @@ class TextLayout:
     def paginate(self, blocks: list[Block], page_lines: int) -> list[Block]:
         """`blocks` laid over windows of `page_lines` lines: a block that would cross into the next window is
         pushed there by blank lines, a speaker label stays with the block after it, and a blank line that would
-        open a window is dropped."""
+        open a window is dropped (given `blank_ends_window`, one in the middle of a window fills it)."""
         out: list[Block] = []
         row = 0
         pending_label: Block = []
         for block in blocks:
             if block == [""] and not pending_label:
-                if row % page_lines == 0 and out:
+                used = row % page_lines
+                if used == 0 and out and not self.newlines:
                     continue
-                out.append(block)
-                row += 1
+                spacers = page_lines - used if used and self.blank_ends_window else 1
+                out.append(block * spacers)
+                row += spacers
                 continue
             if len(block) == 1 and self._is_label(block[0]) and not pending_label:
                 pending_label = block
@@ -184,6 +236,16 @@ class TextLayout:
         if key not in self._widths:
             self._widths[key] = self.measure_after(line, before) if self.measure_after else self.measure(line)
         return self._widths[key]
+
+    def _indented(self, line: str) -> list[Block]:
+        """An indented or kept line, placed (see `place`). With `placed` off it stays as written while it fits, is
+        placed when only that fits, and wraps when even placed it is wider than the window."""
+        if self.placed:
+            return [[self.place(line)]]
+        for candidate in (line, self.place(line)):
+            if self._width(candidate) <= self.width:
+                return [[candidate]]
+        return self._wrap_paragraph(line.lstrip(" "))
 
     def _kept(self, line: str) -> bool:
         return self._is_label(line) or bool(self.headings and re.fullmatch(self.headings, line))

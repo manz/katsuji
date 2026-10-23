@@ -75,8 +75,14 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 - `render` / `measure`: text set at build time exactly as the runtime sets it.
 - `Wrapper`: word wrap by pixel width, the game's control codes as data.
 - `Window` / `WindowBuilder`: fill text windows; a game's script rules drive them.
+- `TextLayout` / `TableMeasure`: dialog reflowed to its window; `TableMeasure` measures script text through its
+  `.tbl` and font, tags (names) at fixed widths.
 - `encode_tiles` / `colourize`: SNES 2bpp / 4bpp planar tiles.
 - `text_tiles` / `pack_runs`: static strings pre-rendered to a bank-safe blob.
+- `katsuji.script`: `.tbl` text tables (`Table`), pointer tables and their XML (`pointers`), pointer formulas
+  (`formulas`, given the bus mapping by the caller). Moved from a816's `script` package; a816 reads its `.table`
+  directive through it. Imports neither numpy nor pillow.
+- `katsuji.codecs.sdd1`: the S-DD1 decompressor and a compressor whose streams it reads back.
 
 Grown from ff4's tooling: its five fonts rebuild byte for byte, its wrapping and dialog goldens pass.
 
