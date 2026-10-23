@@ -87,9 +87,12 @@ class TextLayout:
     """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one. Matched
     over the whole text, so `$` is the text's end: `\\[WAIT\\](?!(?:\\[[^]]*\\])*$)` skips a [WAIT] closing it."""
     newlines: str | None = None
-    """A tag that is the line break itself ("[br]", one engine newline each): consumed with the spaces before it, the
-    text between two reflows on its own, and consecutive tags keep their empty lines as written. Unlike `breaks`,
-    whose tag stays in the text."""
+    """A tag that is the line break itself ("[br]", one engine newline each): consumed with the spaces before it and
+    a source newline after it, the text between two reflows on its own, and the lines come out as written otherwise:
+    consecutive tags keep their empty lines (even one opening a window) and runs of spaces their width. Unlike
+    `breaks`, whose tag stays in the text."""
+    squeeze: bool = True
+    """A run of spaces between words is set as one (see `typeset`)."""
     speaker: str | None = None
     """A speaker opening a paragraph ("[D4]Soldier: "): its continuation lines hang `hanging` spaces in, whatever
     their indent in the source."""
@@ -119,10 +122,10 @@ class TextLayout:
     def blocks(self, text: str) -> list[Block]:
         """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
         if self.newlines:
-            between = replace(self, newlines=None)
-            segments = re.split(rf" *(?:{self.newlines})", text, flags=re.IGNORECASE)
+            between = replace(self, newlines=None, squeeze=False)
+            segments = re.split(rf" *(?:{self.newlines})\n?", text, flags=re.IGNORECASE)
             return [block for segment in segments for block in (between.blocks(segment) if segment else [[""]])]
-        lines = self._mark_breaks(typeset(text, self.typography, self.markup)).split("\n")
+        lines = self._mark_breaks(typeset(text, self.typography, self.markup, squeeze=self.squeeze)).split("\n")
         indented = [line for line in lines if line.startswith("  ") and line.strip()]
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1
         blocks: list[Block] = []
@@ -166,7 +169,7 @@ class TextLayout:
         pending_label: Block = []
         for block in blocks:
             if block == [""] and not pending_label:
-                if row % page_lines == 0 and out:
+                if row % page_lines == 0 and out and not self.newlines:
                     continue
                 out.append(block)
                 row += 1

@@ -107,3 +107,7 @@ def test_an_ellipsis_after_a_word_still_gets_its_space() -> None:
 
 def test_an_ellipsis_after_a_space_is_spaced_like_one_after_a_word() -> None:
     assert typeset("... ...[0xd8]", FRENCH, BAHAMUT_LAGOON) == "... ... [0xd8]"
+
+
+def test_squeeze_off_keeps_runs_of_spaces() -> None:
+    assert typeset("Nom  Race", FRENCH, squeeze=False) == "Nom  Race"

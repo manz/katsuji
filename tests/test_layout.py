@@ -309,3 +309,15 @@ def test_a_leading_newline_tag_keeps_its_empty_line(lines: TextLayout) -> None:
 def test_newline_tags_are_width_checked(lines: TextLayout) -> None:
     text = lines.reflow("Unmotbeaucouptroplong[br]ok")
     assert list(lines.overflows(text)) == [("Unmotbeaucouptroplong", 21)]
+
+
+def test_a_source_newline_after_a_newline_tag_is_layout(lines: TextLayout) -> None:
+    assert lines.reflow("Ryo ou bons ?[br]\n Ryo  Bons").split("\n") == ["Ryo ou bons ?", " Ryo  Bons"]
+
+
+def test_newline_tags_keep_an_empty_line_opening_a_window(lines: TextLayout) -> None:
+    assert lines.reflow("un[br]deux[br]trois[br][br]quatre", 3).split("\n") == ["un", "deux", "trois", "", "quatre"]
+
+
+def test_newline_tags_keep_runs_of_spaces(lines: TextLayout) -> None:
+    assert lines.reflow("Nom : [HERO]  Race[br]x").split("\n")[0] == "Nom : [HERO]  Race"
