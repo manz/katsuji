@@ -20,7 +20,7 @@ bahamut_lagoon's French dialog is the reference: utils/dialog_layout.py.
 
 import re
 from collections.abc import Callable, Iterable, Iterator, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from katsuji.dialog import TextTable
 from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
@@ -86,6 +86,10 @@ class TextLayout:
     breaks: str | None = None
     """A tag that ends its paragraph ("[WAIT]"): what follows it starts a new line, even on the same one. Matched
     over the whole text, so `$` is the text's end: `\\[WAIT\\](?!(?:\\[[^]]*\\])*$)` skips a [WAIT] closing it."""
+    newlines: str | None = None
+    """A tag that is the line break itself ("[br]", one engine newline each): consumed with the spaces before it, the
+    text between two reflows on its own, and consecutive tags keep their empty lines as written. Unlike `breaks`,
+    whose tag stays in the text."""
     speaker: str | None = None
     """A speaker opening a paragraph ("[D4]Soldier: "): its continuation lines hang `hanging` spaces in, whatever
     their indent in the source."""
@@ -114,6 +118,10 @@ class TextLayout:
 
     def blocks(self, text: str) -> list[Block]:
         """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
+        if self.newlines:
+            between = replace(self, newlines=None)
+            segments = re.split(rf" *(?:{self.newlines})", text, flags=re.IGNORECASE)
+            return [block for segment in segments for block in (between.blocks(segment) if segment else [[""]])]
         lines = self._mark_breaks(typeset(text, self.typography, self.markup)).split("\n")
         indented = [line for line in lines if line.startswith("  ") and line.strip()]
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1

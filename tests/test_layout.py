@@ -281,3 +281,31 @@ def test_the_measure_after_hook_sees_the_lines_laid_out_ahead() -> None:
 
     TextLayout(monospace, 10, measure_after=recording).reflow("aaaa bbbb. cccc dddd.")
     assert ("cccc dddd.", "aaaa bbbb.") in seen
+
+
+@pytest.fixture
+def lines() -> TextLayout:
+    """TMZ's `[br]`: the tag is the line break itself."""
+    return TextLayout(monospace, 20, FRENCH, MARKUP, newlines=r"\[br\]")
+
+
+def test_a_newline_tag_ends_its_line_and_is_consumed(lines: TextLayout) -> None:
+    assert lines.reflow("Pour de vrai, quoi ! [br]Suite.") == "Pour de vrai, quoi !\nSuite."
+
+
+def test_text_between_newline_tags_reflows(lines: TextLayout) -> None:
+    *sentence, last = lines.reflow("Un deux trois quatre cinq six.[br]Fin.").split("\n")
+    assert (len(sentence), " ".join(sentence), last) == (2, "Un deux trois quatre cinq six.", "Fin.")
+
+
+def test_consecutive_newline_tags_keep_their_empty_lines(lines: TextLayout) -> None:
+    assert lines.reflow("texte[br][br]").split("\n") == ["texte", "", ""]
+
+
+def test_a_leading_newline_tag_keeps_its_empty_line(lines: TextLayout) -> None:
+    assert lines.reflow("[br]texte").split("\n") == ["", "texte"]
+
+
+def test_newline_tags_are_width_checked(lines: TextLayout) -> None:
+    text = lines.reflow("Unmotbeaucouptroplong[br]ok")
+    assert list(lines.overflows(text)) == [("Unmotbeaucouptroplong", 21)]
