@@ -15,7 +15,6 @@ from __future__ import annotations
 import heapq
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any
 
 
 @dataclass(frozen=True)
@@ -36,6 +35,7 @@ type Child = Leaf | int
 """In a node list: a leaf, or the index of another node."""
 type Code = tuple[int, int]
 """A code as (value, bit length), the first bit the value's most significant."""
+type _Trie = dict[int, _Trie | Leaf]
 
 
 def build(counts: Mapping[int, int]) -> Tree:
@@ -54,13 +54,16 @@ def build(counts: Mapping[int, int]) -> Tree:
     return heap[0][2]
 
 
-def codes(tree: Tree) -> dict[int, Code]:
-    """Each symbol's code: its path from the root (a symbol on both sides keeps the 0 side's)."""
+def codes(tree: Tree, strict: bool = False) -> dict[int, Code]:
+    """Each symbol's code: its path from the root. A symbol on two leaves keeps the 0 side's, or with `strict`
+    raises: a table read from a ROM that holds one twice is corrupt, and encoding it would be ambiguous."""
     found: dict[int, Code] = {}
     stack: list[tuple[Tree, int, int]] = [(tree, 0, 0)]
     while stack:
         node, value, length = stack.pop()
         if isinstance(node, Leaf):
+            if strict and node.symbol in found:
+                raise ValueError(f"Huffman symbol {node.symbol:#x} is on two leaves")
             found.setdefault(node.symbol, (value, length))
             continue
         stack.append((node.one, value << 1 | 1, length + 1))
@@ -83,20 +86,21 @@ def canonical(lengths: Mapping[int, int]) -> dict[int, Code]:
 
 def from_codes(table: Mapping[int, Code]) -> Tree:
     """The tree that decodes `table` (canonical codes, say); codes that are not a complete prefix code raise."""
-    root: dict[int, Any] = {}
+    root: _Trie = {}
     for symbol, (value, length) in table.items():
         node = root
         for shift in range(length - 1, 0, -1):
-            node = node.setdefault(value >> shift & 1, {})
-            if not isinstance(node, dict):
+            branch = node.setdefault(value >> shift & 1, {})
+            if not isinstance(branch, dict):
                 raise ValueError(f"Huffman code for {symbol:#x} runs through another's leaf")
+            node = branch
         if length < 1 or (value & 1) in node:
             raise ValueError(f"Huffman code for {symbol:#x} collides with another")
         node[value & 1] = Leaf(symbol)
     return _freeze(root)
 
 
-def _freeze(branch: dict[int, Any]) -> Tree:
+def _freeze(branch: _Trie) -> Tree:
     if set(branch) != {0, 1}:
         raise ValueError("Huffman codes leave a branch empty")
     zero, one = (half if isinstance(half, Leaf) else _freeze(half) for half in (branch[0], branch[1]))
@@ -118,6 +122,25 @@ def encode(symbols: Iterable[int], table: Mapping[int, Code], msb_first: bool = 
                 out[-1] |= 1 << (7 - bits % 8 if msb_first else bits % 8)
             bits += 1
     return bytes(out), bits
+
+
+def encode_messages(
+    messages: Iterable[Iterable[int]], table: Mapping[int, Code], msb_first: bool = True
+) -> tuple[bytes, list[int], int]:
+    """`messages` as one bit stream, the bit each one starts at (a pointer table's entries), and the length in
+    bits."""
+    flat: list[int] = []
+    starts: list[int] = []
+    bits = 0
+    for message in messages:
+        starts.append(bits)
+        for symbol in message:
+            if symbol not in table:
+                raise KeyError(f"symbol {symbol:#x} has no Huffman code")
+            flat.append(symbol)
+            bits += table[symbol][1]
+    data, total = encode(flat, table, msb_first)
+    return data, starts, total
 
 
 def decode(data: bytes, tree: Tree, count: int, bit: int = 0, msb_first: bool = True) -> tuple[list[int], int]:

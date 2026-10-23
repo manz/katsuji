@@ -133,3 +133,30 @@ def test_an_unknown_symbol_raises() -> None:
 def test_a_stream_ending_early_raises() -> None:
     with pytest.raises(ValueError, match="ends after 8 of 9"):
         huffman.decode(b"\x00", huffman.build({0: 3, 1: 1}), 9)
+
+
+def test_strict_codes_reject_a_symbol_on_two_leaves() -> None:
+    tree = huffman.Node(huffman.Leaf(1), huffman.Node(huffman.Leaf(2), huffman.Leaf(1)))
+    with pytest.raises(ValueError, match="0x1 is on two leaves"):
+        huffman.codes(tree, strict=True)
+
+
+def test_codes_keep_the_zero_side_of_a_symbol_on_two_leaves() -> None:
+    tree = huffman.Node(huffman.Leaf(1), huffman.Node(huffman.Leaf(2), huffman.Leaf(1)))
+    assert huffman.codes(tree) == {1: (0, 1), 2: (0b10, 2)}
+
+
+def test_encode_messages_gives_each_start_bit() -> None:
+    table = huffman.codes(huffman.build({1: 5, 2: 2, 3: 1}))
+    messages = [[1, 2], [3], [1, 1, 3]]
+    data, starts, bits = huffman.encode_messages(messages, table)
+    decoded = [
+        huffman.decode(data, huffman.from_codes(table), len(m), start)[0]
+        for m, start in zip(messages, starts, strict=True)
+    ]
+    assert (decoded, (data, bits)) == (messages, huffman.encode([s for m in messages for s in m], table))
+
+
+def test_encode_messages_rejects_a_symbol_without_a_code() -> None:
+    with pytest.raises(KeyError, match="0x9"):
+        huffman.encode_messages([[9]], {1: (0, 1)})
