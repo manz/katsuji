@@ -15,7 +15,7 @@ choices are part of a format's encoder: two encoders with the same decoder can s
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 
@@ -90,7 +90,9 @@ class Lzss:
                     length, distance = self._oldest(data, i)
                     v = here - distance
                 else:
-                    length, v = self._longest(seq, data, i, self._candidates(here, chains, data, i))
+                    length, v = self._longest(
+                        seq, here, min(self.max_match, len(data) - i), self._candidates(here, chains, data, i)
+                    )
                 step = length if length >= self.min_match else 1
                 if step == 1:
                     flags |= self.literal << self._bit(bit)
@@ -181,16 +183,14 @@ class Lzss:
             return (self.ring_start + v - prefix) % self.ring
         return here - v
 
-    def _candidates(self, here: int, chains: dict[bytes, list[int]], data: bytes, i: int) -> Iterator[int]:
+    def _candidates(self, here: int, chains: dict[bytes, list[int]], data: bytes, i: int) -> Iterable[int]:
         """Virtual indices a match may start at, nearest first, within the window."""
         if self.chain is None:
-            yield from range(here - 1, max(here - self.window, 0) - 1, -1)
-            return
-        offset = here - i
-        for p in reversed(chains.get(data[i : i + self.min_match], [])[-self.chain :]):
-            if i - p > self.window:
-                return
-            yield p + offset
+            return range(here - 1, max(here - self.window, 0) - 1, -1)
+        offset, oldest = here - i, i - self.window
+        return [
+            p + offset for p in reversed(chains.get(data[i : i + self.min_match], [])[-self.chain :]) if p >= oldest
+        ]
 
     def _oldest(self, data: bytes, i: int) -> tuple[int, int]:
         """`oldest`'s match for `data[i:]`, (length, distance), or (0, 0): longest first, the earliest occurrence
@@ -206,18 +206,21 @@ class Lzss:
                 return repeat
         return 0, 0
 
-    def _longest(self, seq: bytes, data: bytes, i: int, candidates: Iterator[int]) -> tuple[int, int]:
-        """The longest match for `data[i:]` among `candidates` (the first found on a tie): (length, index)."""
-        limit = min(self.max_match, len(data) - i)
+    @staticmethod
+    def _longest(seq: bytes, here: int, limit: int, candidates: Iterable[int]) -> tuple[int, int]:
+        """The longest match for `seq[here:]`, at most `limit` long, among `candidates` (the first found on a tie):
+        (length, index). A candidate must match one byte past the best so far, checked in one slice compare
+        before the byte loop, so most are dropped without one."""
         best_len = best_v = 0
         for v in candidates:
-            n = 0
-            while n < limit and seq[v + n] == data[i + n]:
+            n = best_len + 1
+            if seq[v : v + n] != seq[here : here + n]:
+                continue
+            while n < limit and seq[v + n] == seq[here + n]:
                 n += 1
-            if n > best_len:
-                best_len, best_v = n, v
-                if n == limit:
-                    break
+            best_len, best_v = n, v
+            if n == limit:
+                break
         return best_len, best_v
 
 
