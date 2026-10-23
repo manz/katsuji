@@ -84,8 +84,9 @@ def autohint(
 
     With `ink`, only those colours are measured and kerned (`Atlas.ink_only`): the shadow is drawn in the gap and
     may tuck under the next glyph, whose ink covers it. `widths` overrides measured widths as `[fonts.x] widths`
-    does in katsuji.toml (positive sets, negative trims): a space has no ink to measure. Pairs touching an `avoid`
-    code keep their gap."""
+    does in katsuji.toml (positive sets, negative trims): a space has no ink to measure. The gap lands on both
+    sides of a space, so N pixels between words takes a width of N - 2 * gap. Pairs touching an `avoid` code keep
+    their gap."""
     inked = None if ink is None else list(ink)
     metrics = atlas if inked is None else atlas.ink_only(inked)
     kerning = find_kerning(metrics, set(pairwise(codes)), default, avoid)
