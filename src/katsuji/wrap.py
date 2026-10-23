@@ -10,8 +10,10 @@ a word is kerned against the last glyph of the word before it.
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-from katsuji.formats import VwfFont
+if TYPE_CHECKING:
+    from katsuji.formats import VwfFont  # only its widths and kerning: wrapping needs no numpy
 
 
 @dataclass(frozen=True)
