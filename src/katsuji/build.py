@@ -2,10 +2,13 @@
 
 from pathlib import Path
 
+import numpy as np
+
 from katsuji.atlas import Atlas
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
+from katsuji.remap import table_codes
 from katsuji.script import Table
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
@@ -42,7 +45,7 @@ def _pair(table: Table, text: str, where: str) -> tuple[int, int]:
 
 def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     where = f"fonts.{config.name}"
-    atlas = Atlas.open(config.png, config.cell_width, config.cell_height, config.grid)
+    atlas = _atlas(config, where)
     kerning: dict[tuple[int, int], int] = {}
     if config.kerning_candidates or config.kerning:
         table = _table(config.table, where)
@@ -67,8 +70,52 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     return font
 
 
+def _atlas(config: FontConfig, where: str) -> Atlas:
+    if config.builtin is None:
+        assert config.png is not None  # config.load requires one of them
+        return Atlas.open(config.png, config.cell_width, config.cell_height, config.grid)
+    return _builtin_atlas(config, where)
+
+
+def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
+    """The builtin font on `table`'s codes, the drawn cells of `overrides` on top.
+    A one-character text neither draws is an error; a blank or a control is not."""
+    from katsuji.fonts import bundled
+
+    assert config.builtin is not None and config.table is not None  # config.load checks both
+    try:
+        font = bundled(config.builtin)
+    except KeyError as error:
+        raise ConfigError(f"[{where}] {error.args[0]}") from error
+    target = table_codes(config.table)
+    laid = font.layout(target)
+    width, height = font.atlas.cell_width, font.atlas.cell_height
+    atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
+    if config.overrides is not None:
+        atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
+    undrawn = [text for text in laid.missing if len(text) == 1 and not text.isspace()]
+    undrawn = [text for text in undrawn if not atlas.glyph(target[text]).any()]
+    if undrawn:
+        raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
+    return atlas
+
+
+def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:
+    """`atlas` with each cell `overrides` draws replaced by it."""
+    pixels = atlas.colours.copy() if atlas.colours is not None else atlas.pixels.copy()
+    for index in range(min(len(atlas), len(overrides))):
+        cell = overrides.glyph_colours(index)
+        if cell.any():
+            row, column = divmod(index, atlas.columns)
+            h, w = atlas.cell_height, atlas.cell_width
+            pixels[row * h : (row + 1) * h, column * w : (column + 1) * w] = cell
+    return Atlas(
+        (pixels != 0).astype(np.uint8), atlas.cell_width, atlas.cell_height, colours=pixels, palette=atlas.palette
+    )
+
+
 def _build_tile_font(config: FontConfig, written: list[Path]) -> None:
-    atlas = Atlas.open(config.png, config.cell_width, config.cell_height, config.grid)
+    atlas = _atlas(config, f"fonts.{config.name}")
     if config.format == "tiles":
         data = encode_tile_font(atlas, config.bpp, config.first, config.count, config.size)
     else:

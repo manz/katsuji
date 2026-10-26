@@ -45,7 +45,8 @@ class ConfigError(ValueError):
 @dataclass(frozen=True)
 class FontConfig:
     name: str
-    png: Path
+    png: Path | None
+    """The font's own atlas; None when it is `builtin`."""
     output: Path
     table: Path | None = None
     cell_width: int = 8
@@ -65,6 +66,10 @@ class FontConfig:
     spacing: int = 0
     size: int | None = None
     widths_output: Path | None = None
+    builtin: str | None = None
+    """A font katsuji ships (`katsuji.fonts`), laid onto `table`."""
+    overrides: Path | None = None
+    """An atlas on `table`'s codes whose drawn cells replace the builtin's: icons, game-only glyphs."""
 
 
 FORMATS = ("vwf", "tiles", "rows16")
@@ -95,7 +100,8 @@ class Config:
 
 _COMMON_FONT_KEYS = {"png", "output", "table", "cell", "grid", "widths", "format"}
 _FONT_KEYS = {
-    "vwf": _COMMON_FONT_KEYS | {"kerning-candidates", "kerning", "default-kerning", "constants"},
+    "vwf": _COMMON_FONT_KEYS
+    | {"kerning-candidates", "kerning", "default-kerning", "constants", "builtin", "overrides"},
     "tiles": _COMMON_FONT_KEYS | {"bpp", "first", "count", "size"},
     "rows16": _COMMON_FONT_KEYS | {"first", "count", "size", "x-offset", "spacing", "widths-output"},
 }
@@ -139,13 +145,14 @@ def _font(name: str, table: dict[str, Any], root: Path) -> FontConfig:
     kind = table.get("format", "vwf")
     if kind not in FORMATS:
         raise ConfigError(f"[{where}] format {kind!r} is not one of {', '.join(FORMATS)}")
-    _check_keys(where, table, _FONT_KEYS[kind], {"png", "output"})
+    _check_keys(where, table, _FONT_KEYS[kind], {"output"})
+    _check_source(where, table)
     if kind == "rows16" and "widths-output" not in table:
         raise ConfigError(f"[{where}] format 'rows16' needs `widths-output`")
     width, height = table.get("cell", [8, 16])
     return FontConfig(
         name=name,
-        png=root / table["png"],
+        png=_path(root, table.get("png")),
         output=root / table["output"],
         table=_path(root, table.get("table")),
         cell_width=width,
@@ -164,7 +171,24 @@ def _font(name: str, table: dict[str, Any], root: Path) -> FontConfig:
         spacing=table.get("spacing", 0),
         size=table.get("size"),
         widths_output=_path(root, table.get("widths-output")),
+        builtin=table.get("builtin"),
+        overrides=_path(root, table.get("overrides")),
     )
+
+
+def _check_source(where: str, table: dict[str, Any]) -> None:
+    """A font draws from its own `png` or a `builtin` one laid onto its `table`."""
+    if ("png" in table) == ("builtin" in table):
+        raise ConfigError(f"[{where}] needs one of `png` or `builtin`")
+    if "builtin" not in table:
+        if "overrides" in table:
+            raise ConfigError(f"[{where}] `overrides` goes with `builtin`")
+        return
+    if "table" not in table:
+        raise ConfigError(f"[{where}] `builtin` needs the `table` to lay it onto")
+    clashing = {"cell", "grid"} & set(table)
+    if clashing:
+        raise ConfigError(f"[{where}] `builtin` fonts set their own {', '.join(sorted(clashing))}")
 
 
 def _strings(name: str, table: dict[str, Any], root: Path) -> StringsConfig:

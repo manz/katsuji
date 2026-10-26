@@ -56,6 +56,25 @@ output = "build/dialog_font.dat"
 widths-output = "build/dialog_widths.dat"  # one width byte per code
 ```
 
+### Bundled fonts: sumi
+
+katsuji ships **sumi**, the variable-width faces of the French Final Fantasy IV and the translations
+that followed it: `sumi/8` (menus) and `sumi/16` (dialog), in `regular`, plus `bold`, `book` and
+`wicked` at 16. A font names one with `builtin` instead of `png`, laid onto the game's own table:
+
+```toml
+[fonts.dialog]
+builtin = "sumi/16"                      # family/size[/style], regular by default
+table = "text/game.tbl"                  # each text lands on this table's code
+overrides = "fonts/icons.png"            # optional: drawn cells here win (icons, game-only glyphs)
+output = "assets/font.dat"
+widths = { "0x00" = 3 }
+```
+
+A one-character text of the table that neither sumi nor `overrides` draws is an error; blanks and
+control codes (`<END>`) are not. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
+Python.
+
 ```
 katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png
 ```
