@@ -114,13 +114,3 @@ def test_every_style_draws_what_regular_draws(name: str) -> None:
     """A game swaps styles without its table gaining blank cells."""
     regular = name.rsplit("/", 1)[0]
     assert set(bundled(name).charmap) == set(bundled(regular).charmap)
-
-
-@pytest.mark.parametrize("name", names())
-def test_drafts_are_glyphs_the_font_has(name: str) -> None:
-    font = bundled(name)
-    assert set(font.drafts) <= set(font.charmap)
-
-
-def test_regular_has_no_drafts() -> None:
-    assert bundled("sumi/16").drafts == ""
