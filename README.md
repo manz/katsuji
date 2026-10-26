@@ -60,7 +60,9 @@ widths-output = "build/dialog_widths.dat"  # one width byte per code
 
 katsuji ships **sumi**, the variable-width faces of the French Final Fantasy IV and the translations
 that followed it: `sumi/8` (menus) and `sumi/16` (dialog), in `regular`, plus `bold`, `book` and
-`wicked` at 16. A font names one with `builtin` instead of `png`, laid onto the game's own table:
+`wicked` at 16. Every style of a size draws the same characters; glyphs a style still borrows from
+regular are listed in its `font.toml` `drafts` (`bundled(name).drafts`). A font names one with
+`builtin` instead of `png`, laid onto the game's own table:
 
 ```toml
 [fonts.dialog]

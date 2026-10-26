@@ -24,6 +24,8 @@ class BundledFont:
     atlas: Atlas
     charmap: dict[str, int]
     """The cell of each text the font draws."""
+    drafts: str = ""
+    """Glyphs generated from another style until drawn for this one."""
 
     def layout(self, target: Mapping[int, str]) -> Remapped:
         """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph."""
@@ -43,11 +45,12 @@ def names() -> list[str]:
 def bundled(name: str) -> BundledFont:
     """The bundled font `name`, `family/size[/style]`."""
     folder = _folder(name)
-    width, height = tomllib.loads(folder.joinpath("font.toml").read_text(encoding="utf-8"))["cell"]
+    meta = tomllib.loads(folder.joinpath("font.toml").read_text(encoding="utf-8"))
+    width, height = meta["cell"]
     with as_file(folder.joinpath("glyphs.png")) as png:
         atlas = Atlas.open(png, width, height)
     with as_file(folder.joinpath("charmap.tbl")) as charmap:
-        return BundledFont(name, atlas, table_codes(charmap))
+        return BundledFont(name, atlas, table_codes(charmap), meta.get("drafts", ""))
 
 
 def _folder(name: str) -> Traversable:

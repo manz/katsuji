@@ -107,3 +107,20 @@ def test_every_code_of_a_text_gets_its_glyph(tmp_path: Path) -> None:
     build(load(_builtin(tmp_path, "10=A\n11=A\n")))
     glyphs = _font(tmp_path).glyphs
     assert glyphs[0x11] == glyphs[0x10] != bytes(len(glyphs[0x10]))
+
+
+@pytest.mark.parametrize("name", [name for name in names() if not name.endswith("/regular")])
+def test_every_style_draws_what_regular_draws(name: str) -> None:
+    """A game swaps styles without its table gaining blank cells."""
+    regular = name.rsplit("/", 1)[0]
+    assert set(bundled(name).charmap) == set(bundled(regular).charmap)
+
+
+@pytest.mark.parametrize("name", names())
+def test_drafts_are_glyphs_the_font_has(name: str) -> None:
+    font = bundled(name)
+    assert set(font.drafts) <= set(font.charmap)
+
+
+def test_regular_has_no_drafts() -> None:
+    assert bundled("sumi/16").drafts == ""
