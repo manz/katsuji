@@ -1,4 +1,1 @@
 cell = [8, 16]
-# Generated from regular until drawn: thickened a pixel to the right. `%` and `œ` already reach
-# the cell's last column, so they lose that column's thickening: redraw them first.
-drafts = "\"#$%&()*+/;<=>]~«²»ÛäöüŒœ←↑→↓○★☆♀♂♥♪"
