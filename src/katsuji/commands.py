@@ -9,7 +9,7 @@ from katsuji.banner import banner, to_blocks
 from katsuji.build import build
 from katsuji.config import ConfigError, load
 from katsuji.formats import VwfFont
-from katsuji.remap import remap, table_codes
+from katsuji.remap import remap, table_codes, table_texts
 from katsuji.render import autohint
 from katsuji.script import Table
 from katsuji.wrap import Controls
@@ -53,7 +53,7 @@ def _greys(top: int) -> tuple[int, ...]:
 def _remap(args: argparse.Namespace) -> int:
     width, _, height = str(args.cell).partition("x")
     atlas = Atlas.open(args.png, int(width), int(height))
-    remapped = remap(atlas, table_codes(args.table), table_codes(args.target))
+    remapped = remap(atlas, table_codes(args.table), table_texts(args.target))
     save_png(remapped.pixels, args.output, remapped.palette)
     print(args.output)
     if remapped.missing:

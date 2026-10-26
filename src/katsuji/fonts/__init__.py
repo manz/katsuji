@@ -25,9 +25,9 @@ class BundledFont:
     charmap: dict[str, int]
     """The cell of each text the font draws."""
 
-    def layout(self, target: Mapping[str, int]) -> Remapped:
-        """The glyphs at the codes `target` (a game's table, by text) gives them."""
-        return remap(self.atlas, self.charmap, dict(target))
+    def layout(self, target: Mapping[int, str]) -> Remapped:
+        """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph."""
+        return remap(self.atlas, self.charmap, target)
 
 
 def names() -> list[str]:

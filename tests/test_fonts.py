@@ -38,12 +38,12 @@ def test_curly_quotes_draw_the_quote_in_regular() -> None:
 
 def test_layout_puts_a_glyph_at_the_game_code() -> None:
     font = bundled("sumi/16")
-    laid = font.layout({"é": 0x41})
+    laid = font.layout({0x41: "é"})
     assert np.array_equal(laid.pixels[64:80, 8:16], font.atlas.glyph_colours(font.charmap["é"]))
 
 
 def test_layout_reports_texts_the_font_lacks() -> None:
-    assert bundled("sumi/8").layout({"A": 1, "<END>": 0}).missing == ["<END>"]
+    assert bundled("sumi/8").layout({1: "A", 0: "<END>"}).missing == ["<END>"]
 
 
 def _builtin(tmp_path: Path, table: str, extra: str = "") -> Path:
@@ -101,3 +101,9 @@ def test_an_unknown_builtin_is_a_config_error(tmp_path: Path) -> None:
     (tmp_path / "g.tbl").write_text("10=A\n", encoding="utf-8")
     with pytest.raises(ConfigError, match=r"\[fonts.f\] no bundled font 'sumi/9'"):
         build(load(path))
+
+
+def test_every_code_of_a_text_gets_its_glyph(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n11=A\n")))
+    glyphs = _font(tmp_path).glyphs
+    assert glyphs[0x11] == glyphs[0x10] != bytes(len(glyphs[0x10]))

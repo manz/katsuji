@@ -72,7 +72,8 @@ widths = { "0x00" = 3 }
 ```
 
 A one-character text of the table that neither sumi nor `overrides` draws is an error; blanks and
-control codes (`<END>`) are not. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
+control codes (`<END>`) are not. Multi-character texts are never checked: a DTE pair, `...` or `Lv`
+drawn as one glyph must come from `overrides`. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
 Python.
 
 ```

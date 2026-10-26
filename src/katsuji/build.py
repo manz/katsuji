@@ -8,7 +8,7 @@ from katsuji.atlas import Atlas
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
-from katsuji.remap import table_codes
+from katsuji.remap import table_texts
 from katsuji.script import Table
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
@@ -87,14 +87,15 @@ def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
         font = bundled(config.builtin)
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
-    target = table_codes(config.table)
+    target = table_texts(config.table)
     laid = font.layout(target)
     width, height = font.atlas.cell_width, font.atlas.cell_height
     atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
     if config.overrides is not None:
         atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
-    undrawn = [text for text in laid.missing if len(text) == 1 and not text.isspace()]
-    undrawn = [text for text in undrawn if not atlas.glyph(target[text]).any()]
+    undrawn = sorted(
+        {text for code, text in target.items() if len(text) == 1 and not text.isspace() and not atlas.glyph(code).any()}
+    )
     if undrawn:
         raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
     return atlas
