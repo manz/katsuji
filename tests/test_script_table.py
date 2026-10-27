@@ -38,6 +38,6 @@ class TableTest(unittest.TestCase):
         self.assertEqual(encoded_text, b"\x40")
 
     def test_unknown_char_skipped(self) -> None:
-        encoded_text = self.table.to_bytes("hellò")
+        encoded_text = self.table.to_bytes("hell¤")
         text = self.table.to_text(encoded_text)
         self.assertEqual(text, "hell")

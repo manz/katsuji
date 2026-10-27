@@ -93,3 +93,21 @@ def test_a_subclass_joker_regex_is_honoured(extra: str, tmp_path: Path) -> None:
     (tmp_path / "t.tbl").write_text(BASE + extra, encoding="utf-8")
 
     assert _AngleJokers(str(tmp_path / "t.tbl")).to_bytes("a<7f>b[0x7f]") == b"\x01\x7f\x02"
+
+
+def test_an_untabled_accented_letter_writes_its_base(table: Table) -> None:
+    assert table.to_bytes("àb") == b"\x01\x02"
+
+
+def test_a_letter_with_no_base_letter_is_still_skipped(table: Table) -> None:
+    assert table.to_bytes("æ²a") == b"\x01"
+
+
+def test_a_base_letter_the_table_lacks_is_still_skipped(table: Table) -> None:
+    assert table.to_bytes("é") == b""
+
+
+def test_a_tabled_accented_letter_keeps_its_own_code(tmp_path: Path) -> None:
+    (tmp_path / "t.tbl").write_text("01=E\n02=É\n", encoding="utf-8")
+
+    assert Table(str(tmp_path / "t.tbl")).to_bytes("ÉE") == b"\x02\x01"
