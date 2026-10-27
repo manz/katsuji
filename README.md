@@ -88,9 +88,10 @@ code wins over the join. A run whose character the font lacks is an error like a
 unless it is a kanji or kana (a game's two-byte codes for its own glyph set). `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
 Python.
 
-`sumi/8` draws no accented capitals: an 8x8 cell has no room for them. Leave them out of the menu
-table and encoding writes the base letter instead (É as E, Ç as C), as it does for any accented
-character a table lacks and whose base letter it has.
+`sumi/8` draws no accented capitals: an 8x8 cell has no room for them. A table that gives them codes
+(one shared by the menu and the dialog font) gets the base letter's glyph there, É drawn as E; a
+glyph in `overrides` wins. A table that leaves them out writes the base letter instead (É as E, Ç as
+C), as encoding does for any accented character a table lacks and whose base letter it has.
 
 ```
 katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png

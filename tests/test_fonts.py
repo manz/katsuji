@@ -73,19 +73,30 @@ def test_a_text_the_builtin_lacks_must_be_drawn(tmp_path: Path) -> None:
         build(load(_builtin(tmp_path, "10=A\n11=$\n")))
 
 
-def test_an_accented_capital_sumi_8_lacks_points_at_the_fold(tmp_path: Path) -> None:
-    with pytest.raises(ConfigError, match=r"drop 'É' from the table to write their base letter"):
-        build(load(_builtin(tmp_path, "10=E\n11=É\n")))
+def test_an_accented_capital_sumi_8_lacks_draws_its_base_letter(tmp_path: Path) -> None:
+    """A table shared by an 8x8 and a 16-pixel font keeps É: the 8x8 cell shows E."""
+    build(load(_builtin(tmp_path, "10=E\n11=É\n")))
+    glyphs = _font(tmp_path).glyphs
+    assert glyphs[0x11] == glyphs[0x10]
 
 
-def test_the_fold_hint_needs_the_base_letter_in_the_table(tmp_path: Path) -> None:
-    with pytest.raises(ConfigError) as error:
-        build(load(_builtin(tmp_path, "10=A\n11=É\n")))
-    assert "base letter" not in str(error.value)
+def test_the_base_letter_comes_from_the_font_not_the_table(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n11=É\n")))
+    sumi = bundled("sumi/8")
+    assert _font(tmp_path).glyphs[0x11] == VwfFont.from_atlas(sumi.atlas).glyphs[sumi.charmap["E"]]
+
+
+def test_overrides_win_over_the_base_letter(tmp_path: Path) -> None:
+    icons = np.zeros((128, 128), np.uint8)
+    icons[8:16, 8:12] = 1  # code 0x11
+    save_png(icons, tmp_path / "icons.png")
+    build(load(_builtin(tmp_path, "10=E\n11=É\n", "overrides = 'icons.png'\n")))
+    assert _font(tmp_path).glyphs[0x11] == pack_rows(icons[8:16, 8:16])
 
 
 def test_sumi_8_draws_no_accented_capitals() -> None:
-    """An 8x8 cell has no room for them: the table leaves them out and encoding writes the base letter."""
+    """An 8x8 cell has no room for them: the cell shows the base letter, and encoding writes it when the table
+    leaves them out."""
     assert not {
         text for text in bundled("sumi/8").charmap if text.isupper() and unicodedata.normalize("NFD", text) != text
     }

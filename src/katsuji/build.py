@@ -1,5 +1,6 @@
 """Build everything a `katsuji.toml` describes: font files, string blobs, constants."""
 
+from collections.abc import Mapping
 from pathlib import Path
 
 import numpy as np
@@ -82,9 +83,9 @@ def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
 
 
 def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
-    """The builtin font on `table`'s codes, the drawn cells of `overrides` on top.
-    A one-character text, on one code or cut across a run of them (kanji aside), that neither draws is an
-    error; a blank or a control is not."""
+    """The builtin font on `table`'s codes, the drawn cells of `overrides` on top. An accented letter the font
+    lacks is drawn as its base letter; any other one-character text, on one code or cut across a run of them
+    (kanji aside), that neither draws is an error; a blank or a control is not."""
     from katsuji.fonts import bundled
 
     assert config.builtin is not None and config.table is not None  # config.load checks both
@@ -94,7 +95,7 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
         raise ConfigError(f"[{where}] {error.args[0]}") from error
     target = table_spans(config.table)
     try:
-        laid = font.layout(target)
+        laid = font.layout(_folded(target, font.charmap))
     except ValueError as error:
         raise ConfigError(f"[{where}] {error}") from error
     width, height = font.atlas.cell_width, font.atlas.cell_height
@@ -111,13 +112,18 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
         }
     )
     if undrawn:
-        message = f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`"
-        texts = set(target.values())
-        foldable = "".join(text for text in undrawn if latin_base(text) in texts)
-        if foldable:
-            message += f", or drop {foldable!r} from the table to write their base letter"
-        raise ConfigError(message)
+        raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
     return atlas, laid.joins
+
+
+def _folded(target: dict[Span, str], drawn: Mapping[str, int]) -> dict[Span, str]:
+    """`target` with each one-code text the font lacks given its base letter, when the font draws that: sumi/8's
+    É cell shows E, as encoding writes E for an É the table lacks."""
+    folded: dict[Span, str] = {}
+    for span, text in target.items():
+        base = latin_base(text) if len(span) == 1 and text not in drawn else None
+        folded[span] = base if base is not None and base in drawn else text
+    return folded
 
 
 def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:
