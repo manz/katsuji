@@ -94,7 +94,8 @@ def remap(
 ) -> Remapped:
     """Each code of `target` gets the source glyph that `source` gives its text, every code a text has; the
     other cells stay blank. A wide run (`wide_spans`) gets its glyph cut across its codes, from `wide` when the
-    source draws the text wider there."""
+    source draws the text wider there. `target` is by code since 0.5 (0.4 took `table_codes`, by text): pass
+    `table_texts` or `table_spans`."""
     width, height = atlas.cell_width, atlas.cell_height
     pixels = np.zeros((GLYPHS // COLUMNS * height, COLUMNS * width), dtype=np.uint8)
     missing: list[str] = []
