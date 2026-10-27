@@ -6,11 +6,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from katsuji.atlas import save_png
+from katsuji.atlas import Atlas, ink_width, save_png
 from katsuji.build import build
 from katsuji.config import ConfigError, load
 from katsuji.fonts import bundled, names
 from katsuji.formats import VwfFont, pack_rows
+from katsuji.remap import Span
 
 
 def test_sumi_ships_two_sizes_and_four_styles() -> None:
@@ -91,11 +92,32 @@ def test_sumi_8_draws_no_accented_capitals() -> None:
 
 
 def test_a_glyph_on_two_codes_advances_as_one(tmp_path: Path) -> None:
-    """ff4's `A0A1=œ`: sumi's œ is laid across both codes, the first narrowed to join."""
+    """ff4's `A0A1=œ`: sumi's wide œ is laid across both codes, the first narrowed to join."""
     build(load(_builtin(tmp_path, "10=A\nA0A1=œ\n")))
     widths = _font(tmp_path).widths
     sumi = bundled("sumi/8")
-    assert widths[0xA0] + 1 + widths[0xA1] + 1 == sumi.atlas.ink_width(sumi.charmap["œ"][0]) + 1
+    wide = np.hstack([sumi.atlas.glyph(code) for code in sumi.wide["œ"]])
+    assert widths[0xA0] + 1 + widths[0xA1] + 1 == ink_width(wide) + 1
+
+
+@pytest.mark.parametrize("name", names())
+def test_a_span_gets_the_wide_drawing_and_one_code_the_narrow(name: str) -> None:
+    font = bundled(name)
+    width = font.atlas.cell_width
+    target: dict[Span, str] = {(0x10,): "œ", (0x20, 0x21): "œ"}
+    remapped = font.layout(target)
+    laid = Atlas(remapped.pixels, width, font.atlas.cell_height)
+    wide = np.hstack([font.atlas.glyph(code) for code in font.wide["œ"]])
+    assert (laid.ink_width(0x10), remapped.joins[0x20] + 1 + laid.ink_width(0x21)) == (
+        font.atlas.ink_width(font.charmap["œ"][0]),
+        ink_width(wide),
+    )
+
+
+@pytest.mark.parametrize("name", [name for name in names() if not name.endswith("/regular")])
+def test_every_style_draws_wide_what_regular_draws_wide(name: str) -> None:
+    regular = name.rsplit("/", 1)[0]
+    assert set(bundled(name).wide) == set(bundled(regular).wide)
 
 
 def test_two_byte_codes_the_font_lacks_build(tmp_path: Path) -> None:

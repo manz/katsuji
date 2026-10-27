@@ -79,7 +79,9 @@ drawn as one glyph must come from `overrides`.
 A glyph wider than a cell takes several codes, as ff4 and Bahamut Lagoon draw theirs: `A0A1=œ` in
 the table cuts sumi's œ across `A0` and `A1`, and every code but the last gets the width that makes
 the next one follow on (the cut less the engine's 1-pixel gap), so no `widths` entry is needed. A
-font's own wide glyphs sit in adjacent cells of its PNG, named the same way in its `charmap.tbl`.
+font's own wide glyphs sit in adjacent cells of its PNG, named the same way in its `charmap.tbl`,
+next to the one-cell glyph: a table with one code for `Œ` gets that, one with two codes the wide
+drawing. sumi draws `Œ` and `œ` both ways in every font.
 A run of codes whose character the font lacks (a game's two-byte kanji codes) is left alone. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
 Python.
 

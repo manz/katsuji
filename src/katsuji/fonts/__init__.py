@@ -8,12 +8,12 @@ moves the glyphs to the codes a game's own table gives the same texts.
 """
 
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib.resources import as_file, files
 from importlib.resources.abc import Traversable
 
 from katsuji.atlas import Atlas
-from katsuji.remap import Remapped, Span, Target, remap, table_codes
+from katsuji.remap import Remapped, Span, Target, remap, table_codes, table_texts
 
 DEFAULT_STYLE = "regular"
 
@@ -24,11 +24,14 @@ class BundledFont:
     atlas: Atlas
     charmap: dict[str, Span]
     """The cells of each text the font draws: one, or several side by side for a glyph wider than a cell."""
+    wide: dict[str, Span] = field(default_factory=dict)
+    """The wider drawing of a text that also has a one-cell glyph, for a table that gives it several codes
+    (ff4's `A0A1=œ`)."""
 
     def layout(self, target: Target) -> Remapped:
         """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph, a span of codes
         the glyph cut across them."""
-        return remap(self.atlas, self.charmap, target)
+        return remap(self.atlas, self.charmap, target, self.wide)
 
 
 def names() -> list[str]:
@@ -49,7 +52,8 @@ def bundled(name: str) -> BundledFont:
     with as_file(folder.joinpath("glyphs.png")) as png:
         atlas = Atlas.open(png, width, height)
     with as_file(folder.joinpath("charmap.tbl")) as charmap:
-        return BundledFont(name, atlas, table_codes(charmap))
+        wide = {text: span for span, text in table_texts(charmap).items() if len(span) > 1}
+        return BundledFont(name, atlas, table_codes(charmap), wide)
 
 
 def _folder(name: str) -> Traversable:

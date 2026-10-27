@@ -62,10 +62,11 @@ class Remapped:
     the engine adds, so the next cell's pixels follow on."""
 
 
-def remap(atlas: Atlas, source: Mapping[str, Span], target: Target) -> Remapped:
+def remap(atlas: Atlas, source: Mapping[str, Span], target: Target, wide: Mapping[str, Span] | None = None) -> Remapped:
     """Each code of `target` gets the source glyph that `source` gives its text, every code a text has; the
-    other cells stay blank. A glyph is cut across the codes of a span; a span whose text the source lacks is
-    left blank, not missing (a game's two-byte kanji codes are not cells)."""
+    other cells stay blank. A glyph is cut across the codes of a span, from `wide` when it draws the text
+    wider; a span whose text the source lacks is left blank, not missing (a game's two-byte kanji codes are
+    not cells)."""
     width, height = atlas.cell_width, atlas.cell_height
     pixels = np.zeros((GLYPHS // COLUMNS * height, COLUMNS * width), dtype=np.uint8)
     missing: list[str] = []
@@ -75,7 +76,8 @@ def remap(atlas: Atlas, source: Mapping[str, Span], target: Target) -> Remapped:
             if len(span) == 1 and text not in missing:
                 missing.append(text)
             continue
-        glyph = np.hstack([atlas.glyph_colours(code) for code in source[text]])
+        cells = (wide or {}).get(text) if len(span) > 1 else None
+        glyph = np.hstack([atlas.glyph_colours(code) for code in cells or source[text]])
         cuts = _cuts(ink_width(glyph), len(span), width, text)
         for code, (start, end) in zip(span, itertools.pairwise(cuts), strict=True):
             row, column = divmod(code, COLUMNS)
