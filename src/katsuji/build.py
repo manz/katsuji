@@ -1,15 +1,15 @@
 """Build everything a `katsuji.toml` describes: font files, string blobs, constants."""
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Set
 from pathlib import Path
 
 import numpy as np
 
-from katsuji.atlas import Atlas
+from katsuji.atlas import Atlas, Pixels
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
-from katsuji.remap import Span, is_cjk, table_spans, wide_spans
+from katsuji.remap import COLUMNS, Span, is_cjk, table_spans, wide_spans
 from katsuji.script import Table, latin_base
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
@@ -106,17 +106,21 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
         font = bundled(config.builtin)
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
-    target = {span: text for span, text in table_spans(config.table).items() if not config.blank.intersection(span)}
+    target = table_spans(config.table)
     try:
         laid = font.layout(_folded(target, font.charmap))
     except ValueError as error:
         raise ConfigError(f"[{where}] {error}") from error
+    runs = wide_spans(target)
+    blank = config.blank.union(*(span for span in runs if config.blank.intersection(span)))
     width, height = font.atlas.cell_width, font.atlas.cell_height
-    atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
+    pixels = _blanked(laid.pixels, blank, width, height)
+    atlas = Atlas((pixels != 0).astype(np.uint8), width, height, colours=pixels, palette=laid.palette)
     if config.overrides is not None:
         atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
     glyphs: list[tuple[Span, str]] = [(span, text) for span, text in target.items() if len(span) == 1]
-    glyphs += [(span, text) for span, text in wide_spans(target).items() if not is_cjk(text)]
+    glyphs += [(span, text) for span, text in runs.items() if not is_cjk(text)]
+    glyphs = [(span, text) for span, text in glyphs if not blank.intersection(span)]
     undrawn = sorted(
         {
             text
@@ -126,7 +130,16 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
     )
     if undrawn:
         raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
-    return atlas, laid.joins
+    return atlas, {code: join for code, join in laid.joins.items() if code not in blank}
+
+
+def _blanked(pixels: Pixels, codes: Set[int], width: int, height: int) -> Pixels:
+    """`pixels`, a 16-column atlas, with the cells of `codes` cleared."""
+    cleared = pixels.copy()
+    for code in codes:
+        row, column = divmod(code, COLUMNS)
+        cleared[row * height : (row + 1) * height, column * width : (column + 1) * width] = 0
+    return cleared
 
 
 def _folded(target: dict[Span, str], drawn: Mapping[str, int]) -> dict[Span, str]:

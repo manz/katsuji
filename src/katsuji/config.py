@@ -71,7 +71,8 @@ class FontConfig:
     overrides: Path | None = None
     """An atlas on `table`'s codes whose drawn cells replace the builtin's: icons, game-only glyphs."""
     blank: frozenset[int] = frozenset()
-    """Codes of `table` left blank on purpose, whatever their text: ff4's 1-pixel spacer `FD=°`."""
+    """Codes of `table` the builtin leaves blank on purpose, whatever their text: ff4's 1-pixel spacer `FD=°`.
+    A glyph cut across a run of codes is left out whole when one of them is blank; `overrides` still draw."""
 
 
 FORMATS = ("vwf", "tiles", "rows16")

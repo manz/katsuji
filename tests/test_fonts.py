@@ -187,6 +187,20 @@ def test_a_blank_code_stays_empty_where_the_builtin_draws(tmp_path: Path) -> Non
     assert glyph == bytes(len(glyph))
 
 
+def test_a_blank_code_does_not_free_a_shared_run(tmp_path: Path) -> None:
+    """`5051` and `5152` share 51, so neither is one glyph cut across codes, with or without 50 blank."""
+    path = _builtin(tmp_path, "41=A\n50=x\n5051=œ\n5152=Œ\n", "blank = ['0x50']\n")
+    build(load(path))
+    glyphs = _font(tmp_path).glyphs
+    assert glyphs[0x51] == glyphs[0x52] == bytes(len(glyphs[0x51]))
+
+
+def test_a_run_touching_a_blank_code_is_left_out_whole(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\nA0A1=œ\n", "blank = ['0xA0']\n")))
+    font = _font(tmp_path)
+    assert font.glyphs[0xA1] == bytes(len(font.glyphs[0xA1]))
+
+
 @pytest.mark.parametrize(
     ("text", "message"),
     [
