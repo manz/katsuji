@@ -6,7 +6,8 @@ from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
-from PIL import Image
+
+from katsuji import png
 
 Pixels = NDArray[np.uint8]
 """A 2D array of 0 (paper) and 1 (ink), indexed `[row, column]`."""
@@ -39,9 +40,7 @@ class Atlas:
 
     @classmethod
     def open(cls, path: str | Path, cell_width: int = 8, cell_height: int = 16, grid: bool = False) -> Atlas:
-        with Image.open(path) as png:
-            palette = tuple(png.getpalette() or ()) if png.mode == "P" else None
-            image = np.array(png)
+        image, palette = png.read(path)
         if image.ndim == 3:
             image = image[..., 0]
         colours = image.astype(np.uint8) if palette is not None else _grey_levels(image)
@@ -128,9 +127,6 @@ def save_png(pixels: Pixels, path: str | Path, palette: tuple[int, ...] | None =
     """Write a palettized PNG that `Atlas.open` reads back. Without `palette`: 0/1 pixels, index 0 paper, 1 ink,
     shown black on white. With one: `pixels` are colour indices into it."""
     if palette is None:
-        image = Image.fromarray((pixels != 0).astype(np.uint8), mode="P")
-        image.putpalette([255, 255, 255, 0, 0, 0])
+        png.write(path, (pixels != 0).astype(np.uint8), palette=(255, 255, 255, 0, 0, 0))
     else:
-        image = Image.fromarray(pixels.astype(np.uint8), mode="P")
-        image.putpalette(list(palette))
-    image.save(path, format="PNG")
+        png.write(path, pixels.astype(np.uint8), palette=tuple(palette))
