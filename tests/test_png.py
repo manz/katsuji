@@ -138,3 +138,25 @@ def test_reads_pillow_s_filtered_scanlines(tmp_path: Path, mode: str) -> None:
 def test_a_two_colour_palette_is_rejected_for_3d_pixels(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="not for 3D"):
         png.write(tmp_path / "f.png", np.zeros((2, 2, 3), dtype=np.uint8), palette=(0, 0, 0, 255, 255, 255))
+
+
+def test_encode_round_trips_through_decode() -> None:
+    pixels = np.arange(16, dtype=np.uint8).reshape(4, 4)
+    out, palette = png.decode(png.encode(pixels))
+    assert palette is None
+    assert out.tolist() == pixels.tolist()
+
+
+def test_encode_matches_write(tmp_path: Path) -> None:
+    pixels = np.array([[0, 1], [1, 0]], dtype=np.uint8)
+    png.write(tmp_path / "f.png", pixels, palette=(255, 255, 255, 0, 0, 0))
+    assert png.encode(pixels, palette=(255, 255, 255, 0, 0, 0)) == (tmp_path / "f.png").read_bytes()
+
+
+def test_decode_matches_read(tmp_path: Path) -> None:
+    pixels = np.zeros((3, 3, 3), dtype=np.uint8)
+    pixels[1, 1] = (255, 128, 0)
+    png.write(tmp_path / "f.png", pixels)
+    disk, _ = png.read(tmp_path / "f.png")
+    memory, _ = png.decode((tmp_path / "f.png").read_bytes())
+    assert disk.tolist() == memory.tolist()

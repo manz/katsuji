@@ -22,9 +22,13 @@ _PACK_DEPTHS = (1, 2, 4, 8)
 def read(path: str | Path) -> tuple[Pixels, tuple[int, ...] | None]:
     """The PNG's pixels and its palette (flat RGB triples) when it is palettized, `None` otherwise. Greyscale pixels
     come back as `(height, width)`; RGB and RGBA as `(height, width, 3 or 4)`; palettized as the colour indices."""
-    data = Path(path).read_bytes()
+    return decode(Path(path).read_bytes())
+
+
+def decode(data: bytes) -> tuple[Pixels, tuple[int, ...] | None]:
+    """`read` for a PNG held in memory: same return shape, same constraints."""
     if data[:8] != _SIG:
-        raise ValueError(f"{path}: not a PNG")
+        raise ValueError("not a PNG")
     width = height = depth = color_type = 0
     palette: tuple[int, ...] | None = None
     idat = bytearray()
@@ -35,14 +39,14 @@ def read(path: str | Path) -> tuple[Pixels, tuple[int, ...] | None]:
         payload = data[pos + 8 : pos + 8 + length]
         (crc,) = struct.unpack(">I", data[pos + 8 + length : pos + 12 + length])
         if zlib.crc32(ctype + payload) != crc:
-            raise ValueError(f"{path}: {ctype.decode('ascii', 'replace')!r} chunk CRC mismatch")
+            raise ValueError(f"{ctype.decode('ascii', 'replace')!r} chunk CRC mismatch")
         pos += 12 + length
         if ctype == b"IHDR":
             width, height, depth, color_type, _, _, interlace = struct.unpack(">IIBBBBB", payload)
             if interlace:
-                raise ValueError(f"{path}: interlaced PNGs are not supported")
+                raise ValueError("interlaced PNGs are not supported")
             if depth == 16:
-                raise ValueError(f"{path}: 16-bit PNGs are not supported")
+                raise ValueError("16-bit PNGs are not supported")
         elif ctype == b"PLTE":
             palette = tuple(payload)
         elif ctype == b"IDAT":
@@ -62,6 +66,11 @@ def read(path: str | Path) -> tuple[Pixels, tuple[int, ...] | None]:
 def write(path: str | Path, pixels: Pixels, palette: tuple[int, ...] | None = None) -> None:
     """Write `pixels` as a PNG. A 2D array with `palette` writes a palettized PNG at the smallest depth that holds
     the palette entries; without one, 8-bit greyscale. A 3D `(h, w, 3 or 4)` array writes 8-bit RGB or RGBA."""
+    Path(path).write_bytes(encode(pixels, palette))
+
+
+def encode(pixels: Pixels, palette: tuple[int, ...] | None = None) -> bytes:
+    """`write` to memory: the PNG's raw bytes, for streaming or writing into a buffer."""
     pixels = np.ascontiguousarray(pixels, dtype=np.uint8)
     if pixels.ndim == 3:
         if palette is not None:
@@ -89,7 +98,7 @@ def write(path: str | Path, pixels: Pixels, palette: tuple[int, ...] | None = No
         chunks.append(_chunk(b"PLTE", bytes(palette)))
     chunks.append(_chunk(b"IDAT", zlib.compress(body)))
     chunks.append(_chunk(b"IEND", b""))
-    Path(path).write_bytes(_SIG + b"".join(chunks))
+    return _SIG + b"".join(chunks)
 
 
 def _chunk(ctype: bytes, data: bytes) -> bytes:
