@@ -7,7 +7,7 @@ import pytest
 
 from katsuji.atlas import Atlas, save_png
 from katsuji.cli import main
-from katsuji.remap import Span, remap, table_codes, table_spans, table_texts
+from katsuji.remap import Span, is_cjk, remap, table_codes, table_spans, table_texts
 
 
 def _atlas() -> Atlas:
@@ -102,3 +102,13 @@ def test_a_run_sharing_a_code_writes_glyphs_not_one_wide_glyph() -> None:
     remapped = remap(_wide(12), {"a": 1, "W": (1, 2)}, target)
     laid = Atlas(remapped.pixels, 8, 16)
     assert (laid.glyph(0xC0).tolist(), remapped.joins) == (_wide(12).glyph(1).tolist(), {})
+
+
+@pytest.mark.parametrize("text", ["あ", "漢", "。", "「", "\uff27", "ｱ", "한"])
+def test_cjk_forms_are_not_cells(text: str) -> None:
+    assert is_cjk(text)
+
+
+@pytest.mark.parametrize("text", ["œ", "«", "♥", "⏱"])
+def test_latin_and_symbols_are_cells(text: str) -> None:
+    assert not is_cjk(text)

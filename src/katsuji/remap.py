@@ -1,7 +1,7 @@
 """A font moved from one game's text table to another's: the same glyphs, at the codes the other table gives them."""
 
 import itertools
-import unicodedata
+from collections import Counter
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -46,9 +46,8 @@ def table_spans(path: Path | str) -> dict[Span, str]:
 def wide_spans(target: Target) -> dict[Span, str]:
     """The runs of `target` that are one glyph cut across cells: none of their codes is a code of its own or
     of another run. ff6's `74C0=«` beside `C0=°` writes two glyphs, not one wide one."""
-    spans = [_span(key) for key in target]
-    used = [code for span in spans for code in span]
-    shared = {code for code in used if used.count(code) > 1}
+    used = Counter(code for key in target for code in _span(key))
+    shared = {code for code, count in used.items() if count > 1}
     return {
         span: text
         for span, text in ((_span(key), text) for key, text in target.items())
@@ -56,9 +55,13 @@ def wide_spans(target: Target) -> dict[Span, str]:
     }
 
 
+CJK_BLOCKS = ((0x3000, 0x30FF), (0x3400, 0x9FFF), (0xAC00, 0xD7AF), (0xF900, 0xFAFF), (0xFF00, 0xFFEF))
+"""CJK punctuation and kana, ideographs, hangul, compatibility ideographs, full- and halfwidth forms."""
+
+
 def is_cjk(text: str) -> bool:
-    """A kanji or kana: a game's two-byte codes for these index its own glyph set, not cells."""
-    return unicodedata.name(text, "").startswith(("CJK", "HIRAGANA", "KATAKANA", "HANGUL"))
+    """A kanji, kana or CJK form: a game's two-byte codes for these index its own glyph set, not cells."""
+    return any(low <= ord(text) <= high for low, high in CJK_BLOCKS)
 
 
 def _entries(path: Path) -> Iterator[tuple[Span, str]]:
