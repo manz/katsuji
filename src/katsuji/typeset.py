@@ -32,13 +32,23 @@ class Typography:
     space_before: str = ""
     """Marks with a space before them; a run of them ("?!") takes one."""
     quotes: str = ""
-    """Opening and closing quote, spaced inside: French « ... »."""
+    """Opening and closing quote: French « ... »."""
+    space_inside_quotes: bool = True
+    """`quotes` take a space inside, as French does; off, they hug the words (English “...”)."""
+    neutral_quotes: bool = False
+    """Each pair of `"` in a text becomes `quotes`, opened then closed, so the script stays neutral and the
+    language picks its marks; a `"` left unpaired is an error. A mark already written as `quotes` is kept, which
+    is how a quote running on into the next message is written. Off, `"` stays as typed."""
     space_after_ellipsis: bool = True
     """An ellipsis glued to the next word takes a space after it; off, a stutter ("brouil...lard") stays glued."""
     short_words: tuple[str, ...] = ()
     """Words a line should not end on, any case ("à" in French): carried to the next line with the word after
     them, unless that costs the sentence a line or passes the window. See `FRENCH_ONE_LETTER_WORDS` and
     `FRENCH_SHORT_WORDS`."""
+
+    def __post_init__(self) -> None:
+        if self.neutral_quotes and len(self.quotes) != 2:
+            raise ValueError(f"neutral_quotes needs an opening and a closing quote, not {self.quotes!r}")
 
     @property
     def glued(self) -> str:
@@ -83,7 +93,17 @@ def typeset(text: str, typography: Typography, markup: Markup | None = None, *, 
     """`text` spaced the way `typography` says, line by line, its tags read with `markup`. `squeeze` sets a run of
     spaces between words as one; off, a column layout keeps its alignment."""
     markup = markup or Markup()
+    text = _paired(text, typography, markup) if typography.neutral_quotes else text
     return "\n".join(_typeset_line(line, typography, markup, squeeze) for line in text.split("\n"))
+
+
+def _paired(text: str, typography: Typography, markup: Markup) -> str:
+    """`text` with each `"` outside a tag set as `typography.quotes`, opening then closing."""
+    pattern = re.compile(f'(?:{markup.tag})|"', re.IGNORECASE)
+    if sum(match[0] == '"' for match in pattern.finditer(text)) % 2:
+        raise ValueError(f'unpaired " in {text!r}: write the quote that runs on as {typography.quotes!r}')
+    marks = iter(typography.quotes * len(text))
+    return pattern.sub(lambda match: next(marks) if match[0] == '"' else match[0], text)
 
 
 def _typeset_line(line: str, typography: Typography, markup: Markup, squeeze: bool) -> str:
@@ -104,7 +124,7 @@ def _spaced(text: str, typography: Typography, speakers: bool, squeeze: bool) ->
     speaker = _SPEAKER.match(text) if speakers else None
     head = text[: speaker.end()] if speaker else ""
     rest = _space_before(text[len(head) :], typography.space_before)
-    if typography.quotes:
+    if typography.quotes and typography.space_inside_quotes:
         rest = _space_before(_space_after(rest, typography.quotes[0]), typography.quotes[1])
     return _SPACES.sub(" ", head + rest) if squeeze else head + rest
 

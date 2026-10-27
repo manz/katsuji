@@ -116,3 +116,42 @@ def test_squeeze_off_keeps_runs_of_spaces() -> None:
 def test_an_ellipsis_glued_to_a_word_can_stay_glued() -> None:
     stutter = Typography(space_before="?!;:", quotes="«»", space_after_ellipsis=False)
     assert typeset("brouil...lard", stutter) == "brouil...lard"
+
+
+FRENCH_NEUTRAL = Typography(space_before="?!;:", quotes="«»", neutral_quotes=True)
+ENGLISH_CURLY = Typography(quotes="“”", space_inside_quotes=False, neutral_quotes=True)
+
+
+def test_neutral_quotes_become_french_guillemets_spaced_inside() -> None:
+    assert typeset('Il dit "oui" puis "non".', FRENCH_NEUTRAL) == "Il dit « oui » puis « non »."
+
+
+def test_neutral_quotes_become_english_curly_quotes_tight() -> None:
+    assert typeset('He said "yes".', ENGLISH_CURLY) == "He said “yes”."
+
+
+def test_a_quote_may_span_lines_of_one_text() -> None:
+    assert typeset('"Un\ndeux"', FRENCH_NEUTRAL) == "« Un\ndeux »"
+
+
+def test_a_quote_inside_a_tag_is_not_a_quote() -> None:
+    assert typeset('[say "x"]"Oui"', FRENCH_NEUTRAL) == '[say "x"]« Oui »'
+
+
+def test_an_unpaired_quote_names_the_mark_to_write() -> None:
+    with pytest.raises(ValueError, match="write the quote that runs on as '«»'"):
+        typeset('"Hein ?', FRENCH_NEUTRAL)
+
+
+def test_a_written_guillemet_runs_on_untouched() -> None:
+    """dq6: a quote left open for the next message is written as the mark itself."""
+    assert typeset("« Hein ?", FRENCH_NEUTRAL) == "« Hein ?"
+
+
+def test_neutral_quotes_off_leave_quotes_as_typed() -> None:
+    assert typeset('Il dit "oui".', FRENCH) == 'Il dit "oui".'
+
+
+def test_neutral_quotes_need_a_pair_of_marks() -> None:
+    with pytest.raises(ValueError, match="needs an opening and a closing quote"):
+        Typography(neutral_quotes=True)
