@@ -70,6 +70,8 @@ class FontConfig:
     """A font katsuji ships (`katsuji.fonts`), laid onto `table`."""
     overrides: Path | None = None
     """An atlas on `table`'s codes whose drawn cells replace the builtin's: icons, game-only glyphs."""
+    blank: frozenset[int] = frozenset()
+    """Codes of `table` left blank on purpose, whatever their text: ff4's 1-pixel spacer `FD=°`."""
 
 
 FORMATS = ("vwf", "tiles", "rows16")
@@ -101,7 +103,7 @@ class Config:
 _COMMON_FONT_KEYS = {"png", "output", "table", "cell", "grid", "widths", "format"}
 _FONT_KEYS = {
     "vwf": _COMMON_FONT_KEYS
-    | {"kerning-candidates", "kerning", "default-kerning", "constants", "builtin", "overrides"},
+    | {"kerning-candidates", "kerning", "default-kerning", "constants", "builtin", "overrides", "blank"},
     "tiles": _COMMON_FONT_KEYS | {"bpp", "first", "count", "size"},
     "rows16": _COMMON_FONT_KEYS | {"first", "count", "size", "x-offset", "spacing", "widths-output"},
 }
@@ -173,6 +175,7 @@ def _font(name: str, table: dict[str, Any], root: Path) -> FontConfig:
         widths_output=_path(root, table.get("widths-output")),
         builtin=table.get("builtin"),
         overrides=_path(root, table.get("overrides")),
+        blank=frozenset(_code(where, str(code)) for code in table.get("blank", ())),
     )
 
 
@@ -181,8 +184,9 @@ def _check_source(where: str, table: dict[str, Any]) -> None:
     if ("png" in table) == ("builtin" in table):
         raise ConfigError(f"[{where}] needs one of `png` or `builtin`")
     if "builtin" not in table:
-        if "overrides" in table:
-            raise ConfigError(f"[{where}] `overrides` goes with `builtin`")
+        for key in ("overrides", "blank"):
+            if key in table:
+                raise ConfigError(f"[{where}] `{key}` goes with `builtin`")
         return
     if "table" not in table:
         raise ConfigError(f"[{where}] `builtin` needs the `table` to lay it onto")

@@ -68,12 +68,14 @@ instead of `png`, laid onto the game's own table:
 builtin = "sumi/16"                      # family/size[/style], regular by default
 table = "text/game.tbl"                  # each text lands on this table's code
 overrides = "fonts/icons.png"            # optional: drawn cells here win (icons, game-only glyphs)
+blank = ["0xFD"]                         # optional: codes left empty whatever their text (spacers)
 output = "assets/font.dat"
 widths = { "0x00" = 3 }
 ```
 
-A one-character text of the table that neither sumi nor `overrides` draws is an error; blanks and
-control codes (`<END>`) are not. Multi-character texts are never checked: a DTE pair, `...` or `Lv`
+A one-character text of the table that neither sumi nor `overrides` draws is an error; spaces,
+control codes (`<END>`) and the `blank` codes are not. A `blank` code is for a cell the game keeps
+empty though its table names it, like ff4's 1-pixel spacer `FD=°`. Multi-character texts are never checked: a DTE pair, `...` or `Lv`
 drawn as one glyph must come from `overrides`.
 
 A glyph wider than a cell takes several codes, as ff4 and Bahamut Lagoon draw theirs: `A0A1=œ` in

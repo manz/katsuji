@@ -174,6 +174,19 @@ def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:
     assert _font(tmp_path).glyphs[0x11] == pack_rows(icons[8:16, 8:16])
 
 
+def test_a_blank_code_builds_empty(tmp_path: Path) -> None:
+    """ff4's `FD=°` is a 1-pixel spacer, not a degree sign."""
+    build(load(_builtin(tmp_path, "10=A\nFD=°\n", "blank = ['0xFD']\n")))
+    glyph = _font(tmp_path).glyphs[0xFD]
+    assert glyph == bytes(len(glyph))
+
+
+def test_a_blank_code_stays_empty_where_the_builtin_draws(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n11=B\n", "blank = [0x11]\n")))
+    glyph = _font(tmp_path).glyphs[0x11]
+    assert glyph == bytes(len(glyph))
+
+
 @pytest.mark.parametrize(
     ("text", "message"),
     [
@@ -181,6 +194,7 @@ def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:
         ("builtin = 'sumi/8'\n", "`builtin` needs the `table`"),
         ("builtin = 'sumi/8'\ntable = 't'\ncell = [8, 8]\n", "set their own cell"),
         ("png = 'f.png'\noverrides = 'o.png'\n", "`overrides` goes with `builtin`"),
+        ("png = 'f.png'\nblank = ['0xFD']\n", "`blank` goes with `builtin`"),
     ],
 )
 def test_builtin_config_errors(tmp_path: Path, text: str, message: str) -> None:

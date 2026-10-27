@@ -85,7 +85,8 @@ def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
 def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
     """The builtin font on `table`'s codes, the drawn cells of `overrides` on top. An accented letter the font
     lacks is drawn as its base letter; any other one-character text, on one code or cut across a run of them
-    (kanji aside), that neither draws is an error; a blank or a control is not."""
+    (kanji aside), that neither draws is an error; a space, a control or a `blank` code is not, and the last
+    stays empty."""
     from katsuji.fonts import bundled
 
     assert config.builtin is not None and config.table is not None  # config.load checks both
@@ -93,7 +94,7 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
         font = bundled(config.builtin)
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
-    target = table_spans(config.table)
+    target = {span: text for span, text in table_spans(config.table).items() if not config.blank.intersection(span)}
     try:
         laid = font.layout(_folded(target, font.charmap))
     except ValueError as error:
