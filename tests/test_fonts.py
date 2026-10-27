@@ -1,5 +1,6 @@
 """`katsuji.fonts`: the sumi faces, and `builtin = ...` laying one onto a game's table."""
 
+import unicodedata
 from pathlib import Path
 
 import numpy as np
@@ -69,6 +70,18 @@ def test_a_builtin_font_lands_on_the_table_codes(tmp_path: Path) -> None:
 def test_a_text_the_builtin_lacks_must_be_drawn(tmp_path: Path) -> None:
     with pytest.raises(ConfigError, match=r"sumi/8 draws no '\$': draw them in `overrides`"):
         build(load(_builtin(tmp_path, "10=A\n11=$\n")))
+
+
+def test_an_accented_capital_sumi_8_lacks_points_at_the_fold(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError, match=r"drop 'É' from the table to write their base letter"):
+        build(load(_builtin(tmp_path, "10=E\n11=É\n")))
+
+
+def test_sumi_8_draws_no_accented_capitals() -> None:
+    """An 8x8 cell has no room for them: the table leaves them out and encoding writes the base letter."""
+    assert not {
+        text for text in bundled("sumi/8").charmap if text.isupper() and unicodedata.normalize("NFD", text) != text
+    }
 
 
 def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:

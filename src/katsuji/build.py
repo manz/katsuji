@@ -1,5 +1,6 @@
 """Build everything a `katsuji.toml` describes: font files, string blobs, constants."""
 
+import unicodedata
 from pathlib import Path
 
 import numpy as np
@@ -97,7 +98,11 @@ def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
         {text for code, text in target.items() if len(text) == 1 and not text.isspace() and not atlas.glyph(code).any()}
     )
     if undrawn:
-        raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
+        message = f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`"
+        foldable = "".join(text for text in undrawn if unicodedata.normalize("NFD", text)[0] in font.charmap)
+        if foldable:
+            message += f", or drop {foldable!r} from the table to write their base letter"
+        raise ConfigError(message)
     return atlas
 
 

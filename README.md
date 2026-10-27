@@ -77,6 +77,10 @@ control codes (`<END>`) are not. Multi-character texts are never checked: a DTE 
 drawn as one glyph must come from `overrides`. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
 Python.
 
+`sumi/8` draws no accented capitals: an 8x8 cell has no room for them. Leave them out of the menu
+table and encoding writes the base letter instead (É as E, Ç as C), as it does for any accented
+character a table lacks and whose base letter it has.
+
 ```
 katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png
 ```
