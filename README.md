@@ -94,6 +94,8 @@ Python.
 (one shared by the menu and the dialog font) gets the base letter's glyph there, É drawn as E; a
 glyph in `overrides` wins. A table that leaves them out writes the base letter instead (É as E, Ç as
 C), as encoding does for any accented character a table lacks and whose base letter it has.
+Folding keeps the text's length, so a check for missing characters can't compare lengths:
+`Table.to_bytes(text, strict=True)` raises for any character the table lacks instead.
 
 ```
 katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png

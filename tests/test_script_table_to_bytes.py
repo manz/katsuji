@@ -107,6 +107,20 @@ def test_a_base_letter_the_table_lacks_is_still_skipped(table: Table) -> None:
     assert table.to_bytes("é") == b""
 
 
+def test_strict_refuses_a_letter_it_would_fold(table: Table) -> None:
+    with pytest.raises(ValueError, match="'à' in 'àb' has no code"):
+        table.to_bytes("àb", strict=True)
+
+
+def test_strict_refuses_a_character_it_would_skip(table: Table) -> None:
+    with pytest.raises(ValueError, match="'\\?' in 'a\\?b' has no code"):
+        table.to_bytes("a?b", strict=True)
+
+
+def test_strict_encodes_a_tabled_text_and_jokers(table: Table) -> None:
+    assert table.to_bytes("ab[0x7f]Cain", strict=True) == b"\x03\x7f\x20\x21"
+
+
 def test_a_tabled_accented_letter_keeps_its_own_code(tmp_path: Path) -> None:
     (tmp_path / "t.tbl").write_text("01=E\n02=É\n", encoding="utf-8")
 

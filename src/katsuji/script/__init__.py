@@ -127,9 +127,11 @@ class Table:
         self._use_scanner = len({k[0] for k in keys}) <= _SCANNER_MAX_FIRST_CHARS
         self._scanner_for = cache_key
 
-    def to_bytes(self, text: str) -> bytes:
+    def to_bytes(self, text: str, *, strict: bool = False) -> bytes:
         """Encode `text`: a joker (`[0xNN]`) is that byte, else the longest table key at
         that position, else the character's base letter (`fold`), else the character is skipped.
+        `strict` raises ValueError for a character the table lacks instead of folding or
+        skipping it: a check that every character has its own code.
 
         Slicing the rest of the text at every step, and trying every length up
         to the longest key through a KeyError each, was 75% of BL's dialog
@@ -138,7 +140,7 @@ class Table:
         """
         self._refresh()
         if not self._use_scanner:
-            return self._walk_to_bytes(text)
+            return self._walk_to_bytes(text, strict)
         binary_text = bytearray()
         lookup = self.lookup
         for token in self._compiled.finditer(text):
@@ -147,10 +149,10 @@ class Table:
             elif token.lastgroup == "joker":
                 binary_text.append(int(token.group("byte"), 16))
             else:
-                binary_text += self.fold(token.group())
+                binary_text += self._untabled(token.group(), text, strict)
         return bytes(binary_text)
 
-    def _walk_to_bytes(self, text: str) -> bytes:
+    def _walk_to_bytes(self, text: str, strict: bool) -> bytes:
         """`to_bytes` one position at a time, trying the table's key lengths."""
         binary_text = bytearray()
         lookup = self.lookup
@@ -168,9 +170,14 @@ class Table:
                     position += length
                     break
             else:
-                binary_text += self.fold(text[position])
+                binary_text += self._untabled(text[position], text, strict)
                 position += 1
         return bytes(binary_text)
+
+    def _untabled(self, char: str, text: str, strict: bool) -> bytes:
+        if strict:
+            raise ValueError(f"{char!r} in {text!r} has no code in the table")
+        return self.fold(char)
 
     def fold(self, char: str) -> bytes:
         """The code of `char`'s base letter when the table has no `char`: an 8x8 font
