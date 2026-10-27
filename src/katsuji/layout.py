@@ -307,7 +307,7 @@ class TextLayout:
         short = {word.lower() for word in self.typography.short_words} if keep_short else set()
         for word in text.split(" "):
             glued = word[:1] != "" and word[0] in self.typography.glued
-            opens = bool(words) and words[-1] == self.typography.quotes[:1] != ""
+            opens = bool(words) and words[-1].rstrip() == self.typography.quotes[:1] != ""
             if words and (glued or opens or words[-1].endswith(self.abbreviations) or words[-1].lower() in short):
                 words[-1] += f" {word}"
             else:

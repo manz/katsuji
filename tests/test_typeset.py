@@ -139,7 +139,7 @@ def test_a_quote_inside_a_tag_is_not_a_quote() -> None:
 
 
 def test_an_unpaired_quote_names_the_mark_to_write() -> None:
-    with pytest.raises(ValueError, match="write the quote that runs on as '«»'"):
+    with pytest.raises(ValueError, match="open a quote that runs on with '«'"):
         typeset('"Hein ?', FRENCH_NEUTRAL)
 
 

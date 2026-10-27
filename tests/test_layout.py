@@ -400,3 +400,8 @@ def test_a_short_word_stays_when_carrying_it_would_overflow() -> None:
 def test_an_opening_quote_never_ends_a_line() -> None:
     layout = TextLayout(monospace, 10, FRENCH)
     assert layout.reflow("Il dit « oui ».") == "Il dit\n« oui »."
+
+
+def test_an_opening_quote_never_ends_a_column_line() -> None:
+    layout = TextLayout(monospace, 10, FRENCH, squeeze=False)
+    assert layout.reflow("Il dit «  oui ».") == "Il dit\n«  oui »."

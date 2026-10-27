@@ -73,7 +73,8 @@ class Markup:
     """
 
     tag: str = r"\[[^\]]*\]"
-    """One tag: matched first, never split or spaced inside."""
+    """One tag: matched first, never split or spaced inside. Matched case-insensitively; no inline `(?i)`, as the
+    pattern is embedded in others."""
     words: str | None = None
     """Tags that read as a word (names)."""
     glyphs: str | None = None
@@ -101,7 +102,7 @@ def _paired(text: str, typography: Typography, markup: Markup) -> str:
     """`text` with each `"` outside a tag set as `typography.quotes`, opening then closing."""
     pattern = re.compile(f'(?:{markup.tag})|"', re.IGNORECASE)
     if sum(match[0] == '"' for match in pattern.finditer(text)) % 2:
-        raise ValueError(f'unpaired " in {text!r}: write the quote that runs on as {typography.quotes!r}')
+        raise ValueError(f'unpaired " in {text!r}: open a quote that runs on with {typography.quotes[0]!r}')
     marks = iter(typography.quotes * len(text))
     return pattern.sub(lambda match: next(marks) if match[0] == '"' else match[0], text)
 
