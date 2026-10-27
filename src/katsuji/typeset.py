@@ -45,6 +45,10 @@ class Typography:
     """Words a line should not end on, any case ("à" in French): carried to the next line with the word after
     them, unless that costs the sentence a line or passes the window. See `FRENCH_ONE_LETTER_WORDS` and
     `FRENCH_SHORT_WORDS`."""
+    speaker_space: str = ""
+    """Text set before the colon of a speaker opening the line, when `Markup(speakers=True)`. Empty leaves the
+    speaker as written (ENGLISH, FRENCH); a game supplying its own narrow glyph (ff4's `"°"` for code FD) passes
+    it here. Idempotent: a speaker already carrying it stays unchanged."""
 
     def __post_init__(self) -> None:
         if self.neutral_quotes and len(self.quotes) != 2:
@@ -123,8 +127,14 @@ def _spaced(text: str, typography: Typography, speakers: bool, squeeze: bool) ->
     if typography.space_after_ellipsis:
         text = _ELLIPSIS.sub(r"\1 ", text)
     speaker = _SPEAKER.match(text) if speakers else None
-    head = text[: speaker.end()] if speaker else ""
-    rest = _space_before(text[len(head) :], typography.space_before)
+    matched_end = speaker.end() if speaker else 0
+    head = text[:matched_end]
+    if speaker and typography.speaker_space:
+        inner = head[:-1].rstrip()
+        if inner.endswith(typography.speaker_space):
+            inner = inner[: -len(typography.speaker_space)]
+        head = inner + typography.speaker_space + ":"
+    rest = _space_before(text[matched_end:], typography.space_before)
     if typography.quotes and typography.space_inside_quotes:
         rest = _space_before(_space_after(rest, typography.quotes[0]), typography.quotes[1])
     return _SPACES.sub(" ", head + rest) if squeeze else head + rest

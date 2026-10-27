@@ -59,6 +59,27 @@ def test_a_speaker_colon_gets_its_space_unless_the_game_writes_speakers() -> Non
     assert typeset("Roi de Kana: Bonjour.", FRENCH) == "Roi de Kana : Bonjour."
 
 
+def test_speaker_space_sets_a_narrow_glyph_before_the_colon() -> None:
+    french = Typography(space_before="?!;:", quotes="«»", speaker_space="°")
+    assert typeset("Soldat: Bonjour ?", french, Markup(speakers=True)) == "Soldat°: Bonjour ?"
+
+
+def test_speaker_space_is_idempotent() -> None:
+    french = Typography(space_before="?!;:", quotes="«»", speaker_space="°")
+    text = "Soldat°: Bonjour ?"
+    assert typeset(text, french, Markup(speakers=True)) == text
+
+
+def test_speaker_space_default_leaves_the_speaker_alone() -> None:
+    assert typeset("Soldat: Bonjour.", ENGLISH, Markup(speakers=True)) == "Soldat: Bonjour."
+
+
+def test_speaker_space_works_through_tags() -> None:
+    french = Typography(space_before="?!;:", quotes="«»", speaker_space="°")
+    markup = Markup(speakers=True)
+    assert typeset("[bold]Soldat[normal]: Bonjour.", french, markup) == "[bold]Soldat[normal]°: Bonjour."
+
+
 def test_french_quotes_are_spaced_inside() -> None:
     assert typeset("Il dit alors: «Viens!»", FRENCH) == "Il dit alors : « Viens ! »"
 
