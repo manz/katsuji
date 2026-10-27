@@ -8,7 +8,7 @@ from katsuji.atlas import Atlas
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
-from katsuji.remap import table_texts
+from katsuji.remap import Span, is_cjk, table_spans, wide_spans
 from katsuji.script import Table, latin_base
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
@@ -54,11 +54,10 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
         kerning = find_kerning(atlas, pairs, config.default_kerning)
         for text, pixels in config.kerning.items():
             kerning[_pair(table, text, where)] = pixels
-    widths = {**joins, **config.widths}
-    font = VwfFont.from_atlas(atlas, widths, kerning)
+    font = VwfFont.from_atlas(atlas, config.widths, kerning, joins)
     negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
     if negative:
-        raise ConfigError(f"[{where}] `widths` takes {', '.join(negative)} below 0: their cells are narrower")
+        raise ConfigError(f"[{where}] `widths` trims {', '.join(negative)} by more than their measured width")
     _write(config.output, font.encode(), written)
     if config.constants:
         prefix = config.name.upper()
@@ -84,7 +83,8 @@ def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
 
 def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
     """The builtin font on `table`'s codes, the drawn cells of `overrides` on top.
-    A one-character text on one code neither draws is an error; a blank or a control is not."""
+    A one-character text, on one code or cut across a run of them (kanji aside), that neither draws is an
+    error; a blank or a control is not."""
     from katsuji.fonts import bundled
 
     assert config.builtin is not None and config.table is not None  # config.load checks both
@@ -92,7 +92,7 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
         font = bundled(config.builtin)
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
-    target = table_texts(config.table)
+    target = table_spans(config.table)
     try:
         laid = font.layout(target)
     except ValueError as error:
@@ -101,11 +101,13 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
     atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
     if config.overrides is not None:
         atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
+    glyphs: list[tuple[Span, str]] = [(span, text) for span, text in target.items() if len(span) == 1]
+    glyphs += [(span, text) for span, text in wide_spans(target).items() if not is_cjk(text)]
     undrawn = sorted(
         {
             text
-            for span, text in target.items()
-            if len(span) == 1 and len(text) == 1 and not text.isspace() and not atlas.glyph(span[0]).any()
+            for span, text in glyphs
+            if len(text) == 1 and not text.isspace() and not any(atlas.glyph(code).any() for code in span)
         }
     )
     if undrawn:

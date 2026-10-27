@@ -41,7 +41,7 @@ def test_curly_quotes_draw_the_quote_in_regular() -> None:
 def test_layout_puts_a_glyph_at_the_game_code() -> None:
     font = bundled("sumi/16")
     laid = font.layout({0x41: "é"})
-    assert np.array_equal(laid.pixels[64:80, 8:16], font.atlas.glyph_colours(font.charmap["é"][0]))
+    assert np.array_equal(laid.pixels[64:80, 8:16], font.atlas.glyph_colours(font.charmap["é"]))
 
 
 def test_layout_reports_texts_the_font_lacks() -> None:
@@ -65,7 +65,7 @@ def _font(tmp_path: Path) -> VwfFont:
 def test_a_builtin_font_lands_on_the_table_codes(tmp_path: Path) -> None:
     build(load(_builtin(tmp_path, "00= \n10=A\n11=é\nFF=<END>\n")))
     sumi = bundled("sumi/8")
-    assert _font(tmp_path).glyphs[0x11] == VwfFont.from_atlas(sumi.atlas).glyphs[sumi.charmap["é"][0]]
+    assert _font(tmp_path).glyphs[0x11] == VwfFont.from_atlas(sumi.atlas).glyphs[sumi.charmap["é"]]
 
 
 def test_a_text_the_builtin_lacks_must_be_drawn(tmp_path: Path) -> None:
@@ -109,7 +109,7 @@ def test_a_span_gets_the_wide_drawing_and_one_code_the_narrow(name: str) -> None
     laid = Atlas(remapped.pixels, width, font.atlas.cell_height)
     wide = np.hstack([font.atlas.glyph(code) for code in font.wide["œ"]])
     assert (laid.ink_width(0x10), remapped.joins[0x20] + 1 + laid.ink_width(0x21)) == (
-        font.atlas.ink_width(font.charmap["œ"][0]),
+        font.atlas.ink_width(font.charmap["œ"]),
         ink_width(wide),
     )
 
@@ -118,6 +118,21 @@ def test_a_span_gets_the_wide_drawing_and_one_code_the_narrow(name: str) -> None
 def test_every_style_draws_wide_what_regular_draws_wide(name: str) -> None:
     regular = name.rsplit("/", 1)[0]
     assert set(bundled(name).wide) == set(bundled(regular).wide)
+
+
+def test_a_game_width_on_a_joined_code_wins(tmp_path: Path) -> None:
+    (tmp_path / "game.tbl").write_text("10=A\nA0A1=œ\n", encoding="utf-8")
+    (tmp_path / "katsuji.toml").write_text(
+        "[fonts.f]\nbuiltin = 'sumi/8'\ntable = 'game.tbl'\noutput = 'f.dat'\nwidths = { '0xA0' = 5 }\n",
+        encoding="utf-8",
+    )
+    build(load(tmp_path / "katsuji.toml"))
+    assert _font(tmp_path).widths[0xA0] == 5
+
+
+def test_a_latin_run_the_builtin_lacks_must_be_drawn(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError, match=r"draws no '@'"):
+        build(load(_builtin(tmp_path, "10=A\nA0A1=@\n")))
 
 
 def test_two_byte_codes_the_font_lacks_build(tmp_path: Path) -> None:
@@ -131,13 +146,13 @@ def test_a_width_below_zero_is_a_config_error(tmp_path: Path) -> None:
         "[fonts.f]\nbuiltin = 'sumi/8'\ntable = 'game.tbl'\noutput = 'f.dat'\nwidths = { '0x11' = -1 }\n",
         encoding="utf-8",
     )
-    with pytest.raises(ConfigError, match=r"takes 0x11 below 0"):
+    with pytest.raises(ConfigError, match=r"trims 0x11 by more than their measured width"):
         build(load(tmp_path / "katsuji.toml"))
 
 
 def test_a_glyph_too_wide_for_its_code_is_a_config_error(tmp_path: Path) -> None:
     with pytest.raises(ConfigError, match="cannot be cut across"):
-        build(load(_builtin(tmp_path, "10=A\nA0A1A2A3A4=œ\n")))
+        build(load(_builtin(tmp_path, "10=A\nA0A1A2=.\n")))
 
 
 def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:

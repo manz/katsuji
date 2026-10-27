@@ -82,7 +82,10 @@ the next one follow on (the cut less the engine's 1-pixel gap), so no `widths` e
 font's own wide glyphs sit in adjacent cells of its PNG, named the same way in its `charmap.tbl`,
 next to the one-cell glyph: a table with one code for `Œ` gets that, one with two codes the wide
 drawing. sumi draws `Œ` and `œ` both ways in every font.
-A run of codes whose character the font lacks (a game's two-byte kanji codes) is left alone. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
+A run is only cut when none of its codes is used alone or by another run: ff6's `74C0=«` beside
+`C0=°` writes two glyphs side by side and is left alone. A game's own `widths` entry for a joined
+code wins over the join. A run whose character the font lacks is an error like a one-code text,
+unless it is a kanji or kana (a game's two-byte codes for its own glyph set). `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
 Python.
 
 `sumi/8` draws no accented capitals: an 8x8 cell has no room for them. Leave them out of the menu
