@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from katsuji.build import build
+from katsuji.build import build, font_atlas, vwf_font
 from katsuji.cli import main
 from katsuji.config import ConfigError, load
 from katsuji.formats import VwfFont
@@ -71,6 +71,17 @@ def ff4_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
 )
 def test_ff4_fonts_build_from_config(ff4_build: Path, built: str, golden: str) -> None:
     assert (ff4_build / built).read_bytes() == (FF4 / golden).read_bytes()
+
+
+def test_vwf_font_is_the_font_build_writes(ff4_build: Path) -> None:
+    config = load(ff4_build.parent / "katsuji.toml").fonts["font"]
+    assert vwf_font(config).encode() == (ff4_build / "font.dat").read_bytes()
+
+
+def test_font_atlas_is_the_atlas_the_font_is_built_from(ff4_build: Path) -> None:
+    config = load(ff4_build.parent / "katsuji.toml").fonts["menu"]
+    font = VwfFont.from_atlas(font_atlas(config), config.widths)
+    assert font.glyphs == VwfFont.decode((ff4_build / "menu.dat").read_bytes()).glyphs
 
 
 def test_font_constants_describe_the_file(ff4_build: Path) -> None:

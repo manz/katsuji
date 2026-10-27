@@ -10,4 +10,5 @@ DEV_VERSION = "0.0.0.dev0"
 
 
 def get_version() -> str:
-    return os.environ.get("VERSION") or DEV_VERSION
+    """The tag without its `v`: `v0.5.0a2` is version 0.5.0a2."""
+    return os.environ.get("VERSION", "").removeprefix("v") or DEV_VERSION

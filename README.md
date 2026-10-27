@@ -68,12 +68,14 @@ instead of `png`, laid onto the game's own table:
 builtin = "sumi/16"                      # family/size[/style], regular by default
 table = "text/game.tbl"                  # each text lands on this table's code
 overrides = "fonts/icons.png"            # optional: drawn cells here win (icons, game-only glyphs)
+blank = ["0xFD"]                         # optional: codes left empty whatever their text (spacers)
 output = "assets/font.dat"
 widths = { "0x00" = 3 }
 ```
 
-A one-character text of the table that neither sumi nor `overrides` draws is an error; blanks and
-control codes (`<END>`) are not. Multi-character texts are never checked: a DTE pair, `...` or `Lv`
+A one-character text of the table that neither sumi nor `overrides` draws is an error; spaces,
+control codes (`<END>`) and the `blank` codes are not. A `blank` code is for a cell the game keeps
+empty though its table names it, like ff4's 1-pixel spacer `FD=°`. Multi-character texts are never checked: a DTE pair, `...` or `Lv`
 drawn as one glyph must come from `overrides`.
 
 A glyph wider than a cell takes several codes, as ff4 and Bahamut Lagoon draw theirs: `A0A1=œ` in
@@ -86,11 +88,16 @@ A run is only cut when none of its codes is used alone or by another run: ff6's 
 `C0=°` writes two glyphs side by side and is left alone. A game's own `widths` entry for a joined
 code wins over the join. A run whose character the font lacks is an error like a one-code text,
 unless it is a kanji or kana (a game's two-byte codes for its own glyph set). `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
-Python.
+Python. A tool that measures or bakes text with a section's font takes it from `katsuji.build`:
+`font_atlas(config)` is the section's cells as built (builtin, overrides, blanks), `vwf_font(config)`
+the font with its widths and kerning, from `katsuji.config.load(path).fonts[name]`.
 
-`sumi/8` draws no accented capitals: an 8x8 cell has no room for them. Leave them out of the menu
-table and encoding writes the base letter instead (É as E, Ç as C), as it does for any accented
-character a table lacks and whose base letter it has.
+`sumi/8` draws no accented capitals: an 8x8 cell has no room for them. A table that gives them codes
+(one shared by the menu and the dialog font) gets the base letter's glyph there, É drawn as E; a
+glyph in `overrides` wins. A table that leaves them out writes the base letter instead (É as E, Ç as
+C), as encoding does for any accented character a table lacks and whose base letter it has.
+Folding keeps the text's length, so a check for missing characters can't compare lengths:
+`Table.to_bytes(text, strict=True)` raises for any character the table lacks instead.
 
 ```
 katsuji remap fonts/menu.png --table old.tbl --to new.tbl --cell 8x8 -o fonts/menu_new.png

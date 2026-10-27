@@ -1,14 +1,15 @@
 """Build everything a `katsuji.toml` describes: font files, string blobs, constants."""
 
+from collections.abc import Mapping, Set
 from pathlib import Path
 
 import numpy as np
 
-from katsuji.atlas import Atlas
+from katsuji.atlas import Atlas, Pixels
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
-from katsuji.remap import Span, is_cjk, table_spans, wide_spans
+from katsuji.remap import COLUMNS, Span, is_cjk, table_spans, wide_spans
 from katsuji.script import Table, latin_base
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
@@ -43,7 +44,14 @@ def _pair(table: Table, text: str, where: str) -> tuple[int, int]:
     return codes[0], codes[1]
 
 
-def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
+def font_atlas(config: FontConfig) -> Atlas:
+    """The cells of a `[fonts.NAME]` section as `build` draws them: its `png`, or its `builtin` laid onto its
+    table with `overrides` and `blank`."""
+    return _atlas(config, f"fonts.{config.name}")[0]
+
+
+def vwf_font(config: FontConfig) -> VwfFont:
+    """The font a `'vwf'` `[fonts.NAME]` section builds, widths and kerning included, without writing it."""
     where = f"fonts.{config.name}"
     atlas, joins = _atlas(config, where)
     kerning: dict[tuple[int, int], int] = {}
@@ -58,6 +66,11 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
     if negative:
         raise ConfigError(f"[{where}] `widths` trims {', '.join(negative)} by more than their measured width")
+    return font
+
+
+def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
+    font = vwf_font(config)
     _write(config.output, font.encode(), written)
     if config.constants:
         prefix = config.name.upper()
@@ -82,9 +95,10 @@ def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
 
 
 def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
-    """The builtin font on `table`'s codes, the drawn cells of `overrides` on top.
-    A one-character text, on one code or cut across a run of them (kanji aside), that neither draws is an
-    error; a blank or a control is not."""
+    """The builtin font on `table`'s codes, the drawn cells of `overrides` on top. An accented letter the font
+    lacks is drawn as its base letter; any other one-character text, on one code or cut across a run of them
+    (kanji aside), that neither draws is an error; a space, a control or a `blank` code is not, and the last
+    stays empty."""
     from katsuji.fonts import bundled
 
     assert config.builtin is not None and config.table is not None  # config.load checks both
@@ -93,16 +107,21 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
     target = table_spans(config.table)
+    runs = wide_spans(target)
+    blank = config.blank.union(*(span for span in runs if config.blank.intersection(span)))
+    laid_out = {span: text for span, text in target.items() if span not in runs or not blank.intersection(span)}
     try:
-        laid = font.layout(target)
+        laid = font.layout(_folded(laid_out, font.charmap))
     except ValueError as error:
         raise ConfigError(f"[{where}] {error}") from error
     width, height = font.atlas.cell_width, font.atlas.cell_height
-    atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
+    pixels = _blanked(laid.pixels, blank, width, height)
+    atlas = Atlas((pixels != 0).astype(np.uint8), width, height, colours=pixels, palette=laid.palette)
     if config.overrides is not None:
         atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
     glyphs: list[tuple[Span, str]] = [(span, text) for span, text in target.items() if len(span) == 1]
-    glyphs += [(span, text) for span, text in wide_spans(target).items() if not is_cjk(text)]
+    glyphs += [(span, text) for span, text in runs.items() if not is_cjk(text)]
+    glyphs = [(span, text) for span, text in glyphs if not blank.intersection(span)]
     undrawn = sorted(
         {
             text
@@ -111,13 +130,27 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
         }
     )
     if undrawn:
-        message = f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`"
-        texts = set(target.values())
-        foldable = "".join(text for text in undrawn if latin_base(text) in texts)
-        if foldable:
-            message += f", or drop {foldable!r} from the table to write their base letter"
-        raise ConfigError(message)
-    return atlas, laid.joins
+        raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
+    return atlas, {code: join for code, join in laid.joins.items() if code not in blank}
+
+
+def _blanked(pixels: Pixels, codes: Set[int], width: int, height: int) -> Pixels:
+    """`pixels`, a 16-column atlas, with the cells of `codes` cleared."""
+    cleared = pixels.copy()
+    for code in codes:
+        row, column = divmod(code, COLUMNS)
+        cleared[row * height : (row + 1) * height, column * width : (column + 1) * width] = 0
+    return cleared
+
+
+def _folded(target: dict[Span, str], drawn: Mapping[str, int]) -> dict[Span, str]:
+    """`target` with each one-code text the font lacks given its base letter, when the font draws that: sumi/8's
+    É cell shows E, as encoding writes E for an É the table lacks."""
+    folded: dict[Span, str] = {}
+    for span, text in target.items():
+        base = latin_base(text) if len(span) == 1 and text not in drawn else None
+        folded[span] = base if base is not None and base in drawn else text
+    return folded
 
 
 def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:

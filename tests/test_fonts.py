@@ -73,19 +73,30 @@ def test_a_text_the_builtin_lacks_must_be_drawn(tmp_path: Path) -> None:
         build(load(_builtin(tmp_path, "10=A\n11=$\n")))
 
 
-def test_an_accented_capital_sumi_8_lacks_points_at_the_fold(tmp_path: Path) -> None:
-    with pytest.raises(ConfigError, match=r"drop 'É' from the table to write their base letter"):
-        build(load(_builtin(tmp_path, "10=E\n11=É\n")))
+def test_an_accented_capital_sumi_8_lacks_draws_its_base_letter(tmp_path: Path) -> None:
+    """A table shared by an 8x8 and a 16-pixel font keeps É: the 8x8 cell shows E."""
+    build(load(_builtin(tmp_path, "10=E\n11=É\n")))
+    glyphs = _font(tmp_path).glyphs
+    assert glyphs[0x11] == glyphs[0x10]
 
 
-def test_the_fold_hint_needs_the_base_letter_in_the_table(tmp_path: Path) -> None:
-    with pytest.raises(ConfigError) as error:
-        build(load(_builtin(tmp_path, "10=A\n11=É\n")))
-    assert "base letter" not in str(error.value)
+def test_the_base_letter_comes_from_the_font_not_the_table(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n11=É\n")))
+    sumi = bundled("sumi/8")
+    assert _font(tmp_path).glyphs[0x11] == VwfFont.from_atlas(sumi.atlas).glyphs[sumi.charmap["E"]]
+
+
+def test_overrides_win_over_the_base_letter(tmp_path: Path) -> None:
+    icons = np.zeros((128, 128), np.uint8)
+    icons[8:16, 8:12] = 1  # code 0x11
+    save_png(icons, tmp_path / "icons.png")
+    build(load(_builtin(tmp_path, "10=E\n11=É\n", "overrides = 'icons.png'\n")))
+    assert _font(tmp_path).glyphs[0x11] == pack_rows(icons[8:16, 8:16])
 
 
 def test_sumi_8_draws_no_accented_capitals() -> None:
-    """An 8x8 cell has no room for them: the table leaves them out and encoding writes the base letter."""
+    """An 8x8 cell has no room for them: the cell shows the base letter, and encoding writes it when the table
+    leaves them out."""
     assert not {
         text for text in bundled("sumi/8").charmap if text.isupper() and unicodedata.normalize("NFD", text) != text
     }
@@ -163,6 +174,40 @@ def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:
     assert _font(tmp_path).glyphs[0x11] == pack_rows(icons[8:16, 8:16])
 
 
+def test_a_blank_code_builds_empty(tmp_path: Path) -> None:
+    """ff4's `FD=°` is a 1-pixel spacer, not a degree sign."""
+    build(load(_builtin(tmp_path, "10=A\nFD=°\n", "blank = ['0xFD']\n")))
+    glyph = _font(tmp_path).glyphs[0xFD]
+    assert glyph == bytes(len(glyph))
+
+
+def test_a_blank_code_stays_empty_where_the_builtin_draws(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n11=B\n", "blank = [0x11]\n")))
+    glyph = _font(tmp_path).glyphs[0x11]
+    assert glyph == bytes(len(glyph))
+
+
+def test_a_blank_code_does_not_free_a_shared_run(tmp_path: Path) -> None:
+    """`5051` and `5152` share 51, so neither is one glyph cut across codes, with or without 50 blank."""
+    path = _builtin(tmp_path, "41=A\n50=x\n5051=œ\n5152=Œ\n", "blank = ['0x50']\n")
+    build(load(path))
+    glyphs = _font(tmp_path).glyphs
+    assert glyphs[0x51] == glyphs[0x52] == bytes(len(glyphs[0x51]))
+
+
+def test_a_run_touching_a_blank_code_is_never_cut(tmp_path: Path) -> None:
+    """Three codes are too many for `.`: blank, the run builds instead of failing."""
+    build(load(_builtin(tmp_path, "10=A\nA0A1A2=.\n", "blank = ['0xA0']\n")))
+    glyph = _font(tmp_path).glyphs[0xA1]
+    assert glyph == bytes(len(glyph))
+
+
+def test_a_run_touching_a_blank_code_is_left_out_whole(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\nA0A1=œ\n", "blank = ['0xA0']\n")))
+    font = _font(tmp_path)
+    assert font.glyphs[0xA1] == bytes(len(font.glyphs[0xA1]))
+
+
 @pytest.mark.parametrize(
     ("text", "message"),
     [
@@ -170,6 +215,7 @@ def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:
         ("builtin = 'sumi/8'\n", "`builtin` needs the `table`"),
         ("builtin = 'sumi/8'\ntable = 't'\ncell = [8, 8]\n", "set their own cell"),
         ("png = 'f.png'\noverrides = 'o.png'\n", "`overrides` goes with `builtin`"),
+        ("png = 'f.png'\nblank = ['0xFD']\n", "`blank` goes with `builtin`"),
     ],
 )
 def test_builtin_config_errors(tmp_path: Path, text: str, message: str) -> None:
