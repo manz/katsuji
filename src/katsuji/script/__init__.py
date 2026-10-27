@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 # Past this many distinct first characters `to_bytes` walks an index (see `_refresh`).
 _SCANNER_MAX_FIRST_CHARS = 256
@@ -35,6 +36,15 @@ def _node_pattern(node: _Trie) -> str:
         # A key ends here: the longer keys below are optional, tried first.
         return f"(?:{body})?"
     return body
+
+
+def latin_base(char: str) -> str | None:
+    """The Latin letter `char` accents (É → E), or None: kana (が is か plus a mark) and Greek keep their marks."""
+    decomposed = unicodedata.normalize("NFD", char)
+    base, marks = decomposed[0], decomposed[1:]
+    if not (marks and base.isascii() and base.isalpha()):
+        return None
+    return base if all(unicodedata.category(mark) == "Mn" for mark in marks) else None
 
 
 class Table:
@@ -119,7 +129,7 @@ class Table:
 
     def to_bytes(self, text: str) -> bytes:
         """Encode `text`: a joker (`[0xNN]`) is that byte, else the longest table key at
-        that position, else the character is skipped.
+        that position, else the character's base letter (`fold`), else the character is skipped.
 
         Slicing the rest of the text at every step, and trying every length up
         to the longest key through a KeyError each, was 75% of BL's dialog
@@ -136,6 +146,8 @@ class Table:
                 binary_text += lookup[token.group("key")]
             elif token.lastgroup == "joker":
                 binary_text.append(int(token.group("byte"), 16))
+            else:
+                binary_text += self.fold(token.group())
         return bytes(binary_text)
 
     def _walk_to_bytes(self, text: str) -> bytes:
@@ -156,8 +168,15 @@ class Table:
                     position += length
                     break
             else:
+                binary_text += self.fold(text[position])
                 position += 1
         return bytes(binary_text)
+
+    def fold(self, char: str) -> bytes:
+        """The code of `char`'s base letter when the table has no `char`: an 8x8 font
+        leaves É out of its table and writes E. Empty when there is none."""
+        base = latin_base(char)
+        return self.lookup.get(base, b"") if base is not None else b""
 
     def to_text(self, binary: bytes) -> str:
         text = ""

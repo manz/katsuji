@@ -51,10 +51,15 @@ class VwfFont:
         atlas: Atlas,
         width_overrides: Mapping[int, int] | None = None,
         kerning: Mapping[tuple[int, int], int] | None = None,
+        joins: Mapping[int, int] | None = None,
     ) -> VwfFont:
-        """The first 256 cells of `atlas`, widths measured from the ink then overridden."""
+        """The first 256 cells of `atlas`, widths measured from the ink then overridden. `joins` sets the width
+        of each cell a wide glyph continues past (`Remapped.joins`), unless `width_overrides` names it."""
         glyphs = [pack_rows(atlas.glyph(index)) for index in range(GLYPHS)]
         widths = apply_overrides(measured_widths(atlas, GLYPHS), width_overrides or {})
+        for code, width in (joins or {}).items():
+            if code not in (width_overrides or {}):
+                widths[code] = width
         return cls(atlas.cell_height, glyphs, widths, dict(kerning or {}))
 
     def glyph(self, code: int) -> Pixels:

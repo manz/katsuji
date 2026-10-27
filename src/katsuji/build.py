@@ -8,8 +8,8 @@ from katsuji.atlas import Atlas
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
-from katsuji.remap import table_texts
-from katsuji.script import Table
+from katsuji.remap import Span, is_cjk, table_spans, wide_spans
+from katsuji.script import Table, latin_base
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
 
@@ -45,7 +45,7 @@ def _pair(table: Table, text: str, where: str) -> tuple[int, int]:
 
 def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     where = f"fonts.{config.name}"
-    atlas = _atlas(config, where)
+    atlas, joins = _atlas(config, where)
     kerning: dict[tuple[int, int], int] = {}
     if config.kerning_candidates or config.kerning:
         table = _table(config.table, where)
@@ -54,7 +54,10 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
         kerning = find_kerning(atlas, pairs, config.default_kerning)
         for text, pixels in config.kerning.items():
             kerning[_pair(table, text, where)] = pixels
-    font = VwfFont.from_atlas(atlas, config.widths, kerning)
+    font = VwfFont.from_atlas(atlas, config.widths, kerning, joins)
+    negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
+    if negative:
+        raise ConfigError(f"[{where}] `widths` trims {', '.join(negative)} by more than their measured width")
     _write(config.output, font.encode(), written)
     if config.constants:
         prefix = config.name.upper()
@@ -70,16 +73,18 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     return font
 
 
-def _atlas(config: FontConfig, where: str) -> Atlas:
+def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
+    """The font's cells, and the widths of the cells a wide glyph continues past."""
     if config.builtin is None:
         assert config.png is not None  # config.load requires one of them
-        return Atlas.open(config.png, config.cell_width, config.cell_height, config.grid)
+        return Atlas.open(config.png, config.cell_width, config.cell_height, config.grid), {}
     return _builtin_atlas(config, where)
 
 
-def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
+def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
     """The builtin font on `table`'s codes, the drawn cells of `overrides` on top.
-    A one-character text neither draws is an error; a blank or a control is not."""
+    A one-character text, on one code or cut across a run of them (kanji aside), that neither draws is an
+    error; a blank or a control is not."""
     from katsuji.fonts import bundled
 
     assert config.builtin is not None and config.table is not None  # config.load checks both
@@ -87,18 +92,32 @@ def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
         font = bundled(config.builtin)
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
-    target = table_texts(config.table)
-    laid = font.layout(target)
+    target = table_spans(config.table)
+    try:
+        laid = font.layout(target)
+    except ValueError as error:
+        raise ConfigError(f"[{where}] {error}") from error
     width, height = font.atlas.cell_width, font.atlas.cell_height
     atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
     if config.overrides is not None:
         atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
+    glyphs: list[tuple[Span, str]] = [(span, text) for span, text in target.items() if len(span) == 1]
+    glyphs += [(span, text) for span, text in wide_spans(target).items() if not is_cjk(text)]
     undrawn = sorted(
-        {text for code, text in target.items() if len(text) == 1 and not text.isspace() and not atlas.glyph(code).any()}
+        {
+            text
+            for span, text in glyphs
+            if len(text) == 1 and not text.isspace() and not any(atlas.glyph(code).any() for code in span)
+        }
     )
     if undrawn:
-        raise ConfigError(f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`")
-    return atlas
+        message = f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`"
+        texts = set(target.values())
+        foldable = "".join(text for text in undrawn if latin_base(text) in texts)
+        if foldable:
+            message += f", or drop {foldable!r} from the table to write their base letter"
+        raise ConfigError(message)
+    return atlas, laid.joins
 
 
 def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:
@@ -116,7 +135,7 @@ def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:
 
 
 def _build_tile_font(config: FontConfig, written: list[Path]) -> None:
-    atlas = _atlas(config, f"fonts.{config.name}")
+    atlas, _ = _atlas(config, f"fonts.{config.name}")  # tile fonts are not builtin
     if config.format == "tiles":
         data = encode_tile_font(atlas, config.bpp, config.first, config.count, config.size)
     else:

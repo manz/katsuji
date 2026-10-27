@@ -302,12 +302,13 @@ class TextLayout:
 
     def _words(self, text: str, keep_short: bool = False) -> list[str]:
         """Words, with a mark the line may not start with (French ? ! ; : ») kept on the word before it, and an
-        abbreviation (and, with `keep_short`, a short word) kept with the word after it."""
+        opening quote, an abbreviation (and, with `keep_short`, a short word) kept with the word after it."""
         words: list[str] = []
         short = {word.lower() for word in self.typography.short_words} if keep_short else set()
         for word in text.split(" "):
             glued = word[:1] != "" and word[0] in self.typography.glued
-            if words and (glued or words[-1].endswith(self.abbreviations) or words[-1].lower() in short):
+            opens = bool(words) and words[-1].rstrip() == self.typography.quotes[:1] != ""
+            if words and (glued or opens or words[-1].endswith(self.abbreviations) or words[-1].lower() in short):
                 words[-1] += f" {word}"
             else:
                 words.append(word)

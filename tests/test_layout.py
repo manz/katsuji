@@ -395,3 +395,13 @@ def test_french_keeps_its_breaks_without_short_words() -> None:
 
 def test_a_short_word_stays_when_carrying_it_would_overflow() -> None:
     assert short_words(FRENCH_ONE_LETTER_WORDS, 6).reflow("aaaa à bbbbb").split("\n") == ["aaaa à", "bbbbb"]
+
+
+def test_an_opening_quote_never_ends_a_line() -> None:
+    layout = TextLayout(monospace, 10, FRENCH)
+    assert layout.reflow("Il dit « oui ».") == "Il dit\n« oui »."
+
+
+def test_an_opening_quote_never_ends_a_column_line() -> None:
+    layout = TextLayout(monospace, 10, FRENCH, squeeze=False)
+    assert layout.reflow("Il dit «  oui ».") == "Il dit\n«  oui »."

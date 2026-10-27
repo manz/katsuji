@@ -2,18 +2,18 @@
 
 A font is `family/size/style`: `sumi/8/regular`, `sumi/16/bold`. The style
 defaults to `regular` (`sumi/16`). Each is a palettized PNG of 8-pixel-wide
-cells, 16 per row, and a `charmap.tbl` giving each cell's text; `layout`
+cells, 16 per row, and a `charmap.tbl` giving each cell's text (`5E5F=Œ` for a
+glyph drawn across two cells); `layout`
 moves the glyphs to the codes a game's own table gives the same texts.
 """
 
 import tomllib
-from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib.resources import as_file, files
 from importlib.resources.abc import Traversable
 
 from katsuji.atlas import Atlas
-from katsuji.remap import Remapped, remap, table_codes
+from katsuji.remap import Remapped, Span, Target, remap, table_codes, table_spans
 
 DEFAULT_STYLE = "regular"
 
@@ -24,10 +24,14 @@ class BundledFont:
     atlas: Atlas
     charmap: dict[str, int]
     """The cell of each text the font draws."""
+    wide: dict[str, Span] = field(default_factory=dict)
+    """The cells side by side of a text also drawn wider than a cell, for a table that gives it several codes
+    (ff4's `A0A1=œ`)."""
 
-    def layout(self, target: Mapping[int, str]) -> Remapped:
-        """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph."""
-        return remap(self.atlas, self.charmap, target)
+    def layout(self, target: Target) -> Remapped:
+        """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph, a span of codes
+        the glyph cut across them."""
+        return remap(self.atlas, self.charmap, target, self.wide)
 
 
 def names() -> list[str]:
@@ -48,7 +52,8 @@ def bundled(name: str) -> BundledFont:
     with as_file(folder.joinpath("glyphs.png")) as png:
         atlas = Atlas.open(png, width, height)
     with as_file(folder.joinpath("charmap.tbl")) as charmap:
-        return BundledFont(name, atlas, table_codes(charmap))
+        wide = {text: span for span, text in table_spans(charmap).items() if len(span) > 1}
+        return BundledFont(name, atlas, table_codes(charmap), wide)
 
 
 def _folder(name: str) -> Traversable:
