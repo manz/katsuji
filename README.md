@@ -88,7 +88,9 @@ A run is only cut when none of its codes is used alone or by another run: ff6's 
 `C0=°` writes two glyphs side by side and is left alone. A game's own `widths` entry for a joined
 code wins over the join. A run whose character the font lacks is an error like a one-code text,
 unless it is a kanji or kana (a game's two-byte codes for its own glyph set). `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
-Python.
+Python. A tool that measures or bakes text with a section's font takes it from `katsuji.build`:
+`font_atlas(config)` is the section's cells as built (builtin, overrides, blanks), `vwf_font(config)`
+the font with its widths and kerning, from `katsuji.config.load(path).fonts[name]`.
 
 `sumi/8` draws no accented capitals: an 8x8 cell has no room for them. A table that gives them codes
 (one shared by the menu and the dialog font) gets the base letter's glyph there, É drawn as E; a

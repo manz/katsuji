@@ -44,7 +44,14 @@ def _pair(table: Table, text: str, where: str) -> tuple[int, int]:
     return codes[0], codes[1]
 
 
-def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
+def font_atlas(config: FontConfig) -> Atlas:
+    """The cells of a `[fonts.NAME]` section as `build` draws them: its `png`, or its `builtin` laid onto its
+    table with `overrides` and `blank`."""
+    return _atlas(config, f"fonts.{config.name}")[0]
+
+
+def vwf_font(config: FontConfig) -> VwfFont:
+    """The font a `'vwf'` `[fonts.NAME]` section builds, widths and kerning included, without writing it."""
     where = f"fonts.{config.name}"
     atlas, joins = _atlas(config, where)
     kerning: dict[tuple[int, int], int] = {}
@@ -59,6 +66,11 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
     if negative:
         raise ConfigError(f"[{where}] `widths` trims {', '.join(negative)} by more than their measured width")
+    return font
+
+
+def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
+    font = vwf_font(config)
     _write(config.output, font.encode(), written)
     if config.constants:
         prefix = config.name.upper()
