@@ -61,7 +61,7 @@ CJK_BLOCKS = ((0x3000, 0x30FF), (0x3400, 0x9FFF), (0xAC00, 0xD7AF), (0xF900, 0xF
 
 def is_cjk(text: str) -> bool:
     """A kanji, kana or CJK form: a game's two-byte codes for these index its own glyph set, not cells."""
-    return any(low <= ord(text) <= high for low, high in CJK_BLOCKS)
+    return len(text) == 1 and any(low <= ord(text) <= high for low, high in CJK_BLOCKS)
 
 
 def _entries(path: Path) -> Iterator[tuple[Span, str]]:

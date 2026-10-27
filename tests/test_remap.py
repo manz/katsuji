@@ -109,6 +109,6 @@ def test_cjk_forms_are_not_cells(text: str) -> None:
     assert is_cjk(text)
 
 
-@pytest.mark.parametrize("text", ["œ", "«", "♥", "⏱"])
+@pytest.mark.parametrize("text", ["œ", "«", "♥", "⏱", "ab"])
 def test_latin_and_symbols_are_cells(text: str) -> None:
     assert not is_cjk(text)
