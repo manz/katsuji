@@ -77,6 +77,12 @@ def test_an_accented_capital_sumi_8_lacks_points_at_the_fold(tmp_path: Path) -> 
         build(load(_builtin(tmp_path, "10=E\n11=É\n")))
 
 
+def test_the_fold_hint_needs_the_base_letter_in_the_table(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError) as error:
+        build(load(_builtin(tmp_path, "10=A\n11=É\n")))
+    assert "base letter" not in str(error.value)
+
+
 def test_sumi_8_draws_no_accented_capitals() -> None:
     """An 8x8 cell has no room for them: the table leaves them out and encoding writes the base letter."""
     assert not {

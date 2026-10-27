@@ -111,3 +111,10 @@ def test_a_tabled_accented_letter_keeps_its_own_code(tmp_path: Path) -> None:
     (tmp_path / "t.tbl").write_text("01=E\n02=É\n", encoding="utf-8")
 
     assert Table(str(tmp_path / "t.tbl")).to_bytes("ÉE") == b"\x02\x01"
+
+
+def test_kana_keeps_its_mark(tmp_path: Path) -> None:
+    """が is か plus a dakuten: writing か would change the word."""
+    (tmp_path / "t.tbl").write_text("01=か\n02=\u03b1\n", encoding="utf-8")
+
+    assert Table(str(tmp_path / "t.tbl")).to_bytes("が\u03ac") == b""

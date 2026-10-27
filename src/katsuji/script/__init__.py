@@ -166,8 +166,16 @@ class Table:
     def fold(self, char: str) -> bytes:
         """The code of `char`'s base letter when the table has no `char`: an 8x8 font
         leaves É out of its table and writes E. Empty when there is none."""
-        base = unicodedata.normalize("NFD", char)[0]
-        return self.lookup.get(base, b"") if base != char else b""
+        base = latin_base(char)
+        return self.lookup.get(base, b"") if base is not None else b""
+
+
+def latin_base(char: str) -> str | None:
+    """The Latin letter `char` accents (É → E), or None: kana (が is か plus a mark) and Greek keep their marks."""
+    base, *marks = unicodedata.normalize("NFD", char)
+    if not (marks and base.isascii() and base.isalpha()):
+        return None
+    return base if all(unicodedata.category(mark) == "Mn" for mark in marks) else None
 
     def to_text(self, binary: bytes) -> str:
         text = ""

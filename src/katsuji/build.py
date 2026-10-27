@@ -1,6 +1,5 @@
 """Build everything a `katsuji.toml` describes: font files, string blobs, constants."""
 
-import unicodedata
 from pathlib import Path
 
 import numpy as np
@@ -10,7 +9,7 @@ from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
 from katsuji.formats import VwfFont
 from katsuji.kerning import find_kerning
 from katsuji.remap import table_texts
-from katsuji.script import Table
+from katsuji.script import Table, latin_base
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
 
@@ -99,7 +98,8 @@ def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
     )
     if undrawn:
         message = f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`"
-        foldable = "".join(text for text in undrawn if unicodedata.normalize("NFD", text)[0] in font.charmap)
+        texts = set(target.values())
+        foldable = "".join(text for text in undrawn if latin_base(text) in texts)
         if foldable:
             message += f", or drop {foldable!r} from the table to write their base letter"
         raise ConfigError(message)
