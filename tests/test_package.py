@@ -2,6 +2,7 @@ import subprocess
 import sys
 from importlib.resources import files
 
+import hatch_version
 import pytest
 
 import katsuji
@@ -39,3 +40,9 @@ def test_render_stays_the_function_after_its_module_loads() -> None:
     probe = "import katsuji.render, katsuji; from katsuji import render; print(callable(render) and render.__module__)"
     result = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, check=True)
     assert result.stdout.strip() == "katsuji.render"
+
+
+@pytest.mark.parametrize(("tag", "version"), [("v0.5.0a2", "0.5.0a2"), ("0.5.0", "0.5.0"), ("", "0.0.0.dev0")])
+def test_the_version_is_the_tag_without_its_v(monkeypatch: pytest.MonkeyPatch, tag: str, version: str) -> None:
+    monkeypatch.setenv("VERSION", tag)
+    assert hatch_version.get_version() == version
