@@ -107,12 +107,13 @@ def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
     target = table_spans(config.table)
-    try:
-        laid = font.layout(_folded(target, font.charmap))
-    except ValueError as error:
-        raise ConfigError(f"[{where}] {error}") from error
     runs = wide_spans(target)
     blank = config.blank.union(*(span for span in runs if config.blank.intersection(span)))
+    laid_out = {span: text for span, text in target.items() if span not in runs or not blank.intersection(span)}
+    try:
+        laid = font.layout(_folded(laid_out, font.charmap))
+    except ValueError as error:
+        raise ConfigError(f"[{where}] {error}") from error
     width, height = font.atlas.cell_width, font.atlas.cell_height
     pixels = _blanked(laid.pixels, blank, width, height)
     atlas = Atlas((pixels != 0).astype(np.uint8), width, height, colours=pixels, palette=laid.palette)

@@ -195,6 +195,13 @@ def test_a_blank_code_does_not_free_a_shared_run(tmp_path: Path) -> None:
     assert glyphs[0x51] == glyphs[0x52] == bytes(len(glyphs[0x51]))
 
 
+def test_a_run_touching_a_blank_code_is_never_cut(tmp_path: Path) -> None:
+    """Three codes are too many for `.`: blank, the run builds instead of failing."""
+    build(load(_builtin(tmp_path, "10=A\nA0A1A2=.\n", "blank = ['0xA0']\n")))
+    glyph = _font(tmp_path).glyphs[0xA1]
+    assert glyph == bytes(len(glyph))
+
+
 def test_a_run_touching_a_blank_code_is_left_out_whole(tmp_path: Path) -> None:
     build(load(_builtin(tmp_path, "10=A\nA0A1=œ\n", "blank = ['0xA0']\n")))
     font = _font(tmp_path)
