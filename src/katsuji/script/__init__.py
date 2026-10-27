@@ -38,6 +38,15 @@ def _node_pattern(node: _Trie) -> str:
     return body
 
 
+def latin_base(char: str) -> str | None:
+    """The Latin letter `char` accents (É → E), or None: kana (が is か plus a mark) and Greek keep their marks."""
+    decomposed = unicodedata.normalize("NFD", char)
+    base, marks = decomposed[0], decomposed[1:]
+    if not (marks and base.isascii() and base.isalpha()):
+        return None
+    return base if all(unicodedata.category(mark) == "Mn" for mark in marks) else None
+
+
 class Table:
     table_line_regex = re.compile(r"(?P<byte>[0-9a-fA-F]+)(?::(?P<ignore>[0-9a-fA-F]+))?\s*=(?P<text>[^\n]+)")
     joker_regex = re.compile(r"^\[0x(?P<byte>[0-9a-fA-F]+)]")
@@ -168,14 +177,6 @@ class Table:
         leaves É out of its table and writes E. Empty when there is none."""
         base = latin_base(char)
         return self.lookup.get(base, b"") if base is not None else b""
-
-
-def latin_base(char: str) -> str | None:
-    """The Latin letter `char` accents (É → E), or None: kana (が is か plus a mark) and Greek keep their marks."""
-    base, *marks = unicodedata.normalize("NFD", char)
-    if not (marks and base.isascii() and base.isalpha()):
-        return None
-    return base if all(unicodedata.category(mark) == "Mn" for mark in marks) else None
 
     def to_text(self, binary: bytes) -> str:
         text = ""
