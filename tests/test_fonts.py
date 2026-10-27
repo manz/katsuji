@@ -40,7 +40,7 @@ def test_curly_quotes_draw_the_quote_in_regular() -> None:
 def test_layout_puts_a_glyph_at_the_game_code() -> None:
     font = bundled("sumi/16")
     laid = font.layout({0x41: "é"})
-    assert np.array_equal(laid.pixels[64:80, 8:16], font.atlas.glyph_colours(font.charmap["é"]))
+    assert np.array_equal(laid.pixels[64:80, 8:16], font.atlas.glyph_colours(font.charmap["é"][0]))
 
 
 def test_layout_reports_texts_the_font_lacks() -> None:
@@ -64,7 +64,7 @@ def _font(tmp_path: Path) -> VwfFont:
 def test_a_builtin_font_lands_on_the_table_codes(tmp_path: Path) -> None:
     build(load(_builtin(tmp_path, "00= \n10=A\n11=é\nFF=<END>\n")))
     sumi = bundled("sumi/8")
-    assert _font(tmp_path).glyphs[0x11] == VwfFont.from_atlas(sumi.atlas).glyphs[sumi.charmap["é"]]
+    assert _font(tmp_path).glyphs[0x11] == VwfFont.from_atlas(sumi.atlas).glyphs[sumi.charmap["é"][0]]
 
 
 def test_a_text_the_builtin_lacks_must_be_drawn(tmp_path: Path) -> None:
@@ -88,6 +88,34 @@ def test_sumi_8_draws_no_accented_capitals() -> None:
     assert not {
         text for text in bundled("sumi/8").charmap if text.isupper() and unicodedata.normalize("NFD", text) != text
     }
+
+
+def test_a_glyph_on_two_codes_advances_as_one(tmp_path: Path) -> None:
+    """ff4's `A0A1=œ`: sumi's œ is laid across both codes, the first narrowed to join."""
+    build(load(_builtin(tmp_path, "10=A\nA0A1=œ\n")))
+    widths = _font(tmp_path).widths
+    sumi = bundled("sumi/8")
+    assert widths[0xA0] + 1 + widths[0xA1] + 1 == sumi.atlas.ink_width(sumi.charmap["œ"][0]) + 1
+
+
+def test_two_byte_codes_the_font_lacks_build(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n2001=あ\n")))
+    assert _font(tmp_path).widths[0x20] == 0
+
+
+def test_a_width_below_zero_is_a_config_error(tmp_path: Path) -> None:
+    (tmp_path / "game.tbl").write_text("10=A\n", encoding="utf-8")
+    (tmp_path / "katsuji.toml").write_text(
+        "[fonts.f]\nbuiltin = 'sumi/8'\ntable = 'game.tbl'\noutput = 'f.dat'\nwidths = { '0x11' = -1 }\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ConfigError, match=r"takes 0x11 below 0"):
+        build(load(tmp_path / "katsuji.toml"))
+
+
+def test_a_glyph_too_wide_for_its_code_is_a_config_error(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError, match="cannot be cut across"):
+        build(load(_builtin(tmp_path, "10=A\nA0A1A2A3A4=œ\n")))
 
 
 def test_overrides_draw_the_cells_the_builtin_lacks(tmp_path: Path) -> None:

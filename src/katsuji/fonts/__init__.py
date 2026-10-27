@@ -2,18 +2,18 @@
 
 A font is `family/size/style`: `sumi/8/regular`, `sumi/16/bold`. The style
 defaults to `regular` (`sumi/16`). Each is a palettized PNG of 8-pixel-wide
-cells, 16 per row, and a `charmap.tbl` giving each cell's text; `layout`
+cells, 16 per row, and a `charmap.tbl` giving each cell's text (`5E5F=Œ` for a
+glyph drawn across two cells); `layout`
 moves the glyphs to the codes a game's own table gives the same texts.
 """
 
 import tomllib
-from collections.abc import Mapping
 from dataclasses import dataclass
 from importlib.resources import as_file, files
 from importlib.resources.abc import Traversable
 
 from katsuji.atlas import Atlas
-from katsuji.remap import Remapped, remap, table_codes
+from katsuji.remap import Remapped, Span, Target, remap, table_codes
 
 DEFAULT_STYLE = "regular"
 
@@ -22,11 +22,12 @@ DEFAULT_STYLE = "regular"
 class BundledFont:
     name: str
     atlas: Atlas
-    charmap: dict[str, int]
-    """The cell of each text the font draws."""
+    charmap: dict[str, Span]
+    """The cells of each text the font draws: one, or several side by side for a glyph wider than a cell."""
 
-    def layout(self, target: Mapping[int, str]) -> Remapped:
-        """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph."""
+    def layout(self, target: Target) -> Remapped:
+        """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph, a span of codes
+        the glyph cut across them."""
         return remap(self.atlas, self.charmap, target)
 
 

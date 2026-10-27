@@ -45,7 +45,7 @@ def _pair(table: Table, text: str, where: str) -> tuple[int, int]:
 
 def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     where = f"fonts.{config.name}"
-    atlas = _atlas(config, where)
+    atlas, joins = _atlas(config, where)
     kerning: dict[tuple[int, int], int] = {}
     if config.kerning_candidates or config.kerning:
         table = _table(config.table, where)
@@ -54,7 +54,11 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
         kerning = find_kerning(atlas, pairs, config.default_kerning)
         for text, pixels in config.kerning.items():
             kerning[_pair(table, text, where)] = pixels
-    font = VwfFont.from_atlas(atlas, config.widths, kerning)
+    widths = {**joins, **config.widths}
+    font = VwfFont.from_atlas(atlas, widths, kerning)
+    negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
+    if negative:
+        raise ConfigError(f"[{where}] `widths` takes {', '.join(negative)} below 0: their cells are narrower")
     _write(config.output, font.encode(), written)
     if config.constants:
         prefix = config.name.upper()
@@ -70,16 +74,17 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
     return font
 
 
-def _atlas(config: FontConfig, where: str) -> Atlas:
+def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
+    """The font's cells, and the widths of the cells a wide glyph continues past."""
     if config.builtin is None:
         assert config.png is not None  # config.load requires one of them
-        return Atlas.open(config.png, config.cell_width, config.cell_height, config.grid)
+        return Atlas.open(config.png, config.cell_width, config.cell_height, config.grid), {}
     return _builtin_atlas(config, where)
 
 
-def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
+def _builtin_atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
     """The builtin font on `table`'s codes, the drawn cells of `overrides` on top.
-    A one-character text neither draws is an error; a blank or a control is not."""
+    A one-character text on one code neither draws is an error; a blank or a control is not."""
     from katsuji.fonts import bundled
 
     assert config.builtin is not None and config.table is not None  # config.load checks both
@@ -88,13 +93,20 @@ def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
     except KeyError as error:
         raise ConfigError(f"[{where}] {error.args[0]}") from error
     target = table_texts(config.table)
-    laid = font.layout(target)
+    try:
+        laid = font.layout(target)
+    except ValueError as error:
+        raise ConfigError(f"[{where}] {error}") from error
     width, height = font.atlas.cell_width, font.atlas.cell_height
     atlas = Atlas((laid.pixels != 0).astype(np.uint8), width, height, colours=laid.pixels, palette=laid.palette)
     if config.overrides is not None:
         atlas = _overlay(atlas, Atlas.open(config.overrides, width, height))
     undrawn = sorted(
-        {text for code, text in target.items() if len(text) == 1 and not text.isspace() and not atlas.glyph(code).any()}
+        {
+            text
+            for span, text in target.items()
+            if len(span) == 1 and len(text) == 1 and not text.isspace() and not atlas.glyph(span[0]).any()
+        }
     )
     if undrawn:
         message = f"[{where}] {config.builtin} draws no {''.join(undrawn)!r}: draw them in `overrides`"
@@ -103,7 +115,7 @@ def _builtin_atlas(config: FontConfig, where: str) -> Atlas:
         if foldable:
             message += f", or drop {foldable!r} from the table to write their base letter"
         raise ConfigError(message)
-    return atlas
+    return atlas, laid.joins
 
 
 def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:
@@ -121,7 +133,7 @@ def _overlay(atlas: Atlas, overrides: Atlas) -> Atlas:
 
 
 def _build_tile_font(config: FontConfig, written: list[Path]) -> None:
-    atlas = _atlas(config, f"fonts.{config.name}")
+    atlas, _ = _atlas(config, f"fonts.{config.name}")  # tile fonts are not builtin
     if config.format == "tiles":
         data = encode_tile_font(atlas, config.bpp, config.first, config.count, config.size)
     else:

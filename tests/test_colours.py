@@ -38,7 +38,7 @@ def test_without_a_palette_colours_are_the_ink() -> None:
 
 
 def test_remap_keeps_colours_and_palette() -> None:
-    remapped = remap(colour_atlas(), {"a": 1}, {0x20: "a"})
+    remapped = remap(colour_atlas(), {"a": (1,)}, {0x20: "a"})
     assert (remapped.pixels[2 * 8, 0], remapped.palette) == (3, PALETTE)
 
 

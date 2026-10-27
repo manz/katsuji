@@ -74,7 +74,13 @@ widths = { "0x00" = 3 }
 
 A one-character text of the table that neither sumi nor `overrides` draws is an error; blanks and
 control codes (`<END>`) are not. Multi-character texts are never checked: a DTE pair, `...` or `Lv`
-drawn as one glyph must come from `overrides`. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
+drawn as one glyph must come from `overrides`.
+
+A glyph wider than a cell takes several codes, as ff4 and Bahamut Lagoon draw theirs: `A0A1=œ` in
+the table cuts sumi's œ across `A0` and `A1`, and every code but the last gets the width that makes
+the next one follow on (the cut less the engine's 1-pixel gap), so no `widths` entry is needed. A
+font's own wide glyphs sit in adjacent cells of its PNG, named the same way in its `charmap.tbl`.
+A run of codes whose character the font lacks (a game's two-byte kanji codes) is left alone. `katsuji.fonts.bundled("sumi/8").layout(codes)` does the same from
 Python.
 
 `sumi/8` draws no accented capitals: an 8x8 cell has no room for them. Leave them out of the menu
