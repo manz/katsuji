@@ -1,5 +1,6 @@
 """A font moved from one game's text table to another's: the same glyphs, at the codes the other table gives them."""
 
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,19 +12,31 @@ COLUMNS = 16
 GLYPHS = 256
 
 
+def table_texts(path: Path) -> dict[int, str]:
+    """The text of every one-byte code of a `.tbl` (`XX=text`); a text may have several codes."""
+    texts: dict[int, str] = {}
+    for code, text in _entries(path):
+        texts.setdefault(code, text)
+    return texts
+
+
 def table_codes(path: Path) -> dict[str, int]:
     """The one-byte codes of a `.tbl` (`XX=text`), by text; the first code a text has wins."""
     codes: dict[str, int] = {}
+    for code, text in _entries(path):
+        codes.setdefault(text, code)
+    return codes
+
+
+def _entries(path: Path) -> Iterator[tuple[int, str]]:
     for line in path.read_text(encoding="utf-8").splitlines():
         key, sep, text = line.partition("=")
         if not sep or len(key) != 2 or not text:
             continue
         try:
-            code = int(key, 16)
+            yield int(key, 16), text
         except ValueError:
             continue
-        codes.setdefault(text, code)
-    return codes
 
 
 @dataclass(frozen=True)
@@ -37,14 +50,16 @@ class Remapped:
     """The source PNG's palette, to write the new one with."""
 
 
-def remap(atlas: Atlas, source: dict[str, int], target: dict[str, int]) -> Remapped:
-    """Each text of `target` gets the source glyph that `source` gives the same text; the other cells stay blank."""
+def remap(atlas: Atlas, source: Mapping[str, int], target: Mapping[int, str]) -> Remapped:
+    """Each code of `target` gets the source glyph that `source` gives its text, every code a text has; the
+    other cells stay blank."""
     width, height = atlas.cell_width, atlas.cell_height
     pixels = np.zeros((GLYPHS // COLUMNS * height, COLUMNS * width), dtype=np.uint8)
-    missing = []
-    for text, code in sorted(target.items(), key=lambda item: item[1]):
+    missing: list[str] = []
+    for code, text in sorted(target.items()):
         if text not in source:
-            missing.append(text)
+            if text not in missing:
+                missing.append(text)
             continue
         row, column = divmod(code, COLUMNS)
         cell = atlas.glyph_colours(source[text])

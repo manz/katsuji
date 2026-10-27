@@ -113,7 +113,8 @@ _PNG = f'png = "{FF4 / "vwf.png"}"\noutput = "f.dat"\n'
     [
         ("[colors]\n", "unknown table"),
         (f"[fonts.f]\n{_PNG}size = 3\n", r"\[fonts.f\] unknown key\(s\) \['size'\]"),
-        ("[fonts.f]\noutput = 'f.dat'\n", r"missing key\(s\) \['png'\]"),
+        ("[fonts.f]\noutput = 'f.dat'\n", "needs one of `png` or `builtin`"),
+        ("[fonts.f]\nbuiltin = 'sumi/16'\n", r"missing key\(s\) \['output'\]"),
         (f"[fonts.f]\n{_PNG}widths = {{ 'space' = 3 }}\n", "is not a code"),
         ("[strings.s]\nfont = 'f'\nblob = 'b'\nindex = 'i'\ntexts = ['a']\n", "is not a \\[fonts.NAME\\]"),
         ("[strings.s]\nfont = 'f'\nblob = 'b'\nindex = 'i'\n", "exactly one of `texts` and `file`"),

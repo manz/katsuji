@@ -6,7 +6,7 @@ import numpy as np
 
 from katsuji.atlas import Atlas, save_png
 from katsuji.cli import main
-from katsuji.remap import remap, table_codes
+from katsuji.remap import remap, table_codes, table_texts
 
 
 def _atlas() -> Atlas:
@@ -23,7 +23,7 @@ def test_table_codes_keep_one_byte_entries(tmp_path: Path) -> None:
 
 
 def test_a_glyph_moves_to_its_new_code() -> None:
-    remapped = remap(_atlas(), {"a": 1, "b": 2}, {"a": 0x21, "c": 0x22})
+    remapped = remap(_atlas(), {"a": 1, "b": 2}, {0x21: "a", 0x22: "c"})
     assert (remapped.pixels[2 * 16, 1 * 8], remapped.missing) == (1, ["c"])
 
 
@@ -35,3 +35,9 @@ def test_the_command_writes_the_png(tmp_path: Path) -> None:
     args = ["remap", str(tmp_path / "font.png"), "--table", str(tmp_path / "from.tbl")]
     assert main([*args, "--to", str(tmp_path / "to.tbl"), "-o", str(out)]) == 0
     assert Atlas.open(out).glyph(0x10)[0, 0] == 1
+
+
+def test_table_texts_keeps_every_code(tmp_path: Path) -> None:
+    path = tmp_path / "t.tbl"
+    path.write_text("01=a\n02=a\nzz=b\n", encoding="utf-8")
+    assert table_texts(path) == {1: "a", 2: "a"}

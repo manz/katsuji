@@ -1,0 +1,4 @@
+# sumi: the variable-width faces of manz's SNES translations, first drawn for
+# the French Final Fantasy IV. MIT, as katsuji.
+name = "sumi"
+author = "Emmanuel Peralta"
