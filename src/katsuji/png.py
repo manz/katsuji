@@ -2,8 +2,9 @@
 
 Reads 1-, 2-, 4- and 8-bit greyscale, RGB, RGBA and palettized PNGs, with every scanline filter (None, Sub, Up,
 Average, Paeth) and CRC-checked chunks. Writes 8-bit greyscale, RGB and RGBA, and palettized PNGs at the smallest
-depth (1, 2, 4 or 8) that holds the pixel values. Interlaced and 16-bit PNGs are refused with a clear error; so is
-any ancillary chunk other than `PLTE` and `tRNS`, which both decode (ignored on write)."""
+depth (1, 2, 4 or 8) that holds the pixel values. Interlaced and 16-bit PNGs are refused with a clear error.
+`PLTE` and `tRNS` decode; other ancillary chunks are skipped. `read_rgba` applies `tRNS` as `convert("RGBA")` did
+in Pillow, and a palettized write carries per-entry alpha as `tRNS`."""
 
 import struct
 import zlib
@@ -27,10 +28,62 @@ def read(path: str | Path) -> tuple[Pixels, tuple[int, ...] | None]:
 
 def decode(data: bytes) -> tuple[Pixels, tuple[int, ...] | None]:
     """`read` for a PNG held in memory: same return shape, same constraints."""
+    pixels, palette, _, color_type, _ = _decode(data)
+    return pixels, palette if color_type == 3 else None
+
+
+def read_rgba(path: str | Path) -> Pixels:
+    """The PNG as `(height, width, 4)` RGBA whatever its colour type: palette entries and greys expand to RGB (1-,
+    2- and 4-bit greys scale to 0-255, where `read` keeps the samples), and
+    `tRNS` gives the alpha (per palette entry, or the one transparent grey or RGB colour); otherwise opaque."""
+    return decode_rgba(Path(path).read_bytes())
+
+
+def decode_rgba(data: bytes) -> Pixels:
+    """`read_rgba` for a PNG held in memory."""
+    pixels, palette, trns, color_type, depth = _decode(data)
+    if color_type == 3:
+        return _expand_palette(pixels, palette or (), trns)
+    if color_type == 4:
+        return pixels[..., [0, 0, 0, 1]].copy()
+    if color_type == 6:
+        return pixels
+    if color_type == 0:
+        rgb = np.repeat((pixels * (255 // ((1 << depth) - 1)))[..., None], 3, axis=2).astype(np.uint8)
+    else:
+        rgb = pixels
+    alpha = np.full(pixels.shape[:2], 255, np.uint8)
+    if trns is not None:
+        alpha[_color_key_mask(pixels, trns, color_type)] = 0
+    return np.dstack([rgb, alpha])
+
+
+def _expand_palette(indices: Pixels, palette: tuple[int, ...], trns: bytes | None) -> Pixels:
+    entries = len(palette) // 3
+    alpha = np.full(entries, 255, np.uint8)
+    if trns is not None:
+        alpha[: len(trns)] = np.frombuffer(trns[:entries], dtype=np.uint8)
+    table = np.column_stack([np.asarray(palette, dtype=np.uint8).reshape(-1, 3), alpha])
+    if indices.size and int(indices.max()) >= entries:
+        raise ValueError(f"pixel index {int(indices.max())} past the {entries}-entry palette")
+    return table[indices]
+
+
+def _color_key_mask(pixels: Pixels, trns: bytes, color_type: int) -> NDArray[np.bool_]:
+    """Where the pixels are the one colour `tRNS` makes transparent (16-bit samples; 8-bit PNGs use the low byte)."""
+    key = [value & 0xFF for value in struct.unpack(f">{len(trns) // 2}H", trns)]
+    if color_type == 0:
+        return np.asarray(pixels == key[0])
+    return np.asarray(np.all(pixels == np.asarray(key[:3], dtype=np.uint8), axis=2))
+
+
+def _decode(data: bytes) -> tuple[Pixels, tuple[int, ...] | None, bytes | None, int, int]:
+    """Pixels, `PLTE` palette, raw `tRNS` payload, colour type and bit depth."""
     if data[:8] != _SIG:
         raise ValueError("not a PNG")
     width = height = depth = color_type = 0
     palette: tuple[int, ...] | None = None
+    trns: bytes | None = None
     idat = bytearray()
     pos = 8
     while pos < len(data):
@@ -49,6 +102,8 @@ def decode(data: bytes) -> tuple[Pixels, tuple[int, ...] | None]:
                 raise ValueError("16-bit PNGs are not supported")
         elif ctype == b"PLTE":
             palette = tuple(payload)
+        elif ctype == b"tRNS":
+            trns = bytes(payload)
         elif ctype == b"IDAT":
             idat += payload
         elif ctype == b"IEND":
@@ -60,18 +115,28 @@ def decode(data: bytes) -> tuple[Pixels, tuple[int, ...] | None]:
     array = samples.reshape(height, width, channels)
     if channels == 1:
         array = array[..., 0]
-    return array.copy(), palette if color_type == 3 else None
+    return array.copy(), palette, trns, color_type, depth
 
 
-def write(path: str | Path, pixels: Pixels, palette: tuple[int, ...] | None = None) -> None:
+def write(
+    path: str | Path,
+    pixels: Pixels,
+    palette: tuple[int, ...] | None = None,
+    alpha: tuple[int, ...] | None = None,
+) -> None:
     """Write `pixels` as a PNG. A 2D array with `palette` writes a palettized PNG at the smallest depth that holds
-    the palette entries; without one, 8-bit greyscale. A 3D `(h, w, 3 or 4)` array writes 8-bit RGB or RGBA."""
-    Path(path).write_bytes(encode(pixels, palette))
+    the palette entries, with `alpha` (one value per entry) as its `tRNS`; without a palette, 8-bit greyscale. A 3D
+    `(h, w, 3 or 4)` array writes 8-bit RGB or RGBA."""
+    Path(path).write_bytes(encode(pixels, palette, alpha))
 
 
-def encode(pixels: Pixels, palette: tuple[int, ...] | None = None) -> bytes:
+def encode(pixels: Pixels, palette: tuple[int, ...] | None = None, alpha: tuple[int, ...] | None = None) -> bytes:
     """`write` to memory: the PNG's raw bytes, for streaming or writing into a buffer."""
     pixels = np.ascontiguousarray(pixels, dtype=np.uint8)
+    if alpha is not None and palette is None:
+        raise ValueError("alpha is per palette entry: it needs a palette")
+    if alpha is not None and palette is not None and len(alpha) > len(palette) // 3:
+        raise ValueError(f"{len(alpha)} alpha values for a {len(palette) // 3}-entry palette")
     if pixels.ndim == 3:
         if palette is not None:
             raise ValueError("palette is not for 3D pixels")
@@ -96,9 +161,19 @@ def encode(pixels: Pixels, palette: tuple[int, ...] | None = None) -> bytes:
     chunks = [_chunk(b"IHDR", ihdr)]
     if palette is not None:
         chunks.append(_chunk(b"PLTE", bytes(palette)))
+    if alpha is not None:
+        chunks.append(_chunk(b"tRNS", bytes(_trimmed(alpha))))
     chunks.append(_chunk(b"IDAT", zlib.compress(body)))
     chunks.append(_chunk(b"IEND", b""))
     return _SIG + b"".join(chunks)
+
+
+def _trimmed(alpha: tuple[int, ...]) -> tuple[int, ...]:
+    """`alpha` without its trailing opaque entries, which `tRNS` leaves implied."""
+    end = len(alpha)
+    while end and alpha[end - 1] == 255:
+        end -= 1
+    return alpha[:end]
 
 
 def _chunk(ctype: bytes, data: bytes) -> bytes:
