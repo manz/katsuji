@@ -11,7 +11,6 @@ dependencies = []
 # Fonts, tiles, kerning, banners and the command line. Without it: script tables, typesetting, layout, codecs.
 render = [
     "numpy>=1.26",
-    "pillow>=10",
 ]
 
 [project.scripts]
@@ -25,6 +24,7 @@ dev = [
     "ruff>=0.16",
     "mypy>=1.13",
     "a816>=1.1.0a44",  # tests check generated constants parse as a816
+    "pillow>=10",  # test-only: oracle for png / atlas / autohint / banner round-trips
 ]
 
 [build-system]
