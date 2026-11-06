@@ -129,12 +129,16 @@ class TextLayout:
             blocks = self.paginate(blocks, page_lines)
         return "\n".join(line for block in blocks for line in block)
 
-    def blocks(self, text: str) -> list[Block]:
-        """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
+    def blocks(self, text: str, before: str = "") -> list[Block]:
+        """`text` typeset and laid out, as the blocks `paginate` keeps within a window; `before` is the text laid
+        out ahead of it (see `measure_after`)."""
         if self.newlines:
             between = replace(self, newlines=None, squeeze=False, placed=False)
             segments = re.split(rf" *(?:{self.newlines})\n?", text, flags=re.IGNORECASE)
-            return [block for segment in segments for block in (between.blocks(segment) if segment else [[""]])]
+            out: list[Block] = []
+            for segment in segments:
+                out.extend(between.blocks(segment, _ahead(before, _rows(out))) if segment else [[""]])
+            return out
         lines = self._mark_breaks(typeset(text, self.typography, self.markup, squeeze=self.squeeze)).split("\n")
         indented = [line for line in lines if line.startswith("  ") and line.strip()]
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1
@@ -143,8 +147,8 @@ class TextLayout:
 
         def close_paragraph() -> None:
             if paragraph:
-                before = _ahead("", (line for block in blocks for line in block))
-                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0]), before))
+                ahead = _ahead(before, _rows(blocks))
+                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0]), ahead))
                 paragraph.clear()
 
         for marked in lines:
@@ -159,7 +163,7 @@ class TextLayout:
                 blocks.extend([[line]] if block_indent else self._indented(line))
             elif self.items and re.match(self.items, line):
                 close_paragraph()
-                blocks.extend(self._wrap_paragraph(line, before=_ahead("", (row for block in blocks for row in block))))
+                blocks.extend(self._wrap_paragraph(line, before=_ahead(before, _rows(blocks))))
             else:
                 *closed, rest = marked.split(BREAK)
                 for piece in closed:
@@ -233,6 +237,10 @@ class TextLayout:
         if not self.breaks:
             return text
         return re.sub(self.breaks, lambda match: match[0] + BREAK, text, flags=re.IGNORECASE)
+
+    def measure_line(self, line: str, before: str = "") -> int:
+        """`line`'s width, `before` laid out ahead of it (see `measure_after`)."""
+        return self._width(line, before)
 
     def _width(self, line: str, before: str = "") -> int:
         key = (before, line) if self.measure_after else ("", line)
@@ -387,3 +395,8 @@ class TextLayout:
 def _ahead(before: str, lines: Iterable[str]) -> str:
     """`before` followed by `lines`, as the text laid out ahead of the next line."""
     return "\n".join([before, *lines]) if before else "\n".join(lines)
+
+
+def _rows(blocks: Iterable[Block]) -> Iterator[str]:
+    """Every line of `blocks`."""
+    return (line for block in blocks for line in block)

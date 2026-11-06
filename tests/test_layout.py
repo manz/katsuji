@@ -405,3 +405,12 @@ def test_an_opening_quote_never_ends_a_line() -> None:
 def test_an_opening_quote_never_ends_a_column_line() -> None:
     layout = TextLayout(monospace, 10, FRENCH, squeeze=False)
     assert layout.reflow("Il dit «  oui ».") == "Il dit\n«  oui »."
+
+
+def test_blocks_measure_after_the_text_given_before() -> None:
+    def wide_after_switch(line: str, before: str) -> int:
+        return monospace(line) * (2 if "[wide]" in before + line else 1)
+
+    layout = TextLayout(monospace, 10, measure_after=wide_after_switch)
+    assert layout.blocks("One. Two.", "[wide]") == [["One."], ["Two."]]
+    assert layout.blocks("One. Two.") == [["One. Two."]]
