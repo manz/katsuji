@@ -31,6 +31,10 @@ class Typography:
 
     space_before: str = ""
     """Marks with a space before them; a run of them ("?!") takes one."""
+    thin_space: str = " "
+    """The space set before `space_before` marks. French typesetting sets a narrow no-break space there: give a
+    text of its own (U+202F, or a game's narrow blank glyph, ff4's `"°"`) that the game's table draws at its own
+    width; a line breaks only at `" "`, so never there. A space typed before the mark, either kind, becomes it."""
     quotes: str = ""
     """Opening and closing quote: French « ... »."""
     space_inside_quotes: bool = True
@@ -134,20 +138,20 @@ def _spaced(text: str, typography: Typography, speakers: bool, squeeze: bool) ->
         if inner.endswith(typography.speaker_space):
             inner = inner[: -len(typography.speaker_space)]
         head = inner + typography.speaker_space + ":"
-    rest = _space_before(text[matched_end:], typography.space_before)
+    rest = _space_before(text[matched_end:], typography.space_before, typography.thin_space)
     if typography.quotes and typography.space_inside_quotes:
-        rest = _space_before(_space_after(rest, typography.quotes[0]), typography.quotes[1])
+        rest = _space_before(_space_after(rest, typography.quotes[0]), typography.quotes[1], " ")
     return _SPACES.sub(" ", head + rest) if squeeze else head + rest
 
 
-def _space_before(text: str, marks: str) -> str:
-    """A space before each run of `marks` that touches what precedes it; after a glyph code, none."""
-    out = []
+def _space_before(text: str, marks: str, space: str) -> str:
+    """`space` before each run of `marks`, in place of a space typed there; after a glyph code, none."""
+    out = ""
     for index, char in enumerate(text):
-        if char in marks and index and text[index - 1] not in " " + marks + GLYPH:
-            out.append(" ")
-        out.append(char)
-    return "".join(out)
+        if char in marks and index and text[index - 1] not in marks + GLYPH:
+            out = out.removesuffix(space).removesuffix(" ") + space
+        out += char
+    return out
 
 
 def _space_after(text: str, marks: str) -> str:

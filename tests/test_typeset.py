@@ -176,3 +176,36 @@ def test_neutral_quotes_off_leave_quotes_as_typed() -> None:
 def test_neutral_quotes_need_a_pair_of_marks() -> None:
     with pytest.raises(ValueError, match="needs an opening and a closing quote"):
         Typography(neutral_quotes=True)
+
+
+FINE = Typography(space_before="?!;:", quotes="«»", thin_space="\u202f")
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Tue-moi!", "Tue-moi\u202f!"),
+        ("Tue-moi !", "Tue-moi\u202f!"),
+        ("Quoi ?!", "Quoi\u202f?!"),
+        ("Tue-moi\u202f!", "Tue-moi\u202f!"),
+        ("Écoute: viens", "Écoute\u202f: viens"),
+    ],
+)
+def test_thin_space_sets_its_own_text_before_the_spaced_marks(text: str, expected: str) -> None:
+    assert typeset(text, FINE) == expected
+
+
+def test_thin_space_leaves_the_quotes_their_space() -> None:
+    assert typeset("«Oui!»", FINE) == "« Oui\u202f! »"
+
+
+def test_a_thin_space_is_never_a_line_break() -> None:
+    from katsuji.layout import TextLayout
+
+    layout = TextLayout(len, 8, FINE)
+    assert [line for block in layout.blocks("Viens donc!") for line in block] == ["Viens", "donc\u202f!"]
+
+
+def test_a_thin_space_of_several_characters_replaces_the_typed_space() -> None:
+    narrow = Typography(space_before="!", thin_space="°°")
+    assert [typeset(text, narrow) for text in ("Oui !", "Oui°°!", "Oui!")] == ["Oui°°!"] * 3
