@@ -72,6 +72,10 @@ def vwf_font(config: FontConfig) -> VwfFont:
         upright = enumerate(upright_widths(atlas, slant, GLYPHS))
         widths = {code: width for code, width in upright if width > 0} | widths
     font = VwfFont.from_atlas(atlas, widths, kerning, joins)
+    if config.spacing:  # tracking: each drawn glyph a game gives no width of its own advances further
+        for code in range(len(font.widths)):
+            if code not in config.widths and code not in joins and atlas.glyph(code).any():
+                font.widths[code] += config.spacing
     negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
     if negative:
         raise ConfigError(f"[{where}] `widths` trims {', '.join(negative)} by more than their measured width")

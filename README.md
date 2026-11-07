@@ -22,6 +22,7 @@ cell = [8, 8]
 table = "text/ff4_menus.tbl"
 output = "assets/menu_font.dat"
 constants = "assets/menu_font.i"         # a816 constants describing the file
+spacing = 1                              # optional tracking: each drawn glyph advances 1 more; `widths` win
 
 [strings.items]
 font = "menu"
