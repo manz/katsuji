@@ -174,11 +174,20 @@ def test_a_span_gets_the_wide_drawing(name: str) -> None:
     assert remapped.joins[0x20] + 1 + laid.ink_width(0x21) == ink_width(wide)
 
 
-@pytest.mark.parametrize("name", names())
-def test_one_code_gets_no_ligature(name: str) -> None:
-    """sumi draws Œ and œ only wide: a table giving them one code misses them."""
+@pytest.mark.parametrize("name", [name for name in names() if name.startswith("sumi/16/")])
+def test_one_code_gets_no_ligature_at_16(name: str) -> None:
+    """sumi/16 draws Œ and œ only wide: a table giving them one code misses them."""
     target: dict[Span, str] = {(0x10,): "œ"}
     assert bundled(name).layout(target).missing == ["œ"]
+
+
+def test_one_code_gets_the_narrow_ligature_at_8() -> None:
+    """sumi/8, a menu font, draws Œ and œ in one cell too: ff4's menus give them one code."""
+    font = bundled("sumi/8")
+    target: dict[Span, str] = {(0x10,): "œ"}
+    laid = font.layout(target)
+    atlas = Atlas(laid.pixels, font.atlas.cell_width, font.atlas.cell_height)
+    assert atlas.ink_width(0x10) == font.atlas.ink_width(font.charmap["œ"])
 
 
 @pytest.mark.parametrize("name", [name for name in names() if not name.endswith("/regular")])
