@@ -145,13 +145,23 @@ def _spaced(text: str, typography: Typography, speakers: bool, squeeze: bool) ->
 
 
 def _space_before(text: str, marks: str, space: str) -> str:
-    """`space` before each run of `marks`, in place of a space typed there; after a glyph code, none."""
+    """`space` before each run of `marks`, in place of a space typed there; after a glyph code, none. A run
+    standing alone, a word of its own after a sentence or a speaker's colon ("Cecil : !", "vaincre. !?"), keeps
+    the space typed before it."""
     out = ""
     for index, char in enumerate(text):
-        if char in marks and index and text[index - 1] not in marks + GLYPH:
+        if char in marks and index and text[index - 1] not in marks + GLYPH and not _alone(out):
             out = out.removesuffix(space).removesuffix(" ") + space
         out += char
     return out
+
+
+def _alone(before: str) -> bool:
+    """A mark typed after `before` stands alone: a space typed at the start (after a speaker), after a sentence's
+    end or a colon, not after an ellipsis ("donc... ?" takes the narrow space)."""
+    ahead = before.rstrip(" ").rstrip(CONTROL).rstrip(" ")  # a control tag ("[new]") is no word
+    opens = not ahead or (ahead.endswith(("!", "?", ":", ".")) and not ahead.endswith(("..", "…")))
+    return before.endswith(" ") and opens
 
 
 def _space_after(text: str, marks: str) -> str:

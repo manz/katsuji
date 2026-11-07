@@ -209,3 +209,24 @@ def test_a_thin_space_is_never_a_line_break() -> None:
 def test_a_thin_space_of_several_characters_replaces_the_typed_space() -> None:
     narrow = Typography(space_before="!", thin_space="°°")
     assert [typeset(text, narrow) for text in ("Oui !", "Oui°°!", "Oui!")] == ["Oui°°!"] * 3
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Cecil : !", "Cecil\u202f: !"),
+        ("le vaincre. !?", "le vaincre. !?"),
+        ("Hein ? !", "Hein\u202f? !"),
+        (" !", " !"),
+    ],
+)
+def test_a_mark_standing_alone_keeps_its_space(text: str, expected: str) -> None:
+    assert typeset(text, FINE) == expected
+
+
+def test_a_mark_after_an_ellipsis_takes_the_thin_space() -> None:
+    assert typeset("donc... ?", FINE) == "donc...\u202f?"
+
+
+def test_a_mark_after_a_control_tag_standing_alone_keeps_its_space() -> None:
+    assert typeset("Fin ![wait] !?", FINE, Markup(tag=r"\[[^\]]*\]")) == "Fin\u202f![wait] !?"
