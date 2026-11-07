@@ -88,3 +88,8 @@ def test_measure_after_sees_the_windows_laid_out_ahead() -> None:
     layout = TextLayout(monospace, 10, ENGLISH, measure_after=wide_after_switch)
     paragraphs = [Paragraph(["[wide]Hi."]), Paragraph(["One.", "Two."], new_window=True)]
     assert windows(layout, paragraphs, TWO_LINES) == [["[wide]Hi."], ["One.", "Two."]]
+
+
+def test_a_sentence_never_joins_the_last_line_of_one_that_broke() -> None:
+    paragraphs = [Paragraph(["One two three four five six.", "Go."])]
+    assert windows(LAYOUT, paragraphs, Window(20, 3)) == [["One two three", "four five six.", "Go."]]

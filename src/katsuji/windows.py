@@ -6,7 +6,8 @@ sentence: that is each game's script convention, kept in the game. It hands
 
 - A paragraph's sentences share a line while they fit, the next one going on
   new lines of the same window while those fit, and in the next window when
-  they do not. A sentence longer than a whole window breaks over windows.
+  they do not. A sentence broken over lines shares its last line with none.
+  A sentence longer than a whole window breaks over windows.
 - A paragraph's `lead` (a speaker: "[D4]Cecil: ") opens it, and opens again
   every later window it carries onto.
 - `Window` (katsuji.dialog's) gives the lines a window holds and their widths:
@@ -51,7 +52,8 @@ class _Filler:
         self.window = window
         self.done: list[list[str]] = []
         self.lines: list[str] = []
-        self.joinable = False  # the open window's last line may take the paragraph's next sentence
+        self.joinable = False  # the paragraph goes on: its next sentence takes no lead
+        self.broken = False  # the open window's last line ends a sentence broken over lines: nothing joins it
 
     def paragraph(self, paragraph: Paragraph) -> None:
         if paragraph.new_window:
@@ -62,20 +64,27 @@ class _Filler:
 
     def add(self, sentence: str, lead: str) -> None:
         """`sentence` on the last line when the paragraph goes on and it fits there, else on new lines of the open
-        window, else in a new window, `lead` repeated."""
-        if self.lines and self.joinable and self.join(sentence):
+        window, else in a new window, `lead` repeated. A sentence broken over lines leaves its last line to itself,
+        as `TextLayout` lays a paragraph out."""
+        if self.lines and self.joinable and not self.broken and self.join(sentence):
             return
         text = sentence if self.joinable else lead + sentence
         if self.lines:
             lines = self.set(text, self.ahead(self.lines))
             if self.fits([*self.lines, *lines]):
                 self.lines.extend(lines)
-                self.joinable = True
+                self.went_on(lines)
                 return
             self.turn()
             text = lead + sentence
-        self.fill(self.set(text, self.ahead()))
+        lines = self.set(text, self.ahead())
+        self.fill(lines)
+        self.went_on(lines)
+
+    def went_on(self, lines: Sequence[str]) -> None:
+        """A sentence was set as `lines`: the paragraph goes on, its last line closed when it broke."""
         self.joinable = True
+        self.broken = len(lines) > 1
 
     def join(self, sentence: str) -> bool:
         """Put `sentence` after the last line, when the two still make one line that fits."""
