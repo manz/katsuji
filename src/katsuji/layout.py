@@ -122,6 +122,9 @@ class TextLayout:
     balanced width: off a preposition or an article, after a comma, before "mais". As many lines as greedy
     filling takes; falls back to balancing when a font switch held across a break would overflow a line.
     `FRENCH_PHRASE_BREAKS`; `short_words` and `min_balanced_width` are not used then."""
+    spare_lines: int = 0
+    """With `phrase_breaks`, up to this many lines more than greedy filling takes, when they break clearly
+    better ("mais il / s'est" spread over three lines). `windows` uses them only where the window has room."""
     measure_after: Callable[[str, str], int] | None = None
     """In place of `measure`: a line's width given the text laid out ahead of it in the same call, for a game
     whose state carries across lines (a font switch holding until the next)."""
@@ -384,7 +387,9 @@ class TextLayout:
         def width(start: int, end: int) -> int:
             return self._width((lead if start == 0 else indent) + " ".join(words[start:end]), before)
 
-        ends = break_by_cost(plain, count, width, self.width, self.phrase_breaks, self._label_words(plain) + 1)
+        ends = break_by_cost(
+            plain, count, width, self.width, self.phrase_breaks, self._label_words(plain) + 1, self.spare_lines
+        )
         if ends is None:
             return None
         lines = [

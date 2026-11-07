@@ -8,7 +8,8 @@ sentence: that is each game's script convention, kept in the game. It hands
   new lines of the same window while those fit, and in the next window when
   they do not. A sentence broken over lines shares its last line with none.
   One too wide for a narrower line it lands on is set again to that width
-  before the window turns.
+  before the window turns. With the layout's `spare_lines`, a sentence takes
+  a line more where it breaks clearly better and the open window has room.
   A sentence longer than a whole window breaks over windows.
 - A paragraph's `lead` (a speaker: "[D4]Cecil: ") opens it, and opens again
   every later window it carries onto.
@@ -41,8 +42,9 @@ class Paragraph:
 def windows(layout: TextLayout, paragraphs: Iterable[Paragraph], window: Window) -> list[list[str]]:
     """`paragraphs` laid out into windows of `window`'s size, each window as its lines."""
     filler = _Filler(layout, window)
-    for paragraph in paragraphs:
-        filler.paragraph(paragraph)
+    laid = list(paragraphs)
+    for index, paragraph in enumerate(laid):
+        filler.paragraph(paragraph, laid[index + 1] if index + 1 < len(laid) else None)
     return filler.close()
 
 
@@ -50,19 +52,23 @@ class _Filler:
     """The windows written so far and the one being filled."""
 
     def __init__(self, layout: TextLayout, window: Window) -> None:
-        self.layout = layout
+        self.layout = replace(layout, spare_lines=0) if layout.spare_lines else layout
+        self.spared = layout if layout.spare_lines else None  # the layout taking spare lines, where they fit
         self.window = window
         self.done: list[list[str]] = []
         self.lines: list[str] = []
         self.joinable = False  # the paragraph goes on: its next sentence takes no lead
         self.broken = False  # the open window's last line ends a sentence broken over lines: nothing joins it
         self.narrow: dict[int, TextLayout] = {}  # the layout set to each narrower line width, made once
+        self.following: str | None = None  # the text set after the one being set, when it may share its window
 
-    def paragraph(self, paragraph: Paragraph) -> None:
+    def paragraph(self, paragraph: Paragraph, after: Paragraph | None = None) -> None:
         if paragraph.new_window:
             self.turn()
         self.joinable = False
-        for sentence in paragraph.sentences:
+        ahead = after.lead + after.sentences[0] if after and after.sentences and not after.new_window else None
+        for index, sentence in enumerate(paragraph.sentences):
+            self.following = paragraph.sentences[index + 1] if index + 1 < len(paragraph.sentences) else ahead
             self.add(sentence, paragraph.lead)
 
     def add(self, sentence: str, lead: str) -> None:
@@ -97,13 +103,15 @@ class _Filler:
             return True
         return False
 
-    def setting(self, text: str, above: Sequence[str]) -> list[str]:
+    def setting(self, text: str, above: Sequence[str], *, spare: bool = True) -> list[str]:
         """`text` set below the open window's `above` lines; set again to the narrowest line it lands on when a
         narrower line (a page-turn arrow) would not take it otherwise."""
         before = self.ahead(above)
         lines = self.set(text, before)
         rows = range(len(above), min(len(above) + len(lines), self.window.lines))
-        if self.fits([*above, *lines]) or not rows:
+        if self.fits([*above, *lines]):
+            return self.spare(text, before, above, lines) if spare else lines
+        if not rows:
             return lines
         width = min(self.window.line_width(row) for row in rows)
         if width >= self.layout.width:
@@ -114,6 +122,19 @@ class _Filler:
             )
         narrowed = [line for block in self.narrow[width].blocks(text, before) for line in block]
         return narrowed if self.fits([*above, *narrowed]) else lines
+
+    def spare(self, text: str, before: str, above: Sequence[str], lines: list[str]) -> list[str]:
+        """`text` over a line more than `lines`, when it breaks clearly better and still fits below `above`, and
+        the text after it (its paragraph's next sentence, or the next paragraph's first unless that opens a window)
+        would not have shared the window anyway: the line crowds none out."""
+        if self.spared is None or len(lines) < 2:
+            return lines
+        if self.following is not None:
+            after = [*above, *lines]
+            if self.fits([*after, *self.setting(self.following, after, spare=False)]):
+                return lines
+        spread = [line for block in self.spared.blocks(text, before) for line in block]
+        return spread if self.fits([*above, *spread]) else lines
 
     def set(self, text: str, before: str) -> list[str]:
         """`text` typeset and wrapped to the layout's width, `before` laid out ahead of it."""

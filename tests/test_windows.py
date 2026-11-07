@@ -5,7 +5,7 @@ import re
 
 from katsuji.dialog import Window
 from katsuji.layout import TextLayout
-from katsuji.typeset import ENGLISH
+from katsuji.typeset import ENGLISH, FRENCH, FRENCH_PHRASE_BREAKS
 from katsuji.windows import Paragraph, windows
 
 
@@ -99,3 +99,32 @@ def test_a_sentence_too_wide_for_a_narrower_line_is_set_again_to_it_before_the_w
     layout = TextLayout(monospace, 20, ENGLISH, min_balanced_width=20)
     paragraphs = [Paragraph(["One."]), Paragraph(["aaaa bbbb cccc dddd eeee."])]
     assert windows(layout, paragraphs, Window(20, 3, line_widths={1: 15})) == [["One.", "aaaa bbbb cccc", "dddd eeee."]]
+
+
+def test_a_sentence_takes_a_spare_line_where_the_window_has_room() -> None:
+    layout = TextLayout(monospace, 36, FRENCH, phrase_breaks=FRENCH_PHRASE_BREAKS, spare_lines=1)
+    text = "Mais le passage vers Fabul par le mont Hobs est bloqué par la glace..."
+    assert windows(layout, [Paragraph([text])], Window(lines=4, width=36)) == [
+        ["Mais le passage vers Fabul", "par le mont Hobs est bloqué", "par la glace..."]
+    ]
+
+
+def test_no_spare_line_is_taken_where_the_window_is_full() -> None:
+    layout = TextLayout(monospace, 36, FRENCH, phrase_breaks=FRENCH_PHRASE_BREAKS, spare_lines=1)
+    text = "Mais le passage vers Fabul par le mont Hobs est bloqué par la glace..."
+    laid = windows(layout, [Paragraph(["Un."]), Paragraph(["Deux."]), Paragraph([text])], Window(lines=4, width=36))
+    assert laid[0][2:] == ["Mais le passage vers Fabul par le", "mont Hobs est bloqué par la glace..."]
+
+
+def test_no_spare_line_is_taken_where_it_would_crowd_out_the_next_sentence() -> None:
+    layout = TextLayout(monospace, 36, FRENCH, phrase_breaks=FRENCH_PHRASE_BREAKS, spare_lines=1)
+    text = "Mais le passage vers Fabul par le mont Hobs est bloqué par la glace..."
+    laid = windows(layout, [Paragraph(["Un.", text]), Paragraph(["Deux trois."])], Window(lines=4, width=36))
+    assert laid == [["Un.", "Mais le passage vers Fabul par le", "mont Hobs est bloqué par la glace...", "Deux trois."]]
+
+
+def test_a_spare_line_is_taken_before_a_paragraph_opening_its_own_window() -> None:
+    layout = TextLayout(monospace, 36, FRENCH, phrase_breaks=FRENCH_PHRASE_BREAKS, spare_lines=1)
+    text = "Mais le passage vers Fabul par le mont Hobs est bloqué par la glace..."
+    laid = windows(layout, [Paragraph([text]), Paragraph(["Deux."], new_window=True)], Window(lines=4, width=36))
+    assert laid[0] == ["Mais le passage vers Fabul", "par le mont Hobs est bloqué", "par la glace..."]

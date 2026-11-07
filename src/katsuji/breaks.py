@@ -31,6 +31,8 @@ _SHORT_LAST = 0.4
 _SHORT_LAST_COST = 400.0
 _WIDOW = 80.0
 """A last line of one word."""
+_SPARE = 25.0
+"""A line more than asked for: taken only when it breaks clearly better."""
 _CLOSING = "»” "
 _OPENING = "«“ "
 _APOSTROPHE = str.maketrans({"\u2019": "'"})
@@ -44,17 +46,19 @@ def break_by_cost(
     limit: int,
     breaks: PhraseBreaks,
     first_words: int = 1,
+    spare: int = 0,
 ) -> list[int] | None:
     """Where `words` end each of `lines` lines, the cheapest way: the index after each line's last word. `words`
     are plain (tags off), `width(i, j)` measures `words[i:j]` set as a line, `limit` is the widest a line may be,
-    and the first line takes at least `first_words` (2 keeps a speaker label off a line of its own). None when
-    no break gives `lines` lines that fit."""
+    and the first line takes at least `first_words` (2 keeps a speaker label off a line of its own). Up to
+    `spare` lines more are taken when they break clearly better. None when no break gives `lines` lines that fit."""
     count = len(words)
-    best: list[list[float | None]] = [[None] * (lines + 1) for _ in range(count + 1)]
+    most = lines + spare
+    best: list[list[float | None]] = [[None] * (most + 1) for _ in range(count + 1)]
     back: dict[tuple[int, int], int] = {}
     best[0][0] = 0.0
     for end in range(1, count + 1):
-        for line in range(1, lines + 1):
+        for line in range(1, most + 1):
             for start in range(end - 1, -1, -1):
                 ahead = best[start][line - 1]
                 if ahead is None:
@@ -71,8 +75,13 @@ def break_by_cost(
                     back[(end, line)] = start
     if best[count][lines] is None:
         return None
+    taken = min(
+        (total + (taken - lines) * _SPARE, taken)
+        for taken in range(lines, most + 1)
+        if (total := best[count][taken]) is not None
+    )[1]
     ends, end = [], count
-    for line in range(lines, 0, -1):
+    for line in range(taken, 0, -1):
         ends.append(end)
         end = back[(end, line)]
     return ends[::-1]
