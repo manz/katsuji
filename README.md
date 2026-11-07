@@ -128,6 +128,8 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 - `Wrapper`: word wrap by pixel width, the game's control codes as data.
 - `Window` / `WindowBuilder`: fill text windows; a game's script rules drive them.
 - `windows` / `Paragraph`: a game's paragraphs, cut by its script rules, laid out by `TextLayout` into `Window`s.
+- `break_by_cost` / `PhraseBreaks`: a sentence broken over lines where its phrases part, Knuth-Plass style
+  (`TextLayout(phrase_breaks=FRENCH_PHRASE_BREAKS)`).
 - `TextLayout` / `TableMeasure`: dialog reflowed to its window; `TableMeasure` measures script text through its
   `.tbl` and font, tags (names) at fixed widths.
 - `encode_tiles` / `colourize`: SNES 2bpp / 4bpp planar tiles.

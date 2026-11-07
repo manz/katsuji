@@ -158,3 +158,186 @@ def _space_after(text: str, marks: str) -> str:
         if char in marks and index + 1 < len(text) and text[index + 1] != " ":
             out.append(" ")
     return "".join(out)
+
+
+@dataclass(frozen=True)
+class PhraseBreaks:
+    """Where a language's phrases part, for `TextLayout(phrase_breaks=...)`: words a line should not end on, and
+    the words a new clause or phrase opens with. Any case; an elided form (`l'`, `qu'`) is matched with and
+    without its elision."""
+
+    binding: frozenset[str]
+    """Articles, prepositions, pronouns, conjunctions: they lean on the word after them."""
+    auxiliaries: frozenset[str]
+    """Verbs that lean on the participle or infinitive after them, a little less ("n'ont / opposé")."""
+    clause_openers: frozenset[str]
+    """Words a line gladly starts with: a new clause ("mais", "que")."""
+    prepositions: frozenset[str]
+    """Words a line starts with fairly well: a new phrase ("pour", "dans")."""
+    elisions: tuple[str, ...] = ()
+    """Elided prefixes stripped before matching ("qu'" in "qu'à")."""
+
+
+FRENCH_PHRASE_BREAKS = PhraseBreaks(
+    binding=frozenset(
+        [
+            "a",
+            "à",
+            "ô",
+            "y",
+            "le",
+            "la",
+            "les",
+            "l'",
+            "un",
+            "une",
+            "des",
+            "de",
+            "du",
+            "d'",
+            "au",
+            "aux",
+            "et",
+            "ou",
+            "ni",
+            "que",
+            "qu'",
+            "qui",
+            "je",
+            "j'",
+            "tu",
+            "il",
+            "elle",
+            "on",
+            "nous",
+            "vous",
+            "ils",
+            "elles",
+            "me",
+            "m'",
+            "te",
+            "t'",
+            "se",
+            "s'",
+            "ce",
+            "c'",
+            "ne",
+            "n'",
+            "en",
+            "sa",
+            "son",
+            "ses",
+            "ma",
+            "mon",
+            "mes",
+            "ta",
+            "ton",
+            "tes",
+            "leur",
+            "leurs",
+            "notre",
+            "nos",
+            "votre",
+            "vos",
+            "cet",
+            "cette",
+            "ces",
+            "pour",
+            "par",
+            "sur",
+            "sous",
+            "dans",
+            "avec",
+            "sans",
+            "chez",
+            "vers",
+            "si",
+            "très",
+        ]
+    ),
+    auxiliaries=frozenset(
+        [
+            "ai",
+            "as",
+            "a",
+            "avons",
+            "avez",
+            "ont",
+            "avais",
+            "avait",
+            "avions",
+            "aviez",
+            "avaient",
+            "aurai",
+            "aura",
+            "auront",
+            "peux",
+            "peut",
+            "pouvons",
+            "pouvez",
+            "peuvent",
+            "dois",
+            "doit",
+            "devons",
+            "devez",
+            "doivent",
+            "veux",
+            "veut",
+            "voulons",
+            "voulez",
+            "veulent",
+            "vais",
+            "va",
+            "allons",
+            "allez",
+            "vont",
+        ]
+    ),
+    clause_openers=frozenset(
+        [
+            "et",
+            "ou",
+            "ni",
+            "mais",
+            "car",
+            "donc",
+            "or",
+            "que",
+            "qu'",
+            "qui",
+            "quand",
+            "lorsque",
+            "lorsqu'",
+            "puisque",
+            "puisqu'",
+            "parce",
+            "comme",
+            "quoi",
+            "dont",
+            "où",
+        ]
+    ),
+    prepositions=frozenset(
+        [
+            "pour",
+            "dans",
+            "avec",
+            "sans",
+            "vers",
+            "chez",
+            "sur",
+            "sous",
+            "par",
+            "contre",
+            "depuis",
+            "pendant",
+            "avant",
+            "après",
+            "entre",
+            "jusqu'",
+            "jusqu'à",
+        ]
+    ),
+    elisions=("l'", "d'", "j'", "m'", "t'", "s'", "c'", "n'", "qu'", "jusqu'", "lorsqu'", "puisqu'"),
+)
+"""French: `être` is no auxiliary here, a copula as often ("Nous sommes / au-dessus")."""
