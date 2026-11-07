@@ -7,6 +7,8 @@ sentence: that is each game's script convention, kept in the game. It hands
 - A paragraph's sentences share a line while they fit, the next one going on
   new lines of the same window while those fit, and in the next window when
   they do not. A sentence broken over lines shares its last line with none.
+  One too wide for a narrower line it lands on is set again to that width
+  before the window turns.
   A sentence longer than a whole window breaks over windows.
 - A paragraph's `lead` (a speaker: "[D4]Cecil: ") opens it, and opens again
   every later window it carries onto.
@@ -20,7 +22,7 @@ ff4's dialog (utils/dialog_layout.py) is the reference.
 """
 
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from katsuji.dialog import Window
 from katsuji.layout import TextLayout
@@ -54,6 +56,7 @@ class _Filler:
         self.lines: list[str] = []
         self.joinable = False  # the paragraph goes on: its next sentence takes no lead
         self.broken = False  # the open window's last line ends a sentence broken over lines: nothing joins it
+        self.narrow: dict[int, TextLayout] = {}  # the layout set to each narrower line width, made once
 
     def paragraph(self, paragraph: Paragraph) -> None:
         if paragraph.new_window:
@@ -70,14 +73,14 @@ class _Filler:
             return
         text = sentence if self.joinable else lead + sentence
         if self.lines:
-            lines = self.set(text, self.ahead(self.lines))
+            lines = self.setting(text, self.lines)
             if self.fits([*self.lines, *lines]):
                 self.lines.extend(lines)
                 self.went_on(lines)
                 return
             self.turn()
             text = lead + sentence
-        lines = self.set(text, self.ahead())
+        lines = self.setting(text, [])
         self.fill(lines)
         self.went_on(lines)
 
@@ -93,6 +96,24 @@ class _Filler:
             self.lines[-1] = joined[0]
             return True
         return False
+
+    def setting(self, text: str, above: Sequence[str]) -> list[str]:
+        """`text` set below the open window's `above` lines; set again to the narrowest line it lands on when a
+        narrower line (a page-turn arrow) would not take it otherwise."""
+        before = self.ahead(above)
+        lines = self.set(text, before)
+        rows = range(len(above), min(len(above) + len(lines), self.window.lines))
+        if self.fits([*above, *lines]) or not rows:
+            return lines
+        width = min(self.window.line_width(row) for row in rows)
+        if width >= self.layout.width:
+            return lines
+        if width not in self.narrow:
+            self.narrow[width] = replace(
+                self.layout, width=width, min_balanced_width=min(self.layout.min_balanced_width, width)
+            )
+        narrowed = [line for block in self.narrow[width].blocks(text, before) for line in block]
+        return narrowed if self.fits([*above, *narrowed]) else lines
 
     def set(self, text: str, before: str) -> list[str]:
         """`text` typeset and wrapped to the layout's width, `before` laid out ahead of it."""
