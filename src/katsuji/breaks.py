@@ -5,9 +5,10 @@ Dynamic programming over the word positions, as Knuth and Plass break a paragrap
 - a line's slack, squared, so the lines stay full;
 - ending on one of the typography's `short_words` ("à" in French) costs, a guideline more than a rule: a
   much fuller line still wins;
-- the last line costs when it is very short, a little more when it is a single word.
+- the last line is free however short, as TeX's `\parfillskip` leaves it, unless it is a single word.
 
-The weights were tuned on ff4's French script against a blind reading test.
+The weights were tuned on ff4's French script against a blind reading test, then played in game: a short last
+line pulled the first one back ("j'avais / tué ta mère..."), a lone word stranded ("ta / mère...").
 """
 
 from collections.abc import Callable, Collection, Sequence
@@ -16,9 +17,6 @@ _FULL = 100.0
 """A line's cost per squared fraction of the width left empty."""
 _SHORT_WORD = 60.0
 """A line ending on a short word."""
-_SHORT_LAST = 0.4
-"""Of the width: a last line narrower costs."""
-_SHORT_LAST_COST = 400.0
 _WIDOW = 20.0
 """A last line of one word."""
 _CLOSING = "»” "
@@ -70,8 +68,7 @@ def _line_cost(
     words: Sequence[str], start: int, end: int, used: int, limit: int, short_words: Collection[str]
 ) -> float:
     if end == len(words):
-        short = max(0.0, limit * _SHORT_LAST - used) / limit
-        return short * short * _SHORT_LAST_COST + (_WIDOW if end - start == 1 else 0.0)
+        return _WIDOW if end - start == 1 else 0.0
     slack = (limit - used) / limit
     return slack * slack * _FULL + (_SHORT_WORD if _ends_short(words[end - 1], short_words) else 0.0)
 

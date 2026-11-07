@@ -121,3 +121,8 @@ def test_a_word_wider_than_a_line_falls_back_to_balancing() -> None:
 def test_a_speaker_label_of_several_words_never_stands_alone() -> None:
     layout = TextLayout(monospace, 20, ENGLISH, fill=True)
     assert lines(layout, "Femme de Yang: tu sais, aaaaaaaaaaaaaaaaa.")[0] != "Femme de Yang:"
+
+
+def test_a_short_last_line_of_two_words_is_free() -> None:
+    """ "C'est comme si j'avais tué / ta mère...": the first line stays full, the last short."""
+    assert filled(26).reflow("cccc cccc cc cccc cccc cc cccc.") == "cccc cccc cc cccc cccc\ncc cccc."
