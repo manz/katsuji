@@ -414,3 +414,11 @@ def test_blocks_measure_after_the_text_given_before() -> None:
     layout = TextLayout(monospace, 10, measure_after=wide_after_switch)
     assert layout.blocks("One. Two.", "[wide]") == [["One."], ["Two."]]
     assert layout.blocks("One. Two.") == [["One. Two."]]
+
+
+def test_a_pause_going_on_in_lowercase_stays_in_the_sentence(layout: TextLayout) -> None:
+    assert layout.reflow("aaaa bbbb cccc dddd... eeee.") == "aaaa bbbb cccc\ndddd... eeee."
+
+
+def test_a_capital_after_the_pause_starts_a_sentence(layout: TextLayout) -> None:
+    assert layout.reflow("aaaa bbbb cccc dddd... Eeee.").endswith("dddd...\nEeee.")

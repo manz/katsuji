@@ -331,17 +331,31 @@ class TextLayout:
         return words
 
     def _sentences(self, text: str) -> list[str]:
-        """`text` cut after each word ending a sentence."""
+        """`text` cut after each word ending a sentence, unless it ends in an ellipsis and the next goes on in
+        lowercase: "dragon... on a causé" is a pause in one sentence."""
         sentences: list[str] = []
         current: list[str] = []
-        for word in self._words(text):
+        words = self._words(text)
+        for index, word in enumerate(words):
             current.append(word)
-            if self._ends_sentence(word):
+            following = words[index + 1] if index + 1 < len(words) else ""
+            if self._ends_sentence(word) and not (self._pauses(word) and self._goes_on(following)):
                 sentences.append(" ".join(current))
                 current = []
         if current:
             sentences.append(" ".join(current))
         return sentences
+
+    def _pauses(self, word: str) -> bool:
+        """`word` ends in an ellipsis, before any tag or closing quote."""
+        plain = re.sub(self.markup.tag, "", word, flags=re.IGNORECASE).rstrip(self.typography.quotes[1:] + " ")
+        return plain.endswith(("...", "\u2026"))
+
+    def _goes_on(self, word: str) -> bool:
+        """`word` carries the sentence on: its first letter, after any tag or opening quote, is lowercase."""
+        plain = re.sub(self.markup.tag, "", word, flags=re.IGNORECASE)
+        first = next((char for char in plain if char.isalnum()), "")
+        return first.islower()
 
     def _ends_sentence(self, word: str) -> bool:
         """`word` ends in . ! ? or …, before any control tags (a terminator) and closing quote, and is no
