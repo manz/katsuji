@@ -110,3 +110,13 @@ def test_nothing_joins_a_line_an_editor_ended() -> None:
 
 def test_without_a_break_short_sentences_share_a_line() -> None:
     assert windows(LAYOUT, [Paragraph(["Hi.", "Yo."])], Window(20, 4)) == [["Hi. Yo."]]
+
+
+def test_a_window_holds_one_short_tail() -> None:
+    laid = windows(LAYOUT, [Paragraph(["aaaa bbbb cccc dd.", "eeee ffff gggg hh."])], Window(14, 4), one_tail=0.5)
+    assert laid == [["aaaa bbbb", "cccc dd."], ["eeee ffff", "gggg hh."]]
+
+
+def test_short_tails_share_a_window_by_default() -> None:
+    laid = windows(LAYOUT, [Paragraph(["aaaa bbbb cccc dd.", "eeee ffff gggg hh."])], Window(14, 4))
+    assert laid == [["aaaa bbbb", "cccc dd.", "eeee ffff", "gggg hh."]]

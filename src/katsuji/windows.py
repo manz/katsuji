@@ -38,9 +38,12 @@ class Paragraph:
     new_window: bool = False
 
 
-def windows(layout: TextLayout, paragraphs: Iterable[Paragraph], window: Window) -> list[list[str]]:
-    """`paragraphs` laid out into windows of `window`'s size, each window as its lines."""
-    filler = _Filler(layout, window)
+def windows(
+    layout: TextLayout, paragraphs: Iterable[Paragraph], window: Window, one_tail: float = 0.0
+) -> list[list[str]]:
+    """`paragraphs` laid out into windows of `window`'s size, each window as its lines. With `one_tail`, a window
+    holds one sentence that broke onto a last line narrower than that share of the width: a second turns it."""
+    filler = _Filler(layout, window, one_tail)
     for paragraph in paragraphs:
         filler.paragraph(paragraph)
     return filler.close()
@@ -49,9 +52,11 @@ def windows(layout: TextLayout, paragraphs: Iterable[Paragraph], window: Window)
 class _Filler:
     """The windows written so far and the one being filled."""
 
-    def __init__(self, layout: TextLayout, window: Window) -> None:
+    def __init__(self, layout: TextLayout, window: Window, one_tail: float = 0.0) -> None:
         self.layout = layout
         self.window = window
+        self.one_tail = one_tail
+        self.tailed = False  # the open window holds a sentence ending on a short last line
         self.done: list[list[str]] = []
         self.lines: list[str] = []
         self.joinable = False  # the paragraph goes on: its next sentence takes no lead
@@ -74,7 +79,7 @@ class _Filler:
         text = sentence if self.joinable else lead + sentence
         if self.lines:
             lines = self.setting(text, self.lines)
-            if self.fits([*self.lines, *lines]):
+            if self.fits([*self.lines, *lines]) and not (self.tailed and self.tail(lines, self.lines)):
                 self.lines.extend(lines)
                 self.went_on(lines)
                 return
@@ -88,6 +93,14 @@ class _Filler:
         """A sentence was set as `lines`: the paragraph goes on, its last line closed when it broke."""
         self.joinable = True
         self.broken = len(lines) > 1
+        self.tailed = self.tailed or self.tail(lines, self.lines[: len(self.lines) - len(lines)])
+
+    def tail(self, lines: Sequence[str], above: Sequence[str]) -> bool:
+        """`lines`, a sentence set below `above`, broke onto a last line narrower than `one_tail` of the width."""
+        if not self.one_tail or len(lines) < 2:
+            return False
+        before = self.ahead([*above, *lines[:-1]])
+        return self.layout.measure_line(lines[-1], before) < self.one_tail * self.layout.width
 
     def join(self, sentence: str) -> bool:
         """Put `sentence` after the last line, when the two still make one line that fits."""
@@ -151,6 +164,7 @@ class _Filler:
             self.done.append(self.lines)
             self.lines = []
         self.joinable = False
+        self.tailed = False
 
     def ahead(self, lines: Sequence[str] = ()) -> str:
         """The text laid out in the windows closed so far, then `lines`."""
