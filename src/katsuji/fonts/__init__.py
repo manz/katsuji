@@ -5,6 +5,10 @@ defaults to `regular` (`sumi/16`). Each is a palettized PNG of 8-pixel-wide
 cells, 16 per row, and a `charmap.tbl` giving each cell's text (`5E5F=Œ` for a
 glyph drawn across two cells); `layout`
 moves the glyphs to the codes a game's own table gives the same texts.
+
+A slanted style (`sumi/16/italic`) says so in its `font.toml`: `slant = { rows = 2, baseline = 11, max = 3 }`
+leans a row a pixel right per `rows` above `baseline`, at most `max`, and below it to the left. Its glyphs
+advance by their upright width (see `katsuji.widths.upright_widths`), the lean overhanging the next glyph.
 """
 
 import tomllib
@@ -19,6 +23,19 @@ DEFAULT_STYLE = "regular"
 
 
 @dataclass(frozen=True)
+class Slant:
+    """How far a slanted style leans each row: a pixel right per `rows` above `baseline`, at most `most`."""
+
+    rows: int
+    baseline: int
+    most: int
+
+    def lean(self, row: int) -> int:
+        """Pixels `row` is set right of upright, negative below the baseline."""
+        return min((self.baseline - row) // self.rows, self.most)
+
+
+@dataclass(frozen=True)
 class BundledFont:
     name: str
     atlas: Atlas
@@ -27,6 +44,7 @@ class BundledFont:
     wide: dict[str, Span] = field(default_factory=dict)
     """The cells side by side of a text also drawn wider than a cell, for a table that gives it several codes
     (ff4's `A0A1=œ`)."""
+    slant: Slant | None = None
 
     def layout(self, target: Target) -> Remapped:
         """The glyphs at the codes of `target`, a game's table: each code gets its text's glyph, a span of codes
@@ -53,7 +71,11 @@ def bundled(name: str) -> BundledFont:
         atlas = Atlas.open(png, width, height)
     with as_file(folder.joinpath("charmap.tbl")) as charmap:
         wide = {text: span for span, text in table_spans(charmap).items() if len(span) > 1}
-        return BundledFont(name, atlas, table_codes(charmap), wide)
+        return BundledFont(name, atlas, table_codes(charmap), wide, _slant(meta.get("slant")))
+
+
+def _slant(meta: dict[str, int] | None) -> Slant | None:
+    return None if meta is None else Slant(meta["rows"], meta["baseline"], meta["max"])
 
 
 def _folder(name: str) -> Traversable:
