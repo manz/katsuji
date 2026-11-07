@@ -1,40 +1,28 @@
-"""A sentence broken over a set number of lines where its phrases part, not where the lines come out narrowest.
+"""A sentence broken over a set number of lines the way TeX fills a paragraph: full lines, not balanced ones.
 
 Dynamic programming over the word positions, as Knuth and Plass break a paragraph, on a cost per line:
 
-- a line's slack, squared, so the lines stay full and even;
-- ending on a word that leans on the next (an article, a preposition, a pronoun: `PhraseBreaks.binding`) costs
-  much, on an auxiliary less;
-- ending after a comma, a semicolon or an ellipsis, or before a word opening a clause or a phrase, earns;
-- the last line costs when it is short, more when it is a single word.
+- a line's slack, squared, so the lines stay full;
+- ending on one of the typography's `short_words` ("à" in French) costs, a guideline more than a rule: a
+  much fuller line still wins;
+- the last line costs when it is very short, a little more when it is a single word.
 
-The weights were tuned on ff4's French script; a game checks its own before opting in.
+The weights were tuned on ff4's French script against a blind reading test.
 """
 
-from collections.abc import Callable, Sequence
-
-from katsuji.typeset import PhraseBreaks
+from collections.abc import Callable, Collection, Sequence
 
 _FULL = 100.0
 """A line's cost per squared fraction of the width left empty."""
-_BINDING = 60.0
-_AUXILIARY = 0.6
-"""Of `_BINDING`."""
-_CLAUSE = 25.0
-"""Earned ending after a comma, a semicolon or an ellipsis."""
-_OPENER = 0.8
-"""Of `_CLAUSE`, before a clause opener."""
-_PREPOSITION = 0.4
-"""Of `_CLAUSE`, before a preposition."""
+_SHORT_WORD = 60.0
+"""A line ending on a short word."""
 _SHORT_LAST = 0.4
 """Of the width: a last line narrower costs."""
 _SHORT_LAST_COST = 400.0
-_WIDOW = 80.0
+_WIDOW = 20.0
 """A last line of one word."""
 _CLOSING = "»” "
-_OPENING = "«“ "
-_APOSTROPHE = str.maketrans({"\u2019": "'"})
-"""A typographic apostrophe matched as the straight one."""
+_APOSTROPHES = "'\u2019"
 
 
 def break_by_cost(
@@ -42,13 +30,13 @@ def break_by_cost(
     lines: int,
     width: Callable[[int, int], int],
     limit: int,
-    breaks: PhraseBreaks,
+    short_words: Collection[str] = (),
     first_words: int = 1,
 ) -> list[int] | None:
     """Where `words` end each of `lines` lines, the cheapest way: the index after each line's last word. `words`
     are plain (tags off), `width(i, j)` measures `words[i:j]` set as a line, `limit` is the widest a line may be,
-    and the first line takes at least `first_words` (2 keeps a speaker label off a line of its own). None when
-    no break gives `lines` lines that fit."""
+    `short_words` (lower case) should not end a line, and the first line takes at least `first_words` (2 keeps
+    a speaker label off a line of its own). None when no break gives `lines` lines that fit."""
     count = len(words)
     best: list[list[float | None]] = [[None] * (lines + 1) for _ in range(count + 1)]
     back: dict[tuple[int, int], int] = {}
@@ -64,7 +52,7 @@ def break_by_cost(
                     break
                 if start == 0 and end < min(first_words, count):
                     continue
-                cost = ahead + _line_cost(words, start, end, used, limit, breaks)
+                cost = ahead + _line_cost(words, start, end, used, limit, short_words)
                 current = best[end][line]
                 if current is None or cost < current:
                     best[end][line] = cost
@@ -78,38 +66,19 @@ def break_by_cost(
     return ends[::-1]
 
 
-def _line_cost(words: Sequence[str], start: int, end: int, used: int, limit: int, breaks: PhraseBreaks) -> float:
+def _line_cost(
+    words: Sequence[str], start: int, end: int, used: int, limit: int, short_words: Collection[str]
+) -> float:
     if end == len(words):
         short = max(0.0, limit * _SHORT_LAST - used) / limit
         return short * short * _SHORT_LAST_COST + (_WIDOW if end - start == 1 else 0.0)
     slack = (limit - used) / limit
-    return slack * slack * _FULL + _end_cost(words[end - 1], words[end], breaks)
+    return slack * slack * _FULL + (_SHORT_WORD if _ends_short(words[end - 1], short_words) else 0.0)
 
 
-def _end_cost(word: str, following: str, breaks: PhraseBreaks) -> float:
-    """What ending a line on `word`, `following` opening the next, costs (negative: earns)."""
-    plain = word.lower().translate(_APOSTROPHE).rstrip(_CLOSING)
-    last = plain.split(" ")[-1]
-    cost = 0.0
-    if last in breaks.binding or _elided(last, breaks) in breaks.binding or last.endswith("'"):
-        cost += _BINDING
-    elif _elided(last, breaks) in breaks.auxiliaries:
-        cost += _BINDING * _AUXILIARY
-    head = following.lower().translate(_APOSTROPHE).lstrip(_OPENING).split(" ")[0]
-    if head in breaks.clause_openers or _elision(head, breaks) in breaks.clause_openers:
-        cost -= _CLAUSE * _OPENER
-    elif head in breaks.prepositions:
-        cost -= _CLAUSE * _PREPOSITION
-    if plain.endswith((",", ";", "...", "…")):
-        cost -= _CLAUSE
-    return cost
-
-
-def _elision(word: str, breaks: PhraseBreaks) -> str:
-    """The elided prefix `word` starts with ("qu'" of "qu'il"), or ""."""
-    return next((prefix for prefix in breaks.elisions if word.startswith(prefix) and word != prefix), "")
-
-
-def _elided(word: str, breaks: PhraseBreaks) -> str:
-    """`word` without its elided prefix: "à" of "qu'à"."""
-    return word[len(_elision(word, breaks)) :]
+def _ends_short(word: str, short_words: Collection[str]) -> bool:
+    """`word` is a short word, or ends on one after an elision ("jusqu'à")."""
+    last = word.lower().rstrip(_CLOSING)
+    for apostrophe in _APOSTROPHES:
+        last = last.rsplit(apostrophe, 1)[-1]
+    return last in short_words

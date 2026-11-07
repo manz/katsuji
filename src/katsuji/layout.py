@@ -25,7 +25,7 @@ from dataclasses import dataclass, field, replace
 
 from katsuji.breaks import break_by_cost
 from katsuji.dialog import TextTable
-from katsuji.typeset import CONTROL, ENGLISH, Markup, PhraseBreaks, Typography, typeset
+from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
 from katsuji.wrap import Wrapper
 
 Measure = Callable[[str], int]
@@ -117,11 +117,11 @@ class TextLayout:
     blank_ends_window: bool = False
     """A blank line in the middle of a window ends it: padded to the window's last line, so the next paragraph
     opens a window, for an engine whose page turns once a window's lines are full (bahamut_lagoon's)."""
-    phrase_breaks: PhraseBreaks | None = None
-    """A sentence over several lines breaks where its phrases part (`katsuji.breaks`), not at the narrowest
-    balanced width: off a preposition or an article, after a comma, before "mais". As many lines as greedy
-    filling takes; falls back to balancing when a font switch held across a break would overflow a line.
-    `FRENCH_PHRASE_BREAKS`; `short_words` and `min_balanced_width` are not used then."""
+    fill: bool = False
+    """A sentence over several lines filled the way TeX fills a paragraph (`katsuji.breaks`), not balanced to the
+    narrowest width: full lines, `short_words` kept off a line's end where it costs little, no last line of a
+    word or two. As many lines as greedy filling takes; falls back to balancing when a font switch held across a
+    break would overflow a line. `min_balanced_width` is not used then."""
     measure_after: Callable[[str, str], int] | None = None
     """In place of `measure`: a line's width given the text laid out ahead of it in the same call, for a game
     whose state carries across lines (a font switch holding until the next)."""
@@ -356,9 +356,9 @@ class TextLayout:
         """`sentence` broken at spaces into as few lines as the window allows, balanced: the narrowest width that
         still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`.
         Short words (`Typography.short_words`) stay off a line's end unless that costs a line or overflows one.
-        With `phrase_breaks`, broken by cost instead."""
-        if self.phrase_breaks is not None and (phrased := self._break_phrases(sentence, lead, indent, before)):
-            return phrased
+        With `fill`, filled instead."""
+        if self.fill and (filled := self._fill(sentence, lead, indent, before)):
+            return filled
         lines = self._greedy(sentence, self.width, lead, indent, before)
         keep_short = bool(self.typography.short_words)
         if keep_short:
@@ -373,10 +373,9 @@ class TextLayout:
                 narrow = middle + 1
         return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent, before, keep_short)
 
-    def _break_phrases(self, sentence: str, lead: str, indent: str, before: str) -> list[str] | None:
-        """`sentence` on as many lines as greedy filling takes, broken where `phrase_breaks` costs least; None
+    def _fill(self, sentence: str, lead: str, indent: str, before: str) -> list[str] | None:
+        """`sentence` on as many lines as greedy filling takes, filled where `katsuji.breaks` costs least; None
         when those lines overflow, measured line after line."""
-        assert self.phrase_breaks is not None  # the caller checks
         count = len(self._greedy(sentence, self.width, lead, indent, before))
         words = self._words(sentence)
         plain = [re.sub(self.markup.tag, "", word, flags=re.IGNORECASE) for word in words]
@@ -384,7 +383,7 @@ class TextLayout:
         def width(start: int, end: int) -> int:
             return self._width((lead if start == 0 else indent) + " ".join(words[start:end]), before)
 
-        ends = break_by_cost(plain, count, width, self.width, self.phrase_breaks, self._label_words(plain) + 1)
+        ends = break_by_cost(plain, count, width, self.width, self._short_words, self._label_words(plain) + 1)
         if ends is None:
             return None
         lines = [
@@ -392,6 +391,10 @@ class TextLayout:
             for start, end in zip([0, *ends], ends, strict=False)
         ]
         return lines if self._fits(lines, before) else None
+
+    @property
+    def _short_words(self) -> frozenset[str]:
+        return frozenset(word.lower() for word in self.typography.short_words)
 
     @staticmethod
     def _label_words(plain: list[str]) -> int:
