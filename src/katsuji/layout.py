@@ -117,6 +117,8 @@ class TextLayout:
     blank_ends_window: bool = False
     """A blank line in the middle of a window ends it: padded to the window's last line, so the next paragraph
     opens a window, for an engine whose page turns once a window's lines are full (bahamut_lagoon's)."""
+    line_breaks: tuple[str, ...] = ()
+    """Tags an editor ends a line with (TeX's `\\\\`): `windows` joins nothing onto a line ending with one."""
     fill: bool = False
     """A sentence over several lines filled the way TeX fills a paragraph (`katsuji.breaks`), not balanced to the
     narrowest width: full lines, `short_words` kept off a line's end where it costs little, no last line of a

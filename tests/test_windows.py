@@ -2,6 +2,7 @@
 character is one pixel, a tag none."""
 
 import re
+from dataclasses import replace
 
 from katsuji.dialog import Window
 from katsuji.layout import TextLayout
@@ -99,3 +100,13 @@ def test_a_sentence_too_wide_for_a_narrower_line_is_set_again_to_it_before_the_w
     layout = TextLayout(monospace, 20, ENGLISH, min_balanced_width=20)
     paragraphs = [Paragraph(["One."]), Paragraph(["aaaa bbbb cccc dddd eeee."])]
     assert windows(layout, paragraphs, Window(20, 3, line_widths={1: 15})) == [["One.", "aaaa bbbb cccc", "dddd eeee."]]
+
+
+def test_nothing_joins_a_line_an_editor_ended() -> None:
+    layout = replace(LAYOUT, line_breaks=("<br>",))
+    laid = windows(layout, [Paragraph(["Hi.<br>", "Yo."])], Window(20, 4))
+    assert laid == [["Hi.<br>", "Yo."]]
+
+
+def test_without_a_break_short_sentences_share_a_line() -> None:
+    assert windows(LAYOUT, [Paragraph(["Hi.", "Yo."])], Window(20, 4)) == [["Hi. Yo."]]

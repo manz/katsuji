@@ -69,7 +69,7 @@ class _Filler:
         """`sentence` on the last line when the paragraph goes on and it fits there, else on new lines of the open
         window, else in a new window, `lead` repeated. A sentence broken over lines leaves its last line to itself,
         as `TextLayout` lays a paragraph out."""
-        if self.lines and self.joinable and not self.broken and self.join(sentence):
+        if self.lines and self.joinable and not self.broken and not self.ended() and self.join(sentence):
             return
         text = sentence if self.joinable else lead + sentence
         if self.lines:
@@ -118,6 +118,10 @@ class _Filler:
     def set(self, text: str, before: str) -> list[str]:
         """`text` typeset and wrapped to the layout's width, `before` laid out ahead of it."""
         return [line for block in self.layout.blocks(text, before) for line in block]
+
+    def ended(self) -> bool:
+        """The open window's last line ends with an editor's line break: it takes nothing more."""
+        return bool(self.layout.line_breaks) and self.lines[-1].endswith(self.layout.line_breaks)
 
     def fits(self, lines: Sequence[str]) -> bool:
         """`lines` fit the open window from its top: no more than it holds, each no wider than its line."""
