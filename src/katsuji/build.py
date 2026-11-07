@@ -7,12 +7,14 @@ import numpy as np
 
 from katsuji.atlas import Atlas, Pixels
 from katsuji.config import Config, ConfigError, FontConfig, StringsConfig
-from katsuji.formats import VwfFont
+from katsuji.fonts import Slant
+from katsuji.formats import GLYPHS, VwfFont
 from katsuji.kerning import find_kerning
 from katsuji.remap import COLUMNS, Span, is_cjk, table_spans, wide_spans
 from katsuji.script import Table, latin_base
 from katsuji.strings import index_entry, pack_runs, text_tiles
 from katsuji.tile_fonts import encode_rows16_font, encode_tile_font, rows16_widths
+from katsuji.widths import upright_widths
 
 
 def build(config: Config) -> list[Path]:
@@ -54,6 +56,9 @@ def vwf_font(config: FontConfig) -> VwfFont:
     """The font a `'vwf'` `[fonts.NAME]` section builds, widths and kerning included, without writing it."""
     where = f"fonts.{config.name}"
     atlas, joins = _atlas(config, where)
+    slant = _slant(config)
+    if slant is not None and config.kerning_candidates:
+        raise ConfigError(f"[{where}] {config.builtin} is slanted: kerning is measured upright, give `kerning` pairs")
     kerning: dict[tuple[int, int], int] = {}
     if config.kerning_candidates or config.kerning:
         table = _table(config.table, where)
@@ -62,7 +67,11 @@ def vwf_font(config: FontConfig) -> VwfFont:
         kerning = find_kerning(atlas, pairs, config.default_kerning)
         for text, pixels in config.kerning.items():
             kerning[_pair(table, text, where)] = pixels
-    font = VwfFont.from_atlas(atlas, config.widths, kerning, joins)
+    widths = dict(config.widths)
+    if slant is not None:  # each glyph advances upright; a game's own entry still wins
+        upright = enumerate(upright_widths(atlas, slant, GLYPHS))
+        widths = {code: width for code, width in upright if width > 0} | widths
+    font = VwfFont.from_atlas(atlas, widths, kerning, joins)
     negative = [f"{code:#04x}" for code, width in enumerate(font.widths) if width < 0]
     if negative:
         raise ConfigError(f"[{where}] `widths` trims {', '.join(negative)} by more than their measured width")
@@ -84,6 +93,13 @@ def _build_font(config: FontConfig, written: list[Path]) -> VwfFont:
             written,
         )
     return font
+
+
+def _slant(config: FontConfig) -> Slant | None:
+    """The lean of the section's builtin font, if it is a slanted one."""
+    from katsuji.fonts import bundled
+
+    return None if config.builtin is None else bundled(config.builtin).slant
 
 
 def _atlas(config: FontConfig, where: str) -> tuple[Atlas, dict[int, int]]:
