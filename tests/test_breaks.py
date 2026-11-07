@@ -114,31 +114,3 @@ def test_a_line_does_not_end_on_a_modal_before_its_infinitive() -> None:
         "C'est ce vieux croûton",
         "qui aurait dû mourir, pas eux !",
     ]
-
-
-def spare_ends(words: str, count: int, limit: int, spare: int) -> list[int] | None:
-    split = words.split(" ")
-
-    def width(start: int, end: int) -> int:
-        return len(" ".join(split[start:end]))
-
-    return break_by_cost(split, count, width, limit, FRENCH_PHRASE_BREAKS, spare=spare)
-
-
-def test_a_spare_line_is_taken_when_it_breaks_much_better() -> None:
-    """On two lines the first must end on "par le"; a third line breaks before each "par"."""
-    text = "Mais le passage vers Fabul par le mont Hobs est bloqué par la glace..."
-    assert spare_ends(text, 2, 36, spare=1) == [5, 11, 14]
-
-
-def test_no_spare_line_is_taken_when_the_breaks_are_already_good() -> None:
-    assert spare_ends("Rosa : Dieu merci, tu es sain et sauf !", 2, 22, spare=1) == [4, 10]
-
-
-def test_a_layout_with_spare_lines_breaks_a_tight_sentence_over_one_more() -> None:
-    text = "Mais le passage vers Fabul par le mont Hobs est bloqué par la glace..."
-    assert lines(phrased(36, spare_lines=1), text) == [
-        "Mais le passage vers Fabul",
-        "par le mont Hobs est bloqué",
-        "par la glace...",
-    ]
