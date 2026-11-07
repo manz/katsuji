@@ -384,8 +384,7 @@ class TextLayout:
         def width(start: int, end: int) -> int:
             return self._width((lead if start == 0 else indent) + " ".join(words[start:end]), before)
 
-        label = not lead.strip() and plain[0].endswith(":")  # a speaker never stands alone
-        ends = break_by_cost(plain, count, width, self.width, self.phrase_breaks, 2 if label else 1)
+        ends = break_by_cost(plain, count, width, self.width, self.phrase_breaks, self._label_words(plain) + 1)
         if ends is None:
             return None
         lines = [
@@ -393,6 +392,12 @@ class TextLayout:
             for start, end in zip([0, *ends], ends, strict=False)
         ]
         return lines if self._fits(lines, before) else None
+
+    @staticmethod
+    def _label_words(plain: list[str]) -> int:
+        """The words of a speaker label opening `plain` ("Femme de Yang:"), up to its colon, within its first
+        `_LABEL_WORDS`; 0 when there is none. A line never holds the label alone."""
+        return next((index + 1 for index, word in enumerate(plain[:_LABEL_WORDS]) if word.endswith(":")), 0)
 
     def _fits(self, lines: list[str], before: str) -> bool:
         """No line of `lines` is wider than the window."""
@@ -420,6 +425,10 @@ class TextLayout:
                 current = candidate
         lines.append(current)
         return lines
+
+
+_LABEL_WORDS = 4
+"""The most words a speaker label takes ("Femme de Yang:")."""
 
 
 def _ahead(before: str, lines: Iterable[str]) -> str:

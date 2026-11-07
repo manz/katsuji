@@ -5,7 +5,7 @@ import re
 
 from katsuji.breaks import break_by_cost
 from katsuji.layout import TextLayout
-from katsuji.typeset import FRENCH, FRENCH_PHRASE_BREAKS
+from katsuji.typeset import ENGLISH, FRENCH, FRENCH_PHRASE_BREAKS
 
 
 def monospace(line: str) -> int:
@@ -101,3 +101,9 @@ def test_a_switch_held_across_a_break_falls_back_to_balancing() -> None:
 def test_a_word_wider_than_a_line_falls_back_to_balancing() -> None:
     text = "Ab abcdefghijkl cd."
     assert lines(phrased(10), text) == lines(TextLayout(monospace, 10, FRENCH), text)
+
+
+def test_a_speaker_label_of_several_words_never_stands_alone() -> None:
+    """The label alone, then "tu sais," ending on its comma, would cost least."""
+    layout = TextLayout(monospace, 20, ENGLISH, phrase_breaks=FRENCH_PHRASE_BREAKS)
+    assert lines(layout, "Femme de Yang: tu sais, aaaaaaaaaaaaaaaaa.")[0] != "Femme de Yang:"
