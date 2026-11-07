@@ -107,3 +107,10 @@ def test_a_speaker_label_of_several_words_never_stands_alone() -> None:
     """The label alone, then "tu sais," ending on its comma, would cost least."""
     layout = TextLayout(monospace, 20, ENGLISH, phrase_breaks=FRENCH_PHRASE_BREAKS)
     assert lines(layout, "Femme de Yang: tu sais, aaaaaaaaaaaaaaaaa.")[0] != "Femme de Yang:"
+
+
+def test_a_line_does_not_end_on_a_modal_before_its_infinitive() -> None:
+    assert lines(phrased(42), "C'est ce vieux croûton qui aurait dû mourir, pas eux !") == [
+        "C'est ce vieux croûton",
+        "qui aurait dû mourir, pas eux !",
+    ]
