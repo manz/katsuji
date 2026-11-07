@@ -165,17 +165,20 @@ def test_a_glyph_on_two_codes_advances_as_one(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("name", names())
-def test_a_span_gets_the_wide_drawing_and_one_code_the_narrow(name: str) -> None:
+def test_a_span_gets_the_wide_drawing(name: str) -> None:
     font = bundled(name)
-    width = font.atlas.cell_width
-    target: dict[Span, str] = {(0x10,): "œ", (0x20, 0x21): "œ"}
+    target: dict[Span, str] = {(0x20, 0x21): "œ"}
     remapped = font.layout(target)
-    laid = Atlas(remapped.pixels, width, font.atlas.cell_height)
+    laid = Atlas(remapped.pixels, font.atlas.cell_width, font.atlas.cell_height)
     wide = np.hstack([font.atlas.glyph(code) for code in font.wide["œ"]])
-    assert (laid.ink_width(0x10), remapped.joins[0x20] + 1 + laid.ink_width(0x21)) == (
-        font.atlas.ink_width(font.charmap["œ"]),
-        ink_width(wide),
-    )
+    assert remapped.joins[0x20] + 1 + laid.ink_width(0x21) == ink_width(wide)
+
+
+@pytest.mark.parametrize("name", names())
+def test_one_code_gets_no_ligature(name: str) -> None:
+    """sumi draws Œ and œ only wide: a table giving them one code misses them."""
+    target: dict[Span, str] = {(0x10,): "œ"}
+    assert bundled(name).layout(target).missing == ["œ"]
 
 
 @pytest.mark.parametrize("name", [name for name in names() if not name.endswith("/regular")])

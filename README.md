@@ -82,8 +82,7 @@ A glyph wider than a cell takes several codes, as ff4 and Bahamut Lagoon draw th
 the table cuts sumi's œ across `A0` and `A1`, and every code but the last gets the width that makes
 the next one follow on (the cut less the engine's 1-pixel gap), so no `widths` entry is needed. A
 font's own wide glyphs sit in adjacent cells of its PNG, named the same way in its `charmap.tbl`,
-next to the one-cell glyph: a table with one code for `Œ` gets that, one with two codes the wide
-drawing. sumi draws `Œ` and `œ` both ways in every font.
+sumi draws `Œ` and `œ` only wide, in every font: a table must give them two codes.
 A run is only cut when none of its codes is used alone or by another run: ff6's `74C0=«` beside
 `C0=°` writes two glyphs side by side and is left alone. A game's own `widths` entry for a joined
 code wins over the join. A run whose character the font lacks is an error like a one-code text,
