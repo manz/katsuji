@@ -309,3 +309,15 @@ def test_every_style_draws_what_regular_draws(name: str) -> None:
     """A game swaps styles without its table gaining blank cells."""
     regular = name.rsplit("/", 1)[0]
     assert set(bundled(name).charmap) == set(bundled(regular).charmap)
+
+
+def test_spacing_tracks_every_drawn_glyph(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "10=A\n11=i\n")))
+    plain = _font(tmp_path).widths
+    build(load(_builtin(tmp_path, "10=A\n11=i\n", "spacing = 1\n")))
+    assert [_font(tmp_path).widths[code] - plain[code] for code in (0x10, 0x11)] == [1, 1]
+
+
+def test_spacing_leaves_a_game_width_alone(tmp_path: Path) -> None:
+    build(load(_builtin(tmp_path, "00= \n10=A\n", "spacing = 1\n")))
+    assert _font(tmp_path).widths[0x00] == 3

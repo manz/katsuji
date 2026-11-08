@@ -22,6 +22,7 @@ cell = [8, 8]
 table = "text/ff4_menus.tbl"
 output = "assets/menu_font.dat"
 constants = "assets/menu_font.i"         # a816 constants describing the file
+spacing = 1                              # optional tracking: each drawn glyph advances 1 more; `widths` win
 
 [strings.items]
 font = "menu"
@@ -127,6 +128,9 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 - `render` / `measure`: text set at build time exactly as the runtime sets it.
 - `Wrapper`: word wrap by pixel width, the game's control codes as data.
 - `Window` / `WindowBuilder`: fill text windows; a game's script rules drive them.
+- `windows` / `Paragraph`: a game's paragraphs, cut by its script rules, laid out by `TextLayout` into `Window`s.
+- `break_by_cost`: a sentence filled over lines the way TeX fills a paragraph, short words kept off a line's
+  end (`TextLayout(fill=True)`).
 - `TextLayout` / `TableMeasure`: dialog reflowed to its window; `TableMeasure` measures script text through its
   `.tbl` and font, tags (names) at fixed widths.
 - `encode_tiles` / `colourize`: SNES 2bpp / 4bpp planar tiles.

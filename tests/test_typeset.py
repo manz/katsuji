@@ -176,3 +176,57 @@ def test_neutral_quotes_off_leave_quotes_as_typed() -> None:
 def test_neutral_quotes_need_a_pair_of_marks() -> None:
     with pytest.raises(ValueError, match="needs an opening and a closing quote"):
         Typography(neutral_quotes=True)
+
+
+FINE = Typography(space_before="?!;:", quotes="«»", thin_space="\u202f")
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Tue-moi!", "Tue-moi\u202f!"),
+        ("Tue-moi !", "Tue-moi\u202f!"),
+        ("Quoi ?!", "Quoi\u202f?!"),
+        ("Tue-moi\u202f!", "Tue-moi\u202f!"),
+        ("Écoute: viens", "Écoute\u202f: viens"),
+    ],
+)
+def test_thin_space_sets_its_own_text_before_the_spaced_marks(text: str, expected: str) -> None:
+    assert typeset(text, FINE) == expected
+
+
+def test_thin_space_leaves_the_quotes_their_space() -> None:
+    assert typeset("«Oui!»", FINE) == "« Oui\u202f! »"
+
+
+def test_a_thin_space_is_never_a_line_break() -> None:
+    from katsuji.layout import TextLayout
+
+    layout = TextLayout(len, 8, FINE)
+    assert [line for block in layout.blocks("Viens donc!") for line in block] == ["Viens", "donc\u202f!"]
+
+
+def test_a_thin_space_of_several_characters_replaces_the_typed_space() -> None:
+    narrow = Typography(space_before="!", thin_space="°°")
+    assert [typeset(text, narrow) for text in ("Oui !", "Oui°°!", "Oui!")] == ["Oui°°!"] * 3
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Cecil : !", "Cecil\u202f: !"),
+        ("le vaincre. !?", "le vaincre. !?"),
+        ("Hein ? !", "Hein\u202f? !"),
+        (" !", " !"),
+    ],
+)
+def test_a_mark_standing_alone_keeps_its_space(text: str, expected: str) -> None:
+    assert typeset(text, FINE) == expected
+
+
+def test_a_mark_after_an_ellipsis_takes_the_thin_space() -> None:
+    assert typeset("donc... ?", FINE) == "donc...\u202f?"
+
+
+def test_a_mark_after_a_control_tag_standing_alone_keeps_its_space() -> None:
+    assert typeset("Fin ![wait] !?", FINE, Markup(tag=r"\[[^\]]*\]")) == "Fin\u202f![wait] !?"

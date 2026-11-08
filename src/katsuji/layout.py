@@ -23,6 +23,7 @@ import re
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field, replace
 
+from katsuji.breaks import break_by_cost
 from katsuji.dialog import TextTable
 from katsuji.typeset import CONTROL, ENGLISH, Markup, Typography, typeset
 from katsuji.wrap import Wrapper
@@ -116,6 +117,13 @@ class TextLayout:
     blank_ends_window: bool = False
     """A blank line in the middle of a window ends it: padded to the window's last line, so the next paragraph
     opens a window, for an engine whose page turns once a window's lines are full (bahamut_lagoon's)."""
+    line_breaks: tuple[str, ...] = ()
+    """Tags an editor ends a line with (TeX's `\\\\`): `windows` joins nothing onto a line ending with one."""
+    fill: bool = False
+    """A sentence over several lines filled the way TeX fills a paragraph (`katsuji.breaks`), not balanced to the
+    narrowest width: full lines, `short_words` kept off a line's end where it costs little, no last line of a
+    word or two. As many lines as greedy filling takes; falls back to balancing when a font switch held across a
+    break would overflow a line. `min_balanced_width` is not used then."""
     measure_after: Callable[[str, str], int] | None = None
     """In place of `measure`: a line's width given the text laid out ahead of it in the same call, for a game
     whose state carries across lines (a font switch holding until the next)."""
@@ -129,12 +137,16 @@ class TextLayout:
             blocks = self.paginate(blocks, page_lines)
         return "\n".join(line for block in blocks for line in block)
 
-    def blocks(self, text: str) -> list[Block]:
-        """`text` typeset and laid out, as the blocks `paginate` keeps within a window."""
+    def blocks(self, text: str, before: str = "") -> list[Block]:
+        """`text` typeset and laid out, as the blocks `paginate` keeps within a window; `before` is the text laid
+        out ahead of it (see `measure_after`)."""
         if self.newlines:
             between = replace(self, newlines=None, squeeze=False, placed=False)
             segments = re.split(rf" *(?:{self.newlines})\n?", text, flags=re.IGNORECASE)
-            return [block for segment in segments for block in (between.blocks(segment) if segment else [[""]])]
+            out: list[Block] = []
+            for segment in segments:
+                out.extend(between.blocks(segment, _ahead(before, _rows(out))) if segment else [[""]])
+            return out
         lines = self._mark_breaks(typeset(text, self.typography, self.markup, squeeze=self.squeeze)).split("\n")
         indented = [line for line in lines if line.startswith("  ") and line.strip()]
         block_indent = len(indented) > 1 and len({len(line) - len(line.lstrip(" ")) for line in indented}) == 1
@@ -143,8 +155,8 @@ class TextLayout:
 
         def close_paragraph() -> None:
             if paragraph:
-                before = _ahead("", (line for block in blocks for line in block))
-                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0]), before))
+                ahead = _ahead(before, _rows(blocks))
+                blocks.extend(self._wrap_paragraph(" ".join(paragraph), self._hanging(paragraph[0]), ahead))
                 paragraph.clear()
 
         for marked in lines:
@@ -159,7 +171,7 @@ class TextLayout:
                 blocks.extend([[line]] if block_indent else self._indented(line))
             elif self.items and re.match(self.items, line):
                 close_paragraph()
-                blocks.extend(self._wrap_paragraph(line, before=_ahead("", (row for block in blocks for row in block))))
+                blocks.extend(self._wrap_paragraph(line, before=_ahead(before, _rows(blocks))))
             else:
                 *closed, rest = marked.split(BREAK)
                 for piece in closed:
@@ -233,6 +245,10 @@ class TextLayout:
         if not self.breaks:
             return text
         return re.sub(self.breaks, lambda match: match[0] + BREAK, text, flags=re.IGNORECASE)
+
+    def measure_line(self, line: str, before: str = "") -> int:
+        """`line`'s width, `before` laid out ahead of it (see `measure_after`)."""
+        return self._width(line, before)
 
     def _width(self, line: str, before: str = "") -> int:
         key = (before, line) if self.measure_after else ("", line)
@@ -315,17 +331,31 @@ class TextLayout:
         return words
 
     def _sentences(self, text: str) -> list[str]:
-        """`text` cut after each word ending a sentence."""
+        """`text` cut after each word ending a sentence, unless it ends in an ellipsis and the next goes on in
+        lowercase: "dragon... on a causé" is a pause in one sentence."""
         sentences: list[str] = []
         current: list[str] = []
-        for word in self._words(text):
+        words = self._words(text)
+        for index, word in enumerate(words):
             current.append(word)
-            if self._ends_sentence(word):
+            following = words[index + 1] if index + 1 < len(words) else ""
+            if self._ends_sentence(word) and not (self._pauses(word) and self._goes_on(following)):
                 sentences.append(" ".join(current))
                 current = []
         if current:
             sentences.append(" ".join(current))
         return sentences
+
+    def _pauses(self, word: str) -> bool:
+        """`word` ends in an ellipsis, before any tag or closing quote."""
+        plain = re.sub(self.markup.tag, "", word, flags=re.IGNORECASE).rstrip(self.typography.quotes[1:] + " ")
+        return plain.endswith(("...", "\u2026"))
+
+    def _goes_on(self, word: str) -> bool:
+        """`word` carries the sentence on: its first letter, after any tag or opening quote, is lowercase."""
+        plain = re.sub(self.markup.tag, "", word, flags=re.IGNORECASE)
+        first = next((char for char in plain if char.isalnum()), "")
+        return first.islower()
 
     def _ends_sentence(self, word: str) -> bool:
         """`word` ends in . ! ? or …, before any control tags (a terminator) and closing quote, and is no
@@ -341,7 +371,10 @@ class TextLayout:
     def _break_words(self, sentence: str, lead: str = "", indent: str = "", before: str = "") -> list[str]:
         """`sentence` broken at spaces into as few lines as the window allows, balanced: the narrowest width that
         still needs no more lines, so the last line is not left with a word or two, down to `min_balanced_width`.
-        Short words (`Typography.short_words`) stay off a line's end unless that costs a line or overflows one."""
+        Short words (`Typography.short_words`) stay off a line's end unless that costs a line or overflows one.
+        With `fill`, filled instead."""
+        if self.fill and (filled := self._fill(sentence, lead, indent, before)):
+            return filled
         lines = self._greedy(sentence, self.width, lead, indent, before)
         keep_short = bool(self.typography.short_words)
         if keep_short:
@@ -355,6 +388,35 @@ class TextLayout:
             else:
                 narrow = middle + 1
         return self._greedy(sentence, max(wide, self.min_balanced_width), lead, indent, before, keep_short)
+
+    def _fill(self, sentence: str, lead: str, indent: str, before: str) -> list[str] | None:
+        """`sentence` on as many lines as greedy filling takes, filled where `katsuji.breaks` costs least; None
+        when those lines overflow, measured line after line."""
+        count = len(self._greedy(sentence, self.width, lead, indent, before))
+        words = self._words(sentence)
+        plain = [re.sub(self.markup.tag, "", word, flags=re.IGNORECASE) for word in words]
+
+        def width(start: int, end: int) -> int:
+            return self._width((lead if start == 0 else indent) + " ".join(words[start:end]), before)
+
+        ends = break_by_cost(plain, count, width, self.width, self._short_words, self._label_words(plain) + 1)
+        if ends is None:
+            return None
+        lines = [
+            (lead if start == 0 else indent) + " ".join(words[start:end])
+            for start, end in zip([0, *ends], ends, strict=False)
+        ]
+        return lines if self._fits(lines, before) else None
+
+    @property
+    def _short_words(self) -> frozenset[str]:
+        return frozenset(word.lower() for word in self.typography.short_words)
+
+    @staticmethod
+    def _label_words(plain: list[str]) -> int:
+        """The words of a speaker label opening `plain` ("Femme de Yang:"), up to its colon, within its first
+        `_LABEL_WORDS`; 0 when there is none. A line never holds the label alone."""
+        return next((index + 1 for index, word in enumerate(plain[:_LABEL_WORDS]) if word.endswith(":")), 0)
 
     def _fits(self, lines: list[str], before: str) -> bool:
         """No line of `lines` is wider than the window."""
@@ -384,6 +446,15 @@ class TextLayout:
         return lines
 
 
+_LABEL_WORDS = 4
+"""The most words a speaker label takes ("Femme de Yang:")."""
+
+
 def _ahead(before: str, lines: Iterable[str]) -> str:
     """`before` followed by `lines`, as the text laid out ahead of the next line."""
     return "\n".join([before, *lines]) if before else "\n".join(lines)
+
+
+def _rows(blocks: Iterable[Block]) -> Iterator[str]:
+    """Every line of `blocks`."""
+    return (line for block in blocks for line in block)

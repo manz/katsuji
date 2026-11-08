@@ -104,7 +104,7 @@ class Config:
 _COMMON_FONT_KEYS = {"png", "output", "table", "cell", "grid", "widths", "format"}
 _FONT_KEYS = {
     "vwf": _COMMON_FONT_KEYS
-    | {"kerning-candidates", "kerning", "default-kerning", "constants", "builtin", "overrides", "blank"},
+    | {"kerning-candidates", "kerning", "default-kerning", "constants", "builtin", "overrides", "blank", "spacing"},
     "tiles": _COMMON_FONT_KEYS | {"bpp", "first", "count", "size"},
     "rows16": _COMMON_FONT_KEYS | {"first", "count", "size", "x-offset", "spacing", "widths-output"},
 }
