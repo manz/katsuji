@@ -1,0 +1,4 @@
+# Drafted from regular until drawn: sheared a pixel per two rows, capitals too wide for the lean redrawn
+# 5 pixels wide, V W X Y w drawn italic. `%` is still upright: redraw it.
+cell = [8, 16]
+slant = { rows = 2, baseline = 11, max = 3 }

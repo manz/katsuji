@@ -59,8 +59,8 @@ widths-output = "build/dialog_widths.dat"  # one width byte per code
 ### Bundled fonts: sumi
 
 katsuji ships **sumi**, the variable-width faces of the French Final Fantasy IV and the translations
-that followed it: `sumi/8` (menus) and `sumi/16` (dialog), in `regular`, plus `bold`, `book` and
-`wicked` at 16. Every style of a size draws the same characters. A font names one with `builtin`
+that followed it: `sumi/8` (menus) and `sumi/16` (dialog), in `regular`, plus `bold`, `book`,
+`italic` and `wicked` at 16. Every style of a size draws the same characters. A font names one with `builtin`
 instead of `png`, laid onto the game's own table:
 
 ```toml
@@ -82,8 +82,8 @@ A glyph wider than a cell takes several codes, as ff4 and Bahamut Lagoon draw th
 the table cuts sumi's œ across `A0` and `A1`, and every code but the last gets the width that makes
 the next one follow on (the cut less the engine's 1-pixel gap), so no `widths` entry is needed. A
 font's own wide glyphs sit in adjacent cells of its PNG, named the same way in its `charmap.tbl`,
-next to the one-cell glyph: a table with one code for `Œ` gets that, one with two codes the wide
-drawing. sumi draws `Œ` and `œ` both ways in every font.
+sumi/16 draws `Œ` and `œ` only wide, in every style: a table must give them two codes. sumi/8, a menu font,
+also draws them in one cell, which a table with one code for them gets.
 A run is only cut when none of its codes is used alone or by another run: ff6's `74C0=«` beside
 `C0=°` writes two glyphs side by side and is left alone. A game's own `widths` entry for a joined
 code wins over the join. A run whose character the font lacks is an error like a one-code text,
@@ -91,6 +91,15 @@ unless it is a kanji or kana (a game's two-byte codes for its own glyph set). `k
 Python. A tool that measures or bakes text with a section's font takes it from `katsuji.build`:
 `font_atlas(config)` is the section's cells as built (builtin, overrides, blanks), `vwf_font(config)`
 the font with its widths and kerning, from `katsuji.config.load(path).fonts[name]`.
+
+`sumi/16/italic` leans a pixel per two rows above the baseline, three at most. Its glyphs advance
+by their upright width, the lean overhanging the next glyph (an engine that ORs glyphs into its
+buffer draws that as is), so italic text takes about the room of regular. The lean is declared in
+the style's `font.toml` (`slant = { rows = 2, baseline = 11, max = 3 }`) and every width is measured
+with it taken off, cells from `overrides` included; a game's `widths` entry still wins. Computed
+kerning measures upright glyphs, so a slanted font refuses `kerning-candidates`: give `kerning`
+pairs. End an italic run a few pixels early (ff4: spacers in the closing tag) or its last glyph's
+top leans into the next one.
 
 `sumi/8` draws no accented capitals: an 8x8 cell has no room for them. A table that gives them codes
 (one shared by the menu and the dialog font) gets the base letter's glyph there, É drawn as E; a

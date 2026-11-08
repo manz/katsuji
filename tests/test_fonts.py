@@ -9,13 +9,66 @@ import pytest
 from katsuji.atlas import Atlas, ink_width, save_png
 from katsuji.build import build
 from katsuji.config import ConfigError, load
-from katsuji.fonts import bundled, names
+from katsuji.fonts import Slant, bundled, names
 from katsuji.formats import VwfFont, pack_rows
 from katsuji.remap import Span
+from katsuji.widths import upright_widths
 
 
-def test_sumi_ships_two_sizes_and_four_styles() -> None:
-    assert names() == ["sumi/16/bold", "sumi/16/book", "sumi/16/regular", "sumi/16/wicked", "sumi/8/regular"]
+def test_sumi_ships_two_sizes_and_five_styles() -> None:
+    assert names() == [
+        "sumi/16/bold",
+        "sumi/16/book",
+        "sumi/16/italic",
+        "sumi/16/regular",
+        "sumi/16/wicked",
+        "sumi/8/regular",
+    ]
+
+
+def test_italic_leans_its_capitals_top_and_sets_its_baseline_upright() -> None:
+    slant = bundled("sumi/16/italic").slant
+    assert slant is not None
+    assert [slant.lean(row) for row in (4, 9, 11, 13)] == [3, 1, 0, -1]
+
+
+def test_an_upright_style_has_no_slant() -> None:
+    assert bundled("sumi/16").slant is None
+
+
+def test_upright_widths_take_the_lean_off_each_row() -> None:
+    """A one-pixel stroke leaning a pixel per two rows is as wide as it stands upright."""
+    stroke = np.zeros((16, 8), np.uint8)
+    for row in range(4, 12):
+        stroke[row, (11 - row) // 2] = 1
+    assert upright_widths(Atlas(stroke, 8, 16), Slant(2, 11, 3), 1) == [1]
+
+
+def _italic(tmp_path: Path, extra: str = "") -> VwfFont:
+    (tmp_path / "game.tbl").write_text("10=l\n11=o\n12=H\n", encoding="utf-8")
+    (tmp_path / "katsuji.toml").write_text(
+        f"[fonts.f]\nbuiltin = 'sumi/16/italic'\ntable = 'game.tbl'\noutput = 'f.dat'\n{extra}", encoding="utf-8"
+    )
+    build(load(tmp_path / "katsuji.toml"))
+    return _font(tmp_path)
+
+
+def test_an_italic_glyph_advances_as_its_upright_regular_self(tmp_path: Path) -> None:
+    regular = bundled("sumi/16")
+    widths = _italic(tmp_path).widths
+    assert (widths[0x10], widths[0x11]) == (
+        regular.atlas.ink_width(regular.charmap["l"]),
+        regular.atlas.ink_width(regular.charmap["o"]),
+    )
+
+
+def test_a_game_width_wins_over_the_upright_one(tmp_path: Path) -> None:
+    assert _italic(tmp_path, "widths = { '0x12' = 9 }\n").widths[0x12] == 9
+
+
+def test_a_slanted_font_takes_no_kerning_candidates(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError, match="slanted: kerning is measured upright"):
+        _italic(tmp_path, "kerning-candidates = ['lo']\n")
 
 
 def test_a_size_alone_is_its_regular_style() -> None:
@@ -112,17 +165,29 @@ def test_a_glyph_on_two_codes_advances_as_one(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("name", names())
-def test_a_span_gets_the_wide_drawing_and_one_code_the_narrow(name: str) -> None:
+def test_a_span_gets_the_wide_drawing(name: str) -> None:
     font = bundled(name)
-    width = font.atlas.cell_width
-    target: dict[Span, str] = {(0x10,): "œ", (0x20, 0x21): "œ"}
+    target: dict[Span, str] = {(0x20, 0x21): "œ"}
     remapped = font.layout(target)
-    laid = Atlas(remapped.pixels, width, font.atlas.cell_height)
+    laid = Atlas(remapped.pixels, font.atlas.cell_width, font.atlas.cell_height)
     wide = np.hstack([font.atlas.glyph(code) for code in font.wide["œ"]])
-    assert (laid.ink_width(0x10), remapped.joins[0x20] + 1 + laid.ink_width(0x21)) == (
-        font.atlas.ink_width(font.charmap["œ"]),
-        ink_width(wide),
-    )
+    assert remapped.joins[0x20] + 1 + laid.ink_width(0x21) == ink_width(wide)
+
+
+@pytest.mark.parametrize("name", [name for name in names() if name.startswith("sumi/16/")])
+def test_one_code_gets_no_ligature_at_16(name: str) -> None:
+    """sumi/16 draws Œ and œ only wide: a table giving them one code misses them."""
+    target: dict[Span, str] = {(0x10,): "œ"}
+    assert bundled(name).layout(target).missing == ["œ"]
+
+
+def test_one_code_gets_the_narrow_ligature_at_8() -> None:
+    """sumi/8, a menu font, draws Œ and œ in one cell too: ff4's menus give them one code."""
+    font = bundled("sumi/8")
+    target: dict[Span, str] = {(0x10,): "œ"}
+    laid = font.layout(target)
+    atlas = Atlas(laid.pixels, font.atlas.cell_width, font.atlas.cell_height)
+    assert atlas.ink_width(0x10) == font.atlas.ink_width(font.charmap["œ"])
 
 
 @pytest.mark.parametrize("name", [name for name in names() if not name.endswith("/regular")])

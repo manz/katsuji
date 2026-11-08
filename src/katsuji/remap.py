@@ -94,8 +94,8 @@ def remap(
 ) -> Remapped:
     """Each code of `target` gets the source glyph that `source` gives its text, every code a text has; the
     other cells stay blank. A wide run (`wide_spans`) gets its glyph cut across its codes, from `wide` when the
-    source draws the text wider there. `target` is by code since 0.5 (0.4 took `table_codes`, by text): pass
-    `table_texts` or `table_spans`."""
+    source draws the text wider there (a text it draws only wide fits only a run). `target` is by code since 0.5
+    (0.4 took `table_codes`, by text): pass `table_texts` or `table_spans`."""
     width, height = atlas.cell_width, atlas.cell_height
     pixels = np.zeros((GLYPHS // COLUMNS * height, COLUMNS * width), dtype=np.uint8)
     missing: list[str] = []
@@ -105,11 +105,11 @@ def remap(
         (span, text) for span, text in ((_span(key), text) for key, text in target.items()) if len(span) == 1
     )
     for span, text in [*singles, *sorted(runs.items())]:
-        if text not in source:
+        cells = (wide or {}).get(text) if len(span) > 1 else None
+        if text not in source and not cells:
             if text not in missing and not (len(span) > 1 and is_cjk(text)):
                 missing.append(text)
             continue
-        cells = (wide or {}).get(text) if len(span) > 1 else None
         glyph = np.hstack([atlas.glyph_colours(code) for code in cells or _span(source[text])])
         cuts = _cuts(ink_width(glyph), len(span), width, text)
         for code, (start, end) in zip(span, itertools.pairwise(cuts), strict=True):
