@@ -58,11 +58,26 @@ def _parser() -> argparse.ArgumentParser:
     move.add_argument("--to", required=True, type=Path, dest="target", help="the table (.tbl) to lay it out for")
     move.add_argument("--cell", default="8x16", help="cell size, WIDTHxHEIGHT (default 8x16)")
     move.add_argument("-o", "--output", required=True, type=Path, help="the PNG to write")
+    look = commands.add_parser("preview", help="serve a game's dialog to preview and edit in a browser (local only)")
+    look.add_argument("game", help="module:attribute giving the game (a katsuji.preview.DialogGame, or a function)")
+    look.add_argument("--port", type=int, default=8732)
     return parser
+
+
+def _preview(args: argparse.Namespace) -> int:
+    try:
+        from katsuji.preview.app import serve
+    except ModuleNotFoundError as missing:
+        print(f"katsuji preview needs {missing.name}: install katsuji[preview]", file=sys.stderr)
+        return 2
+    serve(args.game, args.port)
+    return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "preview":
+        return _preview(args)
     try:
         from katsuji import commands
     except ModuleNotFoundError as missing:

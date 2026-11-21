@@ -12,19 +12,27 @@ dependencies = []
 render = [
     "numpy>=1.26",
 ]
+# The dialog preview server (`katsuji preview`): windows drawn as the game draws them, edited live.
+preview = [
+    "katsuji[render]",
+    "starlette>=0.46",
+    "uvicorn>=0.34",
+]
 
 [project.scripts]
 katsuji = "katsuji.cli:main"
 
 [dependency-groups]
 dev = [
-    "katsuji[render]",
+    "katsuji[render,preview]",
     "pytest>=8",
     "pytest-cov>=5",
     "ruff>=0.16",
     "mypy>=1.13",
     "a816>=1.1.0a44",  # tests check generated constants parse as a816
     "pillow>=10",  # test-only: oracle for png / atlas / autohint / banner round-trips
+    # test-only: starlette's TestClient
+    "httpx2>=2.16.2",  # test-only: starlette's TestClient
 ]
 
 [build-system]
