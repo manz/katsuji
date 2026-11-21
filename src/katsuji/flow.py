@@ -175,8 +175,10 @@ class Report:
         return sorted((item for item in costs if item[1]), key=lambda item: -item[1])[:count]
 
     def dump(self) -> str:
-        """The flaws as JSON, to `load` and compare against after a change."""
-        return json.dumps({key: asdict(flaws) for key, flaws in self.flaws.items()}, indent=1, sort_keys=True)
+        """The flaws as JSON, to `load` and compare against after a change: a message a line, its counts that are not
+        zero, so a saved report diffs by message."""
+        rows = [f"{json.dumps(key)}: {json.dumps(_counted(flaws))}" for key, flaws in sorted(self.flaws.items())]
+        return "{\n" + ",\n".join(rows) + "\n}" if rows else "{}"
 
     def changes(self, before: Mapping[str, Flaws]) -> list[str]:
         """What moved since `before`: each kind of flaw's total, then each message whose cost did, the most
@@ -204,6 +206,10 @@ class Report:
 def load(text: str) -> dict[str, Flaws]:
     """A `Report.dump` read back."""
     return {key: Flaws(**counts) for key, counts in json.loads(text).items()}
+
+
+def _counted(flaws: Flaws) -> dict[str, int]:
+    return {name: count for name, count in asdict(flaws).items() if count}
 
 
 def _or_gone(cost: int | None) -> str:

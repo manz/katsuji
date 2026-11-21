@@ -185,6 +185,16 @@ def test_a_dump_loads_back() -> None:
     assert load(built.dump()) == built.flaws
 
 
+def test_a_dump_is_a_message_a_line_its_flaws_only() -> None:
+    assert report(b=[["One."]], a=[["One."], ["Two."]]).dump() == (
+        '{\n"a": {"windows": 2, "lone": 1, "empty": 2},\n"b": {"windows": 1}\n}'
+    )
+
+
+def test_an_empty_report_dumps_empty() -> None:
+    assert load(Report(JUDGE).dump()) == {}
+
+
 def test_nothing_changed_reads_nothing() -> None:
     built = report(a=[["One."], ["Two."]])
     assert built.changes(load(built.dump())) == []
