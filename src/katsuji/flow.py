@@ -46,6 +46,8 @@ class Flaws:
     """Lines left empty in windows that another follows: room the text did not need to turn for."""
     tails: int = 0
     """Sentences broken over lines whose last line is short: a ragged block."""
+    scrolls: int = 0
+    """Lines past what a scrolling window holds (`Window.scrolls`): a prompt and a scroll each."""
 
     def __add__(self, other: Flaws) -> Flaws:
         return Flaws(**{name: getattr(self, name) + getattr(other, name) for name in _names()})
@@ -67,6 +69,7 @@ class Weights:
     lone: int = 3
     empty: int = 1
     tails: int = 2
+    scrolls: int = 2
 
 
 def _names() -> list[str]:
@@ -89,12 +92,13 @@ class Judge:
     weights: Weights = field(default_factory=Weights)
 
     def faults(self, laid: Laid) -> list[str]:
-        """What breaks a window: an empty one, one of too many lines, a line wider than its row."""
+        """What breaks a window: an empty one, one of too many lines (unless it scrolls), a line wider than its
+        row."""
         found = []
         for number, lines in enumerate(laid, 1):
             if not lines:
                 found.append(f"window {number}: empty")
-            if len(lines) > self.window.lines:
+            if len(lines) > self.window.lines and not self.window.scrolls:
                 found.append(f"window {number}: {len(lines)} lines, holds {self.window.lines}")
             found.extend(
                 f"window {number}: {line!r} {width} px, row {row} holds {self.window.line_width(row)}"
@@ -113,6 +117,7 @@ class Judge:
             lone=sum(len(lines) == 1 for lines in laid[:-1]),
             empty=sum(max(self.window.lines - len(lines), 0) for lines in laid[:-1]),
             tails=sum(self._tails(laid, index) for index in range(len(laid))),
+            scrolls=sum(max(len(lines) - self.window.lines, 0) for lines in laid) if self.window.scrolls else 0,
         )
 
     def cost(self, laid: Laid) -> int:

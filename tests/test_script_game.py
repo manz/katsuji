@@ -111,6 +111,11 @@ def test_an_untranslated_place_is_named_by_its_original(game: ScriptGame) -> Non
     assert game.scenes()[2].title == "裏山"
 
 
+def test_a_place_title_is_its_messages_first_line(game: ScriptGame) -> None:
+    game.save("14:2", "[center]Hikage[page]\nBienvenue.")
+    assert game.scenes()[0].title == "Hikage · 火影村"
+
+
 def test_a_place_title_loses_its_tags(game: ScriptGame) -> None:
     assert "[kata]" not in game.scenes()[0].title
 

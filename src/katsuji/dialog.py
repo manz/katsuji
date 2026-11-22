@@ -38,6 +38,8 @@ class Window:
     lines: int
     line_widths: dict[int, int] | None = None
     new_window: str = "[new]"
+    scrolls: bool = False
+    """A fuller window prompts, then scrolls (Star Ocean): lines past `lines` are no fault, each a scroll."""
     """Written at the end of a window that another follows."""
 
     def line_width(self, line: int) -> int:

@@ -8,8 +8,9 @@
           <sn:scene title="object 12 · talk">
             <sn:say ref="48:5"/><sn:say ref="48:6"/>   <!-- in the order the script says them -->
 
-A scene is titled by the game's own place-title message (`place`, its translation then its original, tags taken
-out), or by `title`. A message no scene says, not `unused` and showing no other (`shows`), is listed after them by file.
+A scene is titled by the game's own place-title message (`place`, its translation then its original, its first
+line, tags taken out), or by `title`. A message no scene says, not `unused` and showing no other (`shows`), is
+listed after them by file.
 
 `ScriptGame` does the script's side of `DialogGame` (messages, text, original, save, scenes); the game gives how a
 message is set and drawn (`frame`) and laid out (`lay`), each given the message and its attributes.
@@ -92,9 +93,7 @@ class ScriptGame:
         if place is None:
             return element.get("title", "")
         tag = self.frame(place).judge.layout.markup.tag if place in self._known() else r"\[[^\]]*\]"
-        name, original = (
-            re.sub(tag, "", text, flags=re.IGNORECASE) for text in (self.text(place), self.original(place) or "")
-        )
+        name, original = (_first_line(text, tag) for text in (self.text(place), self.original(place) or ""))
         if not name:
             return original or element.get("title", place)
         return f"{name} · {original}" if original and original != name else name
@@ -114,6 +113,11 @@ class ScriptGame:
 
     def _key(self, message: sn.Message) -> str:
         return self.key.format(file=message.file, id=message.id)
+
+
+def _first_line(text: str, tag: str) -> str:
+    """A place title as it reads: the message's first line, tags taken out (a banner: "[center]Clatos[page]")."""
+    return re.sub(tag, "", text.split("\n", 1)[0], flags=re.IGNORECASE).strip()
 
 
 def _read_all(folder: Path | None) -> Iterator[sn.Message]:

@@ -4,7 +4,8 @@ The game draws each line (its fonts, its table, its inserts, as `banner` does); 
 in `Window`s. A sheet is colour indices into `PALETTE`, a palettized PNG away (`katsuji.png.encode`):
 
 - a row narrower than the window (`line_widths`, a page-turn arrow) is shaded past its width;
-- ink past a row's width is `OVER`, and so is every line past the lines a window holds: what overflows shows.
+- ink past a row's width is `OVER`, and so is every line past the lines a window holds: what overflows shows;
+  in a window that scrolls (`Window.scrolls`), those lines are inked on shade: scrolled to, not overflowing.
 """
 
 from collections.abc import Sequence
@@ -42,8 +43,9 @@ def _panel(lines: Sequence[Pixels], window: Window, line_height: int, width: int
     rows = max(window.lines, len(lines))
     panel = np.full((rows * line_height, width), PAPER, dtype=np.uint8)
     for row in range(rows):
-        limit = window.line_width(row) if row < window.lines else 0
-        panel[row * line_height : (row + 1) * line_height, limit:] = SHADE
+        held = row < window.lines or window.scrolls
+        limit = window.line_width(row) if held else 0
+        panel[row * line_height : (row + 1) * line_height, 0 if row >= window.lines else limit :] = SHADE
         if row < len(lines):
             _ink(panel[row * line_height : (row + 1) * line_height], lines[row], limit)
     return panel

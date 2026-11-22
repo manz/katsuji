@@ -9,7 +9,13 @@ from urllib.parse import quote
 from katsuji.preview import Row, Scene, View
 
 SCALE = 3  # the sheet's pixels drawn this many screen pixels wide
-BADGES = (("faults", "!", "fault"), ("dangles", "⤶", "dangle"), ("carried", "…", "carried"), ("tails", "¬", "tail"))
+BADGES = (
+    ("faults", "!", "fault"),
+    ("dangles", "⤶", "dangle"),
+    ("carried", "…", "carried"),
+    ("tails", "¬", "tail"),
+    ("scrolls", "⇣", "scroll"),
+)
 
 STYLE = """
 body { margin: 0; display: grid; grid-template-columns: 26rem 1fr; height: 100vh; font: 14px system-ui;

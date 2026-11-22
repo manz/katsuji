@@ -209,3 +209,18 @@ def test_changes_give_the_totals_then_the_messages() -> None:
 def test_changes_name_a_message_gone_or_new() -> None:
     before = load(report(a=[["One."]]).dump())
     assert report(b=[["One."]]).changes(before) == ["a: 10 → gone", "b: gone → 10"]
+
+
+SCROLLING = Judge(LAYOUT, Window(20, 2, scrolls=True))
+
+
+def test_a_scrolling_window_takes_more_lines_than_it_holds() -> None:
+    assert SCROLLING.faults([["a.", "b.", "c.", "d."]]) == []
+
+
+def test_each_line_past_a_scrolling_window_scrolls() -> None:
+    assert SCROLLING.flaws([["a.", "b.", "c.", "d."], ["e."]]).scrolls == 2
+
+
+def test_a_window_that_clears_never_scrolls() -> None:
+    assert JUDGE.flaws([["a.", "b.", "c.", "d."]]).scrolls == 0

@@ -52,3 +52,8 @@ def test_a_line_past_the_window_is_over() -> None:
 def test_a_line_taller_than_its_row_is_cut() -> None:
     tall = np.ones((5, 1), dtype=np.uint8)
     assert window_sheet([[tall]], Window(4, 1), 2, margin=1).shape == (2 + 2 * 1 + 2 * 1 + 2, 4 + 2 + 2 + 2)
+
+
+def test_a_line_scrolled_to_is_inked_on_shade() -> None:
+    sheet = window_sheet([[line(1), line(1)]], Window(4, 1, scrolls=True), 2, margin=1)
+    assert inside(sheet)[2, :2].tolist() == [INK, SHADE]
