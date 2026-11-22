@@ -53,7 +53,7 @@ def game(tmp_path: Path) -> ScriptGame:
         tmp_path,
         "jp",
         {
-            "bank_014": '<sn:pointer id="14:2">火影村</sn:pointer>\n<sn:pointer id="14:3">Hikage</sn:pointer>\n'
+            "bank_014": '<sn:pointer id="14:2">[kata]火影村</sn:pointer>\n<sn:pointer id="14:3">Hikage</sn:pointer>\n'
             '<sn:pointer id="14:9">裏山</sn:pointer>\n',
             "bank_049": '<sn:pointer id="49:1">エラー</sn:pointer>\n',
         },
@@ -92,7 +92,7 @@ def test_a_message_the_translation_lacks_reads_empty(game: ScriptGame) -> None:
 
 
 def test_the_original_is_the_other_sides(game: ScriptGame) -> None:
-    assert game.original("14:2") == "火影村"
+    assert game.original("14:2") == "[kata]火影村"
 
 
 def test_without_originals_there_is_none(game: ScriptGame) -> None:
@@ -109,6 +109,10 @@ def test_a_place_named_alike_on_both_sides_is_named_once(game: ScriptGame) -> No
 
 def test_an_untranslated_place_is_named_by_its_original(game: ScriptGame) -> None:
     assert game.scenes()[2].title == "裏山"
+
+
+def test_a_place_title_loses_its_tags(game: ScriptGame) -> None:
+    assert "[kata]" not in game.scenes()[0].title
 
 
 def test_a_place_with_no_message_falls_back_to_its_title(game: ScriptGame) -> None:

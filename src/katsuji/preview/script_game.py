@@ -8,13 +8,14 @@
           <sn:scene title="object 12 · talk">
             <sn:say ref="48:5"/><sn:say ref="48:6"/>   <!-- in the order the script says them -->
 
-A scene is titled by the game's own place-title message (`place`, its translation then its original), or by
-`title`. A message no scene says, not `unused` and showing no other (`shows`), is listed after them by file.
+A scene is titled by the game's own place-title message (`place`, its translation then its original, tags taken
+out), or by `title`. A message no scene says, not `unused` and showing no other (`shows`), is listed after them by file.
 
 `ScriptGame` does the script's side of `DialogGame` (messages, text, original, save, scenes); the game gives how a
 message is set and drawn (`frame`) and laid out (`lay`), each given the message and its attributes.
 """
 
+import re
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -90,10 +91,16 @@ class ScriptGame:
         place = element.get("place")
         if place is None:
             return element.get("title", "")
-        name, original = self.text(place), self.original(place) or ""
+        tag = self.frame(place).judge.layout.markup.tag if place in self._known() else r"\[[^\]]*\]"
+        name, original = (
+            re.sub(tag, "", text, flags=re.IGNORECASE) for text in (self.text(place), self.original(place) or "")
+        )
         if not name:
             return original or element.get("title", place)
         return f"{name} · {original}" if original and original != name else name
+
+    def _known(self) -> set[str]:
+        return self._messages().keys() | self._originals().keys()
 
     def _messages(self) -> dict[str, sn.Message]:
         if not self.loaded:
