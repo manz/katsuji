@@ -18,6 +18,7 @@ def run(code: str) -> subprocess.CompletedProcess[str]:
     [
         "katsuji",
         "katsuji.script",
+        "katsuji.script.sn",
         "katsuji.typeset",
         "katsuji.wrap",
         "katsuji.layout",
@@ -32,3 +33,10 @@ def test_text_modules_import_without_render(module: str) -> None:
 def test_the_command_line_names_the_render_extra() -> None:
     result = run("from katsuji.cli import main; raise SystemExit(main(['build', 'x.toml']))")
     assert (result.returncode, "katsuji[render]" in result.stderr) == (2, True)
+
+
+def test_the_preview_names_the_preview_extra() -> None:
+    blocked = "import sys; sys.modules.update(starlette=None); "
+    code = blocked + "from katsuji.cli import main; raise SystemExit(main(['preview', 'x:y']))"
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=False)
+    assert (result.returncode, "katsuji[preview]" in result.stderr) == (2, True)

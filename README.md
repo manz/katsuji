@@ -129,6 +129,9 @@ katsuji banner "Tarot" --table text/ff4fr.tbl --font assets/font.dat
 - `Wrapper`: word wrap by pixel width, the game's control codes as data.
 - `Window` / `WindowBuilder`: fill text windows; a game's script rules drive them.
 - `windows` / `Paragraph`: a game's paragraphs, cut by its script rules, laid out by `TextLayout` into `Window`s.
+- `katsuji.flow`: how well windows read. `Judge` finds what breaks a window (`faults`) and counts what reads
+  badly (`flaws`: turns mid-sentence, a turn for a word or two, lone and half-empty windows, ragged tails), weighed
+  into one `cost`; `Report` totals a script, ranks its worst messages and diffs against a saved run.
 - `break_by_cost`: a sentence filled over lines the way TeX fills a paragraph, short words kept off a line's
   end (`TextLayout(fill=True)`).
 - `TextLayout` / `TableMeasure`: dialog reflowed to its window; `TableMeasure` measures script text through its
