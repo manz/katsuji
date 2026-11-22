@@ -16,7 +16,7 @@ from katsuji.dialog import Window
 from katsuji.flow import Judge, Laid
 from katsuji.layout import TextLayout
 from katsuji.png import Pixels, decode
-from katsuji.preview import Preview, app
+from katsuji.preview import Frame, Preview, Row, Scene, app, html
 from katsuji.typeset import ENGLISH
 from katsuji.windows import Paragraph, windows
 
@@ -34,7 +34,6 @@ class Game:
         default_factory=lambda: {"1:1": "Hello. How are you?", "1:2": "One two three four five six seven eight."}
     )
     judge: Judge = field(default_factory=lambda: Judge(LAYOUT, Window(12, 2)))
-    line_height: int = 2
     befores: list[str] = field(default_factory=list)
 
     def messages(self) -> list[str]:
@@ -52,9 +51,20 @@ class Game:
     def lay(self, key: str, text: str) -> Laid:
         return windows(LAYOUT, [Paragraph(re.split(r"(?<=[.?]) ", text))], self.judge.window)
 
+    def frame(self, key: str) -> Frame:
+        return Frame(self.judge, 2, self.draw)
+
     def draw(self, line: str, before: str) -> Pixels:
         self.befores.append(before)
         return np.ones((2, monospace(line)), dtype=np.uint8)
+
+
+@dataclass
+class StagedGame(Game):
+    """A game that knows where its messages are said: a town, a man in it, and a sign."""
+
+    def scenes(self) -> list[Scene]:
+        return [Scene("Town", scenes=(Scene("Man", ("1:2", "1:1")),)), Scene("Sign", ("1:1",))]
 
 
 def client(game: Game | None = None) -> TestClient:
@@ -65,26 +75,55 @@ def test_a_message_costs_what_its_saved_text_does() -> None:
     assert Preview(Game()).cost("1:1") == 10
 
 
-def test_the_listing_holds_every_message_in_order() -> None:
-    assert Preview(Game()).listing() == [("1:1", None), ("1:2", None)]
+def test_found_holds_every_message_in_order() -> None:
+    assert [row.key for row in Preview(Game()).found()] == ["1:1", "1:2"]
 
 
-def test_the_listing_filters_by_key() -> None:
-    assert [key for key, _ in Preview(Game()).listing("1:2")] == ["1:2"]
+def test_found_filters_by_key() -> None:
+    assert [row.key for row in Preview(Game()).found("1:2")] == ["1:2"]
 
 
-def test_the_listing_filters_by_text_whatever_the_case() -> None:
-    assert [key for key, _ in Preview(Game()).listing("HELLO")] == ["1:1"]
+def test_found_filters_by_text_whatever_the_case() -> None:
+    assert [row.key for row in Preview(Game()).found("HELLO")] == ["1:1"]
 
 
 def test_by_cost_the_costliest_comes_first() -> None:
-    assert [key for key, _ in Preview(Game()).listing(by_cost=True)] == ["1:2", "1:1"]
+    assert [row.key for row in Preview(Game()).found(by_cost=True)] == ["1:2", "1:1"]
 
 
-def test_a_cost_worked_out_shows_in_the_listing() -> None:
+def test_a_message_not_judged_yet_lists_without_cost() -> None:
+    assert Preview(Game()).row("1:1") == Row("1:1", "Hello. How are you?")
+
+
+def test_a_cost_worked_out_shows_in_its_row() -> None:
     preview = Preview(Game())
-    preview.cost("1:1")
-    assert preview.listing() == [("1:1", 10), ("1:2", None)]
+    preview.cost("1:2")
+    assert (preview.row("1:2").cost, preview.row("1:2").flaws.carried) == (24, 1)
+
+
+def test_a_snippet_drops_tags_and_newlines() -> None:
+    assert Preview(Game(texts={"1:1": "[red]Hi[/red]\nthere."})).row("1:1").snippet == "Hi there."
+
+
+def test_a_long_snippet_is_cut() -> None:
+    assert Preview(Game(texts={"1:1": "a" * 50})).row("1:1").snippet == "a" * 39 + "…"
+
+
+def test_without_scenes_one_scene_holds_every_message() -> None:
+    assert Preview(Game()).scenes() == [Scene("Messages", ["1:1", "1:2"])]
+
+
+def test_the_scenes_are_the_games() -> None:
+    assert [scene.title for scene in Preview(StagedGame()).scenes()] == ["Town", "Sign"]
+
+
+def test_a_scene_is_found_by_its_path() -> None:
+    assert Preview(StagedGame()).scene("0/0").title == "Man"
+
+
+def test_a_scene_sums_its_messages_once_each() -> None:
+    total = Preview(StagedGame()).total(Scene("All", ("1:1",), (Scene("Man", ("1:2", "1:1")),)))
+    assert (total.snippet, total.cost, total.flaws.windows) == ("2", 34, 3)
 
 
 def test_a_view_draws_the_windows() -> None:
@@ -110,12 +149,34 @@ def test_saving_writes_through_the_game_and_keeps_the_cost() -> None:
     game = Game()
     preview = Preview(game)
     preview.save("1:1", "Hi.")
-    assert (game.texts["1:1"], preview.costs["1:1"]) == ("Hi.", 10)
+    assert (game.texts["1:1"], preview.judged["1:1"][2]) == ("Hi.", 10)
 
 
-def test_the_page_lists_the_messages() -> None:
-    body = client().get("/").text
-    assert ("htmx.min.js" in body, "1:1" in body, "1:2" in body) == (True, True, True)
+def test_the_page_lists_the_scenes() -> None:
+    body = client(StagedGame()).get("/").text
+    assert ("htmx.min.js" in body, "Town" in body, 'hx-get="/scene?path=1"' in body) == (True, True, True)
+
+
+def test_an_empty_search_lists_the_scenes_again() -> None:
+    assert "Town" in client(StagedGame()).get("/messages", params={"q": ""}).text
+
+
+def test_a_scene_opens_onto_its_scenes_summed_up() -> None:
+    body = client(StagedGame()).get("/scene", params={"path": "0"}).text
+    assert ('hx-get="/scene?path=0/0"' in body, "<span class='cost'>34</span>" in body) == (True, True)
+
+
+def test_a_scene_opens_onto_its_messages_judged() -> None:
+    body = client(StagedGame()).get("/scene", params={"path": "0/0"}).text
+    assert (body.index("1:2") < body.index("1:1"), "One two three" in body, 'title="carried"' in body) == (
+        True,
+        True,
+        True,
+    )
+
+
+def test_a_row_badges_its_faults() -> None:
+    assert 'class="badge fault"' in html.badges(Row("1:1", "", 1, faults=2))
 
 
 def test_htmx_is_served() -> None:

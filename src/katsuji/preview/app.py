@@ -22,11 +22,23 @@ def app(game: DialogGame) -> Starlette:
     preview = Preview(game)
 
     async def index(request: Request) -> HTMLResponse:
-        return HTMLResponse(html.page(html.listing(preview.listing())))
+        return HTMLResponse(html.page(_top()))
 
     async def messages(request: Request) -> HTMLResponse:
-        query = request.query_params
-        return HTMLResponse(html.listing(preview.listing(query.get("q", ""), query.get("sort") == "cost")))
+        query, by_cost = request.query_params.get("q", ""), request.query_params.get("sort") == "cost"
+        if not query and not by_cost:
+            return HTMLResponse(_top())
+        return HTMLResponse(html.rows(preview.found(query, by_cost)))
+
+    async def scene(request: Request) -> HTMLResponse:
+        path = request.query_params["path"]
+        opened = preview.scene(path)
+        inner = [(f"{path}/{index}", inside) for index, inside in enumerate(opened.scenes)]
+        totals = [preview.total(inside) for _, inside in inner]
+        return HTMLResponse(html.tree(inner, totals) + html.rows(preview.rows(opened.keys, judge=True)))
+
+    def _top() -> str:
+        return html.tree([(str(index), top) for index, top in enumerate(preview.scenes())])
 
     async def message(request: Request) -> HTMLResponse:
         key = request.query_params["key"]
@@ -47,6 +59,7 @@ def app(game: DialogGame) -> Starlette:
         routes=[
             Route("/", index),
             Route("/messages", messages),
+            Route("/scene", scene),
             Route("/message", message),
             Route("/preview", show, methods=["POST"]),
             Route("/save", save, methods=["POST"]),

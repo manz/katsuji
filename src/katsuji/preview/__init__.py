@@ -1,30 +1,54 @@
 """A game's dialog previewed and edited live: `katsuji preview module:game`, then a browser on it.
 
-The game says what its messages are and how it lays them out and draws a line (`DialogGame`); katsuji serves a
-page listing the messages (the worst flowing first, when sorted by cost), an editor whose every keystroke lays
-the text out again, draws its windows (`katsuji.sheet`) and judges them (`katsuji.flow`), and saves the text back
-through the game. Bound to the local machine only: it writes the game's files.
+The game says what its messages are, how each is laid out and drawn (`DialogGame`), and, when it knows, where each
+is said (`Scene`s: a map, an object talked to, the messages in the order the script says them). katsuji serves a
+page listing the messages by scene, or found by text, or the worst flowing first; an editor whose every keystroke
+lays the text out again, draws its windows (`katsuji.sheet`) and judges them (`katsuji.flow`); and saves the text
+back through the game. Bound to the local machine only: it writes the game's files.
 
 Needs the `preview` extra (starlette, uvicorn).
 """
 
-from collections.abc import Sequence
+import re
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from katsuji.flow import Flaws, Judge, Laid
 from katsuji.png import Pixels, encode
 from katsuji.sheet import PALETTE, window_sheet
 
+SNIPPET = 40  # characters of a message shown in a listing
+
+
+@dataclass(frozen=True)
+class Frame:
+    """How a message is set and drawn: its `judge` (the layout and window it is laid out to), its lines'
+    height, and `draw`, a line drawn as the game draws it (0 paper, else ink) given the lines drawn ahead of it in
+    the message (a font switch holding across lines). Dialog and menus differ: their fonts, their windows."""
+
+    judge: Judge
+    line_height: int
+    draw: Callable[[str, str], Pixels]
+
+
+@dataclass(frozen=True)
+class Scene:
+    """Where messages are said: a `title`, its own messages' keys in the order they are said, and the scenes
+    inside it."""
+
+    title: str
+    keys: Sequence[str] = ()
+    scenes: Sequence[Scene] = ()
+
+    def all_keys(self) -> Iterator[str]:
+        yield from self.keys
+        for scene in self.scenes:
+            yield from scene.all_keys()
+
 
 class DialogGame(Protocol):
-    """What a game gives the preview. Its `judge` holds the layout and window its dialog is laid out to."""
-
-    @property
-    def judge(self) -> Judge: ...
-
-    @property
-    def line_height(self) -> int: ...
+    """What a game gives the preview."""
 
     def messages(self) -> Sequence[str]:
         """Every message's key ("102:2"), in the order to list them."""
@@ -43,13 +67,19 @@ class DialogGame(Protocol):
         ...
 
     def lay(self, key: str, text: str) -> Laid:
-        """`text` laid out by the game's rules into windows, each its lines, as `judge` reads them."""
+        """`text` laid out by the game's rules into windows, each its lines, as its frame's judge reads them."""
         ...
 
-    def draw(self, line: str, before: str) -> Pixels:
-        """A line drawn as the game draws it (0 paper, else ink), `before` the lines drawn ahead of it in the
-        message (a font switch holding across lines)."""
+    def frame(self, key: str) -> Frame:
+        """How the message is set and drawn."""
         ...
+
+
+@runtime_checkable
+class Staged(Protocol):
+    """A game that knows where its messages are said."""
+
+    def scenes(self) -> Sequence[Scene]: ...
 
 
 @dataclass(frozen=True)
@@ -62,48 +92,103 @@ class View:
     cost: int
 
 
+@dataclass(frozen=True)
+class Row:
+    """A message in a listing: what it says, and how its saved text reads when worked out."""
+
+    key: str
+    snippet: str
+    cost: int | None = None
+    faults: int = 0
+    flaws: Flaws = field(default_factory=Flaws)
+
+
 @dataclass
 class Preview:
-    """The game's messages laid out, drawn and judged; each message's saved cost kept once worked out."""
+    """The game's messages laid out, drawn and judged; each message's saved flow kept once worked out."""
 
     game: DialogGame
-    costs: dict[str, int] = field(default_factory=dict)
+    judged: dict[str, tuple[Flaws, int, int]] = field(default_factory=dict)
+    """Per message: its flaws, its faults, its cost."""
+    staged: list[Scene] | None = None
 
-    def listing(self, query: str = "", by_cost: bool = False) -> list[tuple[str, int | None]]:
-        """The messages whose key or text holds `query`, each with its saved cost when known (all of them, worked
-        out now, when `by_cost`: the costliest first)."""
-        found = [key for key in self.game.messages() if self._matches(key, query)]
-        if by_cost:
-            return sorted(((key, self.cost(key)) for key in found), key=lambda item: -(item[1] or 0))
-        return [(key, self.costs.get(key)) for key in found]
+    def scenes(self) -> list[Scene]:
+        """The game's scenes, asked once, or one scene of every message when it knows none."""
+        if self.staged is None:
+            found = self.game.scenes() if isinstance(self.game, Staged) else [Scene("Messages", self.game.messages())]
+            self.staged = list(found)
+        return self.staged
+
+    def scene(self, path: str) -> Scene:
+        """The scene at `path`, indices from the top down ("0/3")."""
+        scenes: Sequence[Scene] = self.scenes()
+        found = Scene("")
+        for index in path.split("/"):
+            found = scenes[int(index)]
+            scenes = found.scenes
+        return found
+
+    def rows(self, keys: Sequence[str], judge: bool = False) -> list[Row]:
+        """The messages of `keys` as listed, judged now when `judge`, else as far as known."""
+        if judge:
+            for key in keys:
+                self.cost(key)
+        return [self.row(key) for key in keys]
+
+    def row(self, key: str) -> Row:
+        snippet = self._snippet(key)
+        if key not in self.judged:
+            return Row(key, snippet)
+        flaws, faults, cost = self.judged[key]
+        return Row(key, snippet, cost, faults, flaws)
+
+    def total(self, scene: Scene) -> Row:
+        """A scene's messages summed up, judged now."""
+        keys = list(dict.fromkeys(scene.all_keys()))
+        rows = self.rows(keys, judge=True)
+        flaws = sum((row.flaws for row in rows), Flaws())
+        return Row(scene.title, f"{len(keys)}", sum(row.cost or 0 for row in rows), sum(r.faults for r in rows), flaws)
+
+    def found(self, query: str = "", by_cost: bool = False) -> list[Row]:
+        """The messages whose key or text holds `query`; when `by_cost`, all of them judged, the costliest first."""
+        keys = [key for key in self.game.messages() if self._matches(key, query)]
+        rows = self.rows(keys, judge=by_cost)
+        return sorted(rows, key=lambda row: -(row.cost or 0)) if by_cost else rows
 
     def cost(self, key: str) -> int:
         """The message's cost as saved."""
-        if key not in self.costs:
-            self.costs[key] = self.game.judge.cost(self.game.lay(key, self.game.text(key)))
-        return self.costs[key]
+        if key not in self.judged:
+            view = self.view(key, self.game.text(key), draw=False)
+            self.judged[key] = (view.flaws, len(view.faults), view.cost)
+        return self.judged[key][2]
 
-    def view(self, key: str, text: str) -> View:
+    def view(self, key: str, text: str, draw: bool = True) -> View:
+        frame = self.game.frame(key)
         laid = self.game.lay(key, text)
-        judge = self.game.judge
-        flaws = judge.flaws(laid)
-        return View(self._png(laid), judge.faults(laid), flaws, flaws.cost(judge.weights))
+        flaws = frame.judge.flaws(laid)
+        png = self._png(frame, laid) if draw else b""
+        return View(png, frame.judge.faults(laid), flaws, flaws.cost(frame.judge.weights))
 
     def save(self, key: str, text: str) -> View:
         self.game.save(key, text)
         view = self.view(key, text)
-        self.costs[key] = view.cost
+        self.judged[key] = (view.flaws, len(view.faults), view.cost)
         return view
 
-    def _png(self, laid: Laid) -> bytes:
+    def _png(self, frame: Frame, laid: Laid) -> bytes:
         drawn: list[list[Pixels]] = []
         before = ""
         for lines in laid:
             drawn.append([])
             for line in lines:
-                drawn[-1].append(self.game.draw(line, before))
+                drawn[-1].append(frame.draw(line, before))
                 before = f"{before}\n{line}" if before else line
-        return encode(window_sheet(drawn, self.game.judge.window, self.game.line_height), palette=PALETTE)
+        return encode(window_sheet(drawn, frame.judge.window, frame.line_height), palette=PALETTE)
+
+    def _snippet(self, key: str) -> str:
+        tag = self.game.frame(key).judge.layout.markup.tag
+        plain = " ".join(re.sub(tag, " ", self.game.text(key), flags=re.IGNORECASE).split())
+        return plain if len(plain) <= SNIPPET else plain[: SNIPPET - 1] + "…"
 
     def _matches(self, key: str, query: str) -> bool:
         return not query or query in key or query.casefold() in self.game.text(key).casefold()
