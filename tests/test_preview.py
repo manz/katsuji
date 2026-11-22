@@ -105,6 +105,19 @@ def test_a_snippet_drops_tags_and_newlines() -> None:
     assert Preview(Game(texts={"1:1": "[red]Hi[/red]\nthere."})).row("1:1").snippet == "Hi there."
 
 
+def test_a_message_without_text_shows_its_original_untranslated() -> None:
+    row = Preview(Game(texts={"1:1": ""})).row("1:1")
+    assert (row.snippet, row.untranslated) == ("こんにちは", True)
+
+
+def test_a_message_without_text_or_original_shows_nothing() -> None:
+    assert Preview(Game(texts={"1:2": " "})).row("1:2").snippet == ""
+
+
+def test_an_untranslated_row_is_marked() -> None:
+    assert 'class="snippet untranslated"' in html.rows([Row("1:1", "こんにちは", untranslated=True)])
+
+
 def test_a_long_snippet_is_cut() -> None:
     assert Preview(Game(texts={"1:1": "a" * 50})).row("1:1").snippet == "a" * 39 + "…"
 

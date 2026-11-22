@@ -94,13 +94,15 @@ class View:
 
 @dataclass(frozen=True)
 class Row:
-    """A message in a listing: what it says, and how its saved text reads when worked out."""
+    """A message in a listing: what it says (its original's words when it has no text yet: `untranslated`), and
+    how its saved text reads when worked out."""
 
     key: str
     snippet: str
     cost: int | None = None
     faults: int = 0
     flaws: Flaws = field(default_factory=Flaws)
+    untranslated: bool = False
 
 
 @dataclass
@@ -136,11 +138,13 @@ class Preview:
         return [self.row(key) for key in keys]
 
     def row(self, key: str) -> Row:
-        snippet = self._snippet(key)
+        text = self.game.text(key)
+        untranslated = not text.strip()
+        snippet = self._snippet(key, (self.game.original(key) or "") if untranslated else text)
         if key not in self.judged:
-            return Row(key, snippet)
+            return Row(key, snippet, untranslated=untranslated)
         flaws, faults, cost = self.judged[key]
-        return Row(key, snippet, cost, faults, flaws)
+        return Row(key, snippet, cost, faults, flaws, untranslated)
 
     def total(self, scene: Scene) -> Row:
         """A scene's messages summed up, judged now."""
@@ -185,9 +189,9 @@ class Preview:
                 before = f"{before}\n{line}" if before else line
         return encode(window_sheet(drawn, frame.judge.window, frame.line_height), palette=PALETTE)
 
-    def _snippet(self, key: str) -> str:
+    def _snippet(self, key: str, text: str) -> str:
         tag = self.game.frame(key).judge.layout.markup.tag
-        plain = " ".join(re.sub(tag, " ", self.game.text(key), flags=re.IGNORECASE).split())
+        plain = " ".join(re.sub(tag, " ", text, flags=re.IGNORECASE).split())
         return plain if len(plain) <= SNIPPET else plain[: SNIPPET - 1] + "…"
 
     def _matches(self, key: str, query: str) -> bool:

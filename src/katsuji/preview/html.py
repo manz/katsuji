@@ -22,7 +22,8 @@ nav summary .title { flex: 1; }
 nav a { display: grid; grid-template-columns: 4.5rem 1fr auto 2.5rem; gap: .4rem; color: #ccd; text-decoration: none;
         padding: .1rem .3rem; margin-left: .6rem; }
 nav a:hover { background: #2a2a38; }
-.key { color: #889; } .snippet { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.key { color: #889; } .untranslated { color: #c9a050; font-style: italic; }
+.snippet { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cost { text-align: right; color: #aab; } .count { color: #778; }
 .badge { font-size: 11px; padding: 0 .3rem; border-radius: .5rem; background: #33334a; }
 .badge.fault { background: #6a2020; } .badge.dangle { background: #5a4a18; }
@@ -73,7 +74,8 @@ def _scene(path: str, scene: Scene, total: Row | None) -> str:
 def rows(listed: Sequence[Row]) -> str:
     return "\n".join(
         f'<a href="#" hx-get="/message?key={quote(row.key)}" hx-target="#editor" title="{escape(row.snippet)}">'
-        f'<span class="key">{escape(row.key)}</span><span class="snippet">{escape(row.snippet)}</span>'
+        f'<span class="key">{escape(row.key)}</span>'
+        f'<span class="snippet{" untranslated" * row.untranslated}">{escape(row.snippet)}</span>'
         f"<span>{badges(row)}</span><span class='cost'>{'' if row.cost is None else row.cost}</span></a>"
         for row in listed
     )
