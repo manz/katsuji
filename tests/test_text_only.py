@@ -18,6 +18,7 @@ def run(code: str) -> subprocess.CompletedProcess[str]:
     [
         "katsuji",
         "katsuji.script",
+        "katsuji.script.sn",
         "katsuji.typeset",
         "katsuji.wrap",
         "katsuji.layout",
