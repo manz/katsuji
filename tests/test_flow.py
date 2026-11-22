@@ -3,7 +3,7 @@ pixel, a tag none."""
 
 import re
 
-from katsuji.dialog import Window
+from katsuji.dialog import Shaped, Window
 from katsuji.flow import Flaws, Judge, Report, Weights, load
 from katsuji.layout import TextLayout
 from katsuji.typeset import ENGLISH
@@ -224,3 +224,30 @@ def test_each_line_past_a_scrolling_window_scrolls() -> None:
 
 def test_a_window_that_clears_never_scrolls() -> None:
     assert JUDGE.flaws([["a.", "b.", "c.", "d."]]).scrolls == 0
+
+
+LINE = Window(20, 1)
+
+
+def test_a_shaped_window_holds_its_own_lines() -> None:
+    assert JUDGE.faults([Shaped(Window(20, 1), ["a.", "b."])]) == ["window 1: 2 lines, holds 1"]
+
+
+def test_a_shaped_window_holds_its_own_width() -> None:
+    assert JUDGE.faults([Shaped(Window(5, 3), ["abcdef."])]) == ["window 1: 'abcdef.' 7 px, row 0 holds 5"]
+
+
+def test_a_window_of_one_line_by_shape_is_not_lone() -> None:
+    assert JUDGE.flaws([Shaped(LINE, ["a."]), ["b."]]).lone == 0
+
+
+def test_a_shaped_window_leaves_its_own_lines_empty() -> None:
+    assert JUDGE.flaws([Shaped(Window(20, 2), ["a."]), ["b."]]).empty == 1
+
+
+def test_a_shaped_window_scrolls_by_its_shape() -> None:
+    assert JUDGE.flaws([Shaped(Window(20, 1, scrolls=True), ["a.", "b."])]).scrolls == 1
+
+
+def test_a_tail_is_short_against_its_shape() -> None:
+    assert JUDGE.flaws([Shaped(Window(8, 3), ["one two", "three."])]).tails == 0

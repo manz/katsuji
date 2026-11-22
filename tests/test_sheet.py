@@ -57,3 +57,13 @@ def test_a_line_taller_than_its_row_is_cut() -> None:
 def test_a_line_scrolled_to_is_inked_on_shade() -> None:
     sheet = window_sheet([[line(1), line(1)]], Window(4, 1, scrolls=True), 2, margin=1)
     assert inside(sheet)[2, :2].tolist() == [INK, SHADE]
+
+
+def test_a_shaped_window_is_drawn_in_its_shape() -> None:
+    sheet = window_sheet([[line(1)], [line(1)]], Window(4, 2), 2, margin=1, shapes=[Window(4, 1)])
+    assert sheet.shape[0] == 1 + (2 * 2 + 2 + 2) + 1 + (1 * 2 + 2 + 2) + 1
+
+
+def test_the_panels_are_as_wide_as_the_widest_shape() -> None:
+    sheet = window_sheet([[line(1)], [line(1)]], Window(4, 1), 2, margin=1, shapes=[None, Window(6, 1)])
+    assert sheet.shape[1] == 6 + 2 + 2 + 2

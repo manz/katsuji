@@ -12,7 +12,7 @@ import pytest
 from starlette.testclient import TestClient
 
 from katsuji import cli
-from katsuji.dialog import Window
+from katsuji.dialog import Shaped, Window
 from katsuji.flow import Judge, Laid
 from katsuji.layout import TextLayout
 from katsuji.png import Pixels, decode
@@ -274,3 +274,21 @@ def test_serving_binds_the_local_machine(module: str, monkeypatch: pytest.Monkey
     monkeypatch.setattr("uvicorn.run", lambda _app, host, port: calls.append((host, port)))
     assert cli.main(["preview", f"{module}:game", "--port", "9000"]) == 0
     assert calls == [("127.0.0.1", 9000)]
+
+
+@dataclass
+class BubbleGame(Game):
+    """A game whose every window is a bubble of one line."""
+
+    def lay(self, key: str, text: str) -> Laid:
+        return [Shaped(Window(12, 1), [sentence]) for sentence in re.split(r"(?<=[.?]) ", text)]
+
+
+def test_a_view_judges_windows_in_their_shape() -> None:
+    assert Preview(BubbleGame()).view("1:1", "Hello. How are you?").flaws.empty == 0
+
+
+def test_a_view_draws_windows_in_their_shape() -> None:
+    pixels, _ = decode(Preview(BubbleGame()).view("1:1", "Hello. How are you?").png)
+    panel = 2 + 2 * 4 + 2  # a line, the margin each side, the frame
+    assert pixels.shape[0] == 4 + panel + 4 + panel + 4

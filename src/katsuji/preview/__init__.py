@@ -14,6 +14,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
+from katsuji.dialog import shape
 from katsuji.flow import Flaws, Judge, Laid
 from katsuji.png import Pixels, encode
 from katsuji.sheet import PALETTE, window_sheet
@@ -67,7 +68,8 @@ class DialogGame(Protocol):
         ...
 
     def lay(self, key: str, text: str) -> Laid:
-        """`text` laid out by the game's rules into windows, each its lines, as its frame's judge reads them."""
+        """`text` laid out by the game's rules into windows, each its lines, as its frame's judge reads them; a
+        window of a shape of its own (`katsuji.dialog.Shaped`) judged and drawn in it."""
         ...
 
     def frame(self, key: str) -> Frame:
@@ -187,7 +189,8 @@ class Preview:
             for line in lines:
                 drawn[-1].append(frame.draw(line, before))
                 before = f"{before}\n{line}" if before else line
-        return encode(window_sheet(drawn, frame.judge.window, frame.line_height), palette=PALETTE)
+        shapes = [shape(lines, frame.judge.window) for lines in laid]
+        return encode(window_sheet(drawn, frame.judge.window, frame.line_height, shapes=shapes), palette=PALETTE)
 
     def _snippet(self, key: str, text: str) -> str:
         tag = self.game.frame(key).judge.layout.markup.tag

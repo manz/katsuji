@@ -4,14 +4,15 @@ Which text opens a new window, how a speaker is marked, what counts as a
 sentence: that is each game's script convention, kept in the game. katsuji
 gives the pieces those rules drive:
 
-- `Window`: how many lines a window holds and how wide each line may be.
+- `Window`: how many lines a window holds and how wide each line may be; `Shaped`, lines laid in a window of
+  their own shape when a message's windows differ.
 - `WindowBuilder`: wraps text and fills windows in order, opening a new one
   when text would overflow, writing the game's new-window marker between them.
 
 `tests/ff4_dialog.py` is ff4's French script rules written on top of them.
 """
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -44,6 +45,27 @@ class Window:
 
     def line_width(self, line: int) -> int:
         return (self.line_widths or {}).get(line, self.width)
+
+
+class Shaped(tuple[str, ...]):
+    """A window's lines laid in a shape of their own, for a game whose windows differ within a message (rs3's
+    bubbles, sized each to its text). Lines like any other: what reads a plain window's lines reads them, and the
+    message's window is the shape of the ones that have none."""
+
+    window: Window
+
+    def __new__(cls, window: Window, lines: Iterable[str] = ()) -> Shaped:
+        shaped = super().__new__(cls, lines)
+        shaped.window = window
+        return shaped
+
+    def __repr__(self) -> str:
+        return f"Shaped({self.window!r}, {tuple(self)!r})"
+
+
+def shape(lines: Sequence[str], window: Window) -> Window:
+    """The window `lines` are laid in: their own shape (`Shaped`), else `window`."""
+    return lines.window if isinstance(lines, Shaped) else window
 
 
 class WindowBuilder:

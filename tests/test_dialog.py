@@ -1,7 +1,7 @@
 """`WindowBuilder` on its own: a 2-line window, every glyph advancing 4 pixels."""
 
 from katsuji import VwfFont
-from katsuji.dialog import Window, WindowBuilder
+from katsuji.dialog import Shaped, Window, WindowBuilder, shape
 from katsuji.wrap import Controls, Wrapper
 
 
@@ -60,3 +60,19 @@ def test_append_glues_to_the_last_window_written() -> None:
     windows.emit("ab")
     windows.append("[delay]")
     assert windows.result() == ["ab[delay]"]
+
+
+def test_shaped_lines_read_as_lines() -> None:
+    assert Shaped(Window(8, 1), ["a", "b"]) == ("a", "b")
+
+
+def test_shaped_lines_keep_their_window() -> None:
+    assert shape(Shaped(Window(8, 1), ["a"]), Window(20, 3)) == Window(8, 1)
+
+
+def test_plain_lines_are_in_the_given_window() -> None:
+    assert shape(["a"], Window(20, 3)) == Window(20, 3)
+
+
+def test_shaped_lines_show_their_window() -> None:
+    assert repr(Shaped(Window(8, 1), ["a"])).startswith("Shaped(Window(width=8")

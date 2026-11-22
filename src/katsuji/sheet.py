@@ -5,7 +5,9 @@ in `Window`s. A sheet is colour indices into `PALETTE`, a palettized PNG away (`
 
 - a row narrower than the window (`line_widths`, a page-turn arrow) is shaded past its width;
 - ink past a row's width is `OVER`, and so is every line past the lines a window holds: what overflows shows;
-  in a window that scrolls (`Window.scrolls`), those lines are inked on shade: scrolled to, not overflowing.
+  in a window that scrolls (`Window.scrolls`), those lines are inked on shade: scrolled to, not overflowing;
+- a window of a shape of its own (`shapes`: rs3's bubbles, `katsuji.dialog.Shaped`) is drawn in it, its panel as
+  wide as the widest.
 """
 
 from collections.abc import Sequence
@@ -26,11 +28,22 @@ PALETTE = (
 )
 
 
-def window_sheet(windows: Sequence[Sequence[Pixels]], window: Window, line_height: int, margin: int = 4) -> Pixels:
+def window_sheet(
+    windows: Sequence[Sequence[Pixels]],
+    window: Window,
+    line_height: int,
+    margin: int = 4,
+    shapes: Sequence[Window | None] = (),
+) -> Pixels:
     """`windows`, each its lines drawn (0 paper, anything else ink), as framed panels `margin` pixels apart, each
-    line `line_height` rows tall. Panels are as wide as the window, or as its widest line when one is wider."""
-    width = max([window.width, *(line.shape[1] for lines in windows for line in lines)])
-    panels = [_framed(_panel(lines, window, line_height, width), margin) for lines in windows]
+    line `line_height` rows tall, in `window`, or in the shape `shapes` gives it (by index; None or none: `window`).
+    Panels are as wide as the widest window, or as the widest line when one is wider."""
+    shaped = [(shapes[index] if index < len(shapes) else None) or window for index in range(len(windows))]
+    lines_width = max((line.shape[1] for lines in windows for line in lines), default=0)
+    width = max(window.width, lines_width, *(each.width for each in shaped))
+    panels = [
+        _framed(_panel(lines, each, line_height, width), margin) for lines, each in zip(windows, shaped, strict=True)
+    ]
     if not panels:
         return np.full((0, 0), BACK, dtype=np.uint8)
     gap = np.full((margin, panels[0].shape[1]), BACK, dtype=np.uint8)

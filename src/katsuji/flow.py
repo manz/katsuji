@@ -20,11 +20,12 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field, fields
 
-from katsuji.dialog import Window
+from katsuji.dialog import Window, shape
 from katsuji.layout import TextLayout
 
 Laid = Sequence[Sequence[str]]
-"""Windows, each its lines: what `katsuji.windows.windows` returns."""
+"""Windows, each its lines: what `katsuji.windows.windows` returns. A window of a shape of its own is
+`katsuji.dialog.Shaped`; the others are the judge's `window`."""
 
 SENTENCE_END = r"[.!?…][\"'»”)\s]*$"
 
@@ -41,7 +42,7 @@ class Flaws:
     """Of those, the turns that carry only the last few words of the sentence: a window opened for nearly
     nothing."""
     lone: int = 0
-    """Windows of one line that another follows."""
+    """Windows of one line, holding more, that another follows."""
     empty: int = 0
     """Lines left empty in windows that another follows: room the text did not need to turn for."""
     tails: int = 0
@@ -78,7 +79,7 @@ def _names() -> list[str]:
 
 @dataclass(frozen=True)
 class Judge:
-    """Reads windows laid out by `layout` into `window`'s size.
+    """Reads windows laid out by `layout` into `window`'s size, or each into its own (`Shaped`).
 
     `sentence_end` matches the end of a line that ends a sentence, its tags taken out; `dangle_words` is how
     few words a turn may carry to count as a dangle (a pause, "......", has none and never does); a sentence's
@@ -96,14 +97,15 @@ class Judge:
         row."""
         found = []
         for number, lines in enumerate(laid, 1):
+            window = shape(lines, self.window)
             if not lines:
                 found.append(f"window {number}: empty")
-            if len(lines) > self.window.lines and not self.window.scrolls:
-                found.append(f"window {number}: {len(lines)} lines, holds {self.window.lines}")
+            if len(lines) > window.lines and not window.scrolls:
+                found.append(f"window {number}: {len(lines)} lines, holds {window.lines}")
             found.extend(
-                f"window {number}: {line!r} {width} px, row {row} holds {self.window.line_width(row)}"
+                f"window {number}: {line!r} {width} px, row {row} holds {window.line_width(row)}"
                 for row, line, width in self._widths(laid, number - 1)
-                if width > self.window.line_width(row)
+                if width > window.line_width(row)
             )
         return found
 
@@ -114,10 +116,10 @@ class Judge:
             windows=len(laid),
             carried=len(carried),
             dangles=sum(self._dangles(first) for first in carried),
-            lone=sum(len(lines) == 1 for lines in laid[:-1]),
-            empty=sum(max(self.window.lines - len(lines), 0) for lines in laid[:-1]),
+            lone=sum(len(lines) == 1 < shape(lines, self.window).lines for lines in laid[:-1]),
+            empty=sum(max(shape(lines, self.window).lines - len(lines), 0) for lines in laid[:-1]),
             tails=sum(self._tails(laid, index) for index in range(len(laid))),
-            scrolls=sum(max(len(lines) - self.window.lines, 0) for lines in laid) if self.window.scrolls else 0,
+            scrolls=sum(self._scrolls(lines) for lines in laid),
         )
 
     def cost(self, laid: Laid) -> int:
@@ -137,11 +139,16 @@ class Judge:
         """Lines of window `index` ending a sentence that broke onto them from the line above, narrower than
         `tail` of their row."""
         lines = laid[index]
+        window = shape(lines, self.window)
         widths = {row: width for row, _, width in self._widths(laid, index)}
         return sum(
-            self.ends(line) and not self.ends(above) and widths[row] < self.tail * self.window.line_width(row)
+            self.ends(line) and not self.ends(above) and widths[row] < self.tail * window.line_width(row)
             for row, (above, line) in enumerate(itertools.pairwise(lines), 1)
         )
+
+    def _scrolls(self, lines: Sequence[str]) -> int:
+        window = shape(lines, self.window)
+        return max(len(lines) - window.lines, 0) if window.scrolls else 0
 
     def _widths(self, laid: Laid, index: int) -> list[tuple[int, str, int]]:
         """Window `index`'s lines, each with its row and width, measured after every line laid out ahead."""
